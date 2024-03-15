@@ -185,10 +185,10 @@ namespace OpenAI.Models
             return DeserializeCreateTranslationResponse(document.RootElement);
         }
 
-        /// <summary> Convert into a Utf8JsonBinaryContent. </summary>
+        /// <summary> Convert into a BinaryContent. </summary>
         internal virtual BinaryContent ToBinaryContent()
         {
-            throw new NotImplementedException();
+            return BinaryContent.Create(ModelReaderWriter.Write(this));
         }
     }
 }

@@ -3,6 +3,7 @@
 #nullable disable
 
 using System;
+using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Text.Json;
@@ -198,6 +199,12 @@ namespace OpenAI.Models
         {
             using var document = JsonDocument.Parse(response.Content);
             return DeserializeAudioSegment(document.RootElement);
+        }
+
+        /// <summary> Convert into a BinaryContent. </summary>
+        internal virtual BinaryContent ToBinaryContent()
+        {
+            return BinaryContent.Create(ModelReaderWriter.Write(this));
         }
     }
 }

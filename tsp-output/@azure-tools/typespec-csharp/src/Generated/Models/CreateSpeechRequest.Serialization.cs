@@ -168,7 +168,7 @@ namespace OpenAI.Models
         /// <summary> Convert into a BinaryContent. </summary>
         internal virtual BinaryContent ToBinaryContent()
         {
-            throw new NotImplementedException();
+            return BinaryContent.Create(ModelReaderWriter.Write(this));
         }
     }
 }
