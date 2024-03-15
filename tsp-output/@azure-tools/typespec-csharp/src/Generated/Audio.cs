@@ -8,7 +8,6 @@ using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace OpenAI
@@ -18,7 +17,7 @@ namespace OpenAI
     public partial class Audio
     {
         private const string AuthorizationHeader = "Authorization";
-        private readonly ApiKeyCredential _credential;
+        private readonly ApiKeyCredential _keyCredential;
         private const string AuthorizationApiKeyPrefix = "Bearer";
         private readonly ClientPipeline _pipeline;
         private readonly Uri _endpoint;
@@ -38,7 +37,7 @@ namespace OpenAI
         internal Audio(ClientPipeline pipeline, ApiKeyCredential ApiKeyCredential, Uri endpoint)
         {
             _pipeline = pipeline;
-            _credential = ApiKeyCredential;
+            _keyCredential = ApiKeyCredential;
             _endpoint = endpoint;
         }
 

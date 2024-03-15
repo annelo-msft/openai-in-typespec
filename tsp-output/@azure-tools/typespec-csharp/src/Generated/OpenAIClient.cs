@@ -15,7 +15,7 @@ namespace OpenAI
     public partial class OpenAIClient
     {
         private const string AuthorizationHeader = "Authorization";
-        private readonly ApiKeyCredential _credential;
+        private readonly ApiKeyCredential _keyCredential;
         private const string AuthorizationApiKeyPrefix = "Bearer";
         private readonly ClientPipeline _pipeline;
         private readonly Uri _endpoint;
@@ -46,8 +46,8 @@ namespace OpenAI
             Argument.AssertNotNull(credential, nameof(credential));
             options ??= new OpenAIClientOptions();
 
-            _credential = credential;
-            var authenticationPolicy = ApiKeyAuthenticationPolicy.CreateBearerAuthorizationPolicy(_credential);
+            _keyCredential = credential;
+            var authenticationPolicy = ApiKeyAuthenticationPolicy.CreateBearerAuthorizationPolicy(_keyCredential);
             _pipeline = ClientPipeline.Create(options,
                 perCallPolicies: ReadOnlySpan<PipelinePolicy>.Empty,
                 perTryPolicies: new PipelinePolicy[] { authenticationPolicy },
@@ -60,7 +60,7 @@ namespace OpenAI
         /// <summary> Initializes a new instance of Audio. </summary>
         public virtual Audio GetAudioClient()
         {
-            return Volatile.Read(ref _cachedAudio) ?? Interlocked.CompareExchange(ref _cachedAudio, new Audio(_pipeline, _credential, _endpoint), null) ?? _cachedAudio;
+            return Volatile.Read(ref _cachedAudio) ?? Interlocked.CompareExchange(ref _cachedAudio, new Audio(_pipeline, _keyCredential, _endpoint), null) ?? _cachedAudio;
         }
     }
 }
