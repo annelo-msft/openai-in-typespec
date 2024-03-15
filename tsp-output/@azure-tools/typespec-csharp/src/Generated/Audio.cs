@@ -370,27 +370,17 @@ namespace OpenAI
         {
             var message = _pipeline.CreateMessage();
             message.ResponseClassifier = PipelineMessageClassifier.Create(stackalloc ushort[] { 200 });
-
             var request = message.Request;
-
             request.Method = "POST";
-
             var uriBuilder = new UriBuilder(_endpoint.ToString());
-
             var path = new StringBuilder();
             path.Append("/audio/speech");
-
             uriBuilder.Path = path.ToString();
-
             request.Uri = uriBuilder.Uri;
-
             request.Headers.Set("Accept", "application/octet-stream");
             request.Headers.Set("Content-Type", "application/json");
-
             request.Content = content;
-
             message.Apply(options);
-
             return message;
         }
 
@@ -398,27 +388,17 @@ namespace OpenAI
         {
             var message = _pipeline.CreateMessage();
             message.ResponseClassifier = PipelineMessageClassifier.Create(stackalloc ushort[] { 200 });
-
             var request = message.Request;
-
             request.Method = "POST";
-
             var uriBuilder = new UriBuilder(_endpoint.ToString());
-
             var path = new StringBuilder();
             path.Append("/audio/transcriptions");
-
             uriBuilder.Path = path.ToString();
-
             request.Uri = uriBuilder.Uri;
-
             request.Headers.Set("Accept", "application/json");
             request.Headers.Set("content-type", "multipart/form-data");
-
             request.Content = content;
-
             message.Apply(options);
-
             return message;
         }
 
@@ -426,27 +406,17 @@ namespace OpenAI
         {
             var message = _pipeline.CreateMessage();
             message.ResponseClassifier = PipelineMessageClassifier.Create(stackalloc ushort[] { 200 });
-
             var request = message.Request;
-
             request.Method = "POST";
-
             var uriBuilder = new UriBuilder(_endpoint.ToString());
-
             var path = new StringBuilder();
             path.Append("/audio/translations");
-
             uriBuilder.Path = path.ToString();
-
             request.Uri = uriBuilder.Uri;
-
             request.Headers.Set("Accept", "application/json");
             request.Headers.Set("content-type", "multipart/form-data");
-
             request.Content = content;
-
             message.Apply(options);
-
             return message;
         }
 
