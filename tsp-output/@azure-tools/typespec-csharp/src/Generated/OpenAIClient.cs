@@ -57,95 +57,11 @@ namespace OpenAI
         }
 
         private Audio _cachedAudio;
-        private Assistants _cachedAssistants;
-        private Chat _cachedChat;
-        private Completions _cachedCompletions;
-        private Embeddings _cachedEmbeddings;
-        private Files _cachedFiles;
-        private FineTuning _cachedFineTuning;
-        private Images _cachedImages;
-        private Messages _cachedMessages;
-        private ModelsOps _cachedModelsOps;
-        private Moderations _cachedModerations;
-        private Runs _cachedRuns;
-        private Threads _cachedThreads;
 
         /// <summary> Initializes a new instance of Audio. </summary>
         public virtual Audio GetAudioClient()
         {
             return Volatile.Read(ref _cachedAudio) ?? Interlocked.CompareExchange(ref _cachedAudio, new Audio(ClientDiagnostics, _pipeline, _keyCredential, _endpoint), null) ?? _cachedAudio;
-        }
-
-        /// <summary> Initializes a new instance of Assistants. </summary>
-        public virtual Assistants GetAssistantsClient()
-        {
-            return Volatile.Read(ref _cachedAssistants) ?? Interlocked.CompareExchange(ref _cachedAssistants, new Assistants(ClientDiagnostics, _pipeline, _keyCredential, _endpoint), null) ?? _cachedAssistants;
-        }
-
-        /// <summary> Initializes a new instance of Chat. </summary>
-        public virtual Chat GetChatClient()
-        {
-            return Volatile.Read(ref _cachedChat) ?? Interlocked.CompareExchange(ref _cachedChat, new Chat(ClientDiagnostics, _pipeline, _keyCredential, _endpoint), null) ?? _cachedChat;
-        }
-
-        /// <summary> Initializes a new instance of Completions. </summary>
-        public virtual Completions GetCompletionsClient()
-        {
-            return Volatile.Read(ref _cachedCompletions) ?? Interlocked.CompareExchange(ref _cachedCompletions, new Completions(ClientDiagnostics, _pipeline, _keyCredential, _endpoint), null) ?? _cachedCompletions;
-        }
-
-        /// <summary> Initializes a new instance of Embeddings. </summary>
-        public virtual Embeddings GetEmbeddingsClient()
-        {
-            return Volatile.Read(ref _cachedEmbeddings) ?? Interlocked.CompareExchange(ref _cachedEmbeddings, new Embeddings(ClientDiagnostics, _pipeline, _keyCredential, _endpoint), null) ?? _cachedEmbeddings;
-        }
-
-        /// <summary> Initializes a new instance of Files. </summary>
-        public virtual Files GetFilesClient()
-        {
-            return Volatile.Read(ref _cachedFiles) ?? Interlocked.CompareExchange(ref _cachedFiles, new Files(ClientDiagnostics, _pipeline, _keyCredential, _endpoint), null) ?? _cachedFiles;
-        }
-
-        /// <summary> Initializes a new instance of FineTuning. </summary>
-        public virtual FineTuning GetFineTuningClient()
-        {
-            return Volatile.Read(ref _cachedFineTuning) ?? Interlocked.CompareExchange(ref _cachedFineTuning, new FineTuning(ClientDiagnostics, _pipeline, _keyCredential, _endpoint), null) ?? _cachedFineTuning;
-        }
-
-        /// <summary> Initializes a new instance of Images. </summary>
-        public virtual Images GetImagesClient()
-        {
-            return Volatile.Read(ref _cachedImages) ?? Interlocked.CompareExchange(ref _cachedImages, new Images(ClientDiagnostics, _pipeline, _keyCredential, _endpoint), null) ?? _cachedImages;
-        }
-
-        /// <summary> Initializes a new instance of Messages. </summary>
-        public virtual Messages GetMessagesClient()
-        {
-            return Volatile.Read(ref _cachedMessages) ?? Interlocked.CompareExchange(ref _cachedMessages, new Messages(ClientDiagnostics, _pipeline, _keyCredential, _endpoint), null) ?? _cachedMessages;
-        }
-
-        /// <summary> Initializes a new instance of ModelsOps. </summary>
-        public virtual ModelsOps GetModelsOpsClient()
-        {
-            return Volatile.Read(ref _cachedModelsOps) ?? Interlocked.CompareExchange(ref _cachedModelsOps, new ModelsOps(ClientDiagnostics, _pipeline, _keyCredential, _endpoint), null) ?? _cachedModelsOps;
-        }
-
-        /// <summary> Initializes a new instance of Moderations. </summary>
-        public virtual Moderations GetModerationsClient()
-        {
-            return Volatile.Read(ref _cachedModerations) ?? Interlocked.CompareExchange(ref _cachedModerations, new Moderations(ClientDiagnostics, _pipeline, _keyCredential, _endpoint), null) ?? _cachedModerations;
-        }
-
-        /// <summary> Initializes a new instance of Runs. </summary>
-        public virtual Runs GetRunsClient()
-        {
-            return Volatile.Read(ref _cachedRuns) ?? Interlocked.CompareExchange(ref _cachedRuns, new Runs(ClientDiagnostics, _pipeline, _keyCredential, _endpoint), null) ?? _cachedRuns;
-        }
-
-        /// <summary> Initializes a new instance of Threads. </summary>
-        public virtual Threads GetThreadsClient()
-        {
-            return Volatile.Read(ref _cachedThreads) ?? Interlocked.CompareExchange(ref _cachedThreads, new Threads(ClientDiagnostics, _pipeline, _keyCredential, _endpoint), null) ?? _cachedThreads;
         }
     }
 }
