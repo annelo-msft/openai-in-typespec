@@ -362,7 +362,7 @@ namespace OpenAI
         internal PipelineMessage CreateCreateSpeechRequest(BinaryContent content, RequestOptions options)
         {
             var message = _pipeline.CreateMessage();
-            message.ResponseClassifier = PipelineMessageClassifier.Create(stackalloc ushort[] { 200 });
+            message.ResponseClassifier = ResponseErrorClassifier200;
             var request = message.Request;
             request.Method = "POST";
             var uriBuilder = new UriBuilder(_endpoint.ToString());
@@ -380,7 +380,7 @@ namespace OpenAI
         internal PipelineMessage CreateCreateTranscriptionRequest(BinaryContent content, string contentType, RequestOptions options)
         {
             var message = _pipeline.CreateMessage();
-            message.ResponseClassifier = PipelineMessageClassifier.Create(stackalloc ushort[] { 200 });
+            message.ResponseClassifier = ResponseErrorClassifier200;
             var request = message.Request;
             request.Method = "POST";
             var uriBuilder = new UriBuilder(_endpoint.ToString());
@@ -398,7 +398,7 @@ namespace OpenAI
         internal PipelineMessage CreateCreateTranslationRequest(BinaryContent content, string contentType, RequestOptions options)
         {
             var message = _pipeline.CreateMessage();
-            message.ResponseClassifier = PipelineMessageClassifier.Create(stackalloc ushort[] { 200 });
+            message.ResponseClassifier = ResponseErrorClassifier200;
             var request = message.Request;
             request.Method = "POST";
             var uriBuilder = new UriBuilder(_endpoint.ToString());
@@ -412,5 +412,8 @@ namespace OpenAI
             message.Apply(options);
             return message;
         }
+
+        private static PipelineMessageClassifier _responseErrorClassifier200;
+        private static PipelineMessageClassifier ResponseErrorClassifier200 => _responseErrorClassifier200 ??= PipelineMessageClassifier.Create(stackalloc ushort[] { 200 });
     }
 }
