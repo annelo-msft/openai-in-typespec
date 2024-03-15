@@ -2,14 +2,14 @@
 
 #nullable disable
 
+using OpenAI.Emitted;
+using OpenAI.Models;
 using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using OpenAI.Models;
-using OpenAI.Emitted;
 
 namespace OpenAI
 {
@@ -44,29 +44,25 @@ namespace OpenAI
 
         /// <summary> Generates audio from the input text. </summary>
         /// <param name="speech"> The <see cref="CreateSpeechRequest"/> to use. </param>
-        /// <param name="cancellationToken"> The cancellation token to use. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="speech"/> is null. </exception>
-        public virtual async Task<ClientResult<BinaryData>> CreateSpeechAsync(CreateSpeechRequest speech, CancellationToken cancellationToken = default)
+        public virtual async Task<ClientResult<BinaryData>> CreateSpeechAsync(CreateSpeechRequest speech)
         {
             Argument.AssertNotNull(speech, nameof(speech));
 
-            RequestOptions options = FromCancellationToken(cancellationToken);
             using BinaryContent content = speech.ToBinaryContent();
-            ClientResult result = await CreateSpeechAsync(content, options).ConfigureAwait(false);
+            ClientResult result = await CreateSpeechAsync(content).ConfigureAwait(false);
             return ClientResult.FromValue(result.GetRawResponse().Content, result.GetRawResponse());
         }
 
         /// <summary> Generates audio from the input text. </summary>
         /// <param name="speech"> The <see cref="CreateSpeechRequest"/> to use. </param>
-        /// <param name="cancellationToken"> The cancellation token to use. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="speech"/> is null. </exception>
-        public virtual ClientResult<BinaryData> CreateSpeech(CreateSpeechRequest speech, CancellationToken cancellationToken = default)
+        public virtual ClientResult<BinaryData> CreateSpeech(CreateSpeechRequest speech)
         {
             Argument.AssertNotNull(speech, nameof(speech));
 
-            RequestOptions options = FromCancellationToken(cancellationToken);
             using BinaryContent content = speech.ToBinaryContent();
-            ClientResult result = CreateSpeech(content, options);
+            ClientResult result = CreateSpeech(content);
             return ClientResult.FromValue(result.GetRawResponse().Content, result.GetRawResponse());
         }
 
@@ -80,7 +76,7 @@ namespace OpenAI
         /// </item>
         /// <item>
         /// <description>
-        /// Please try the simpler <see cref="CreateSpeechAsync(CreateSpeechRequest,CancellationToken)"/> convenience overload with strongly typed models first.
+        /// Please try the simpler <see cref="CreateSpeechAsync(CreateSpeechRequest)"/> convenience overload with strongly typed models first.
         /// </description>
         /// </item>
         /// </list>
@@ -120,7 +116,7 @@ namespace OpenAI
         /// </item>
         /// <item>
         /// <description>
-        /// Please try the simpler <see cref="CreateSpeech(CreateSpeechRequest,CancellationToken)"/> convenience overload with strongly typed models first.
+        /// Please try the simpler <see cref="CreateSpeech(CreateSpeechRequest)"/> convenience overload with strongly typed models first.
         /// </description>
         /// </item>
         /// </list>
@@ -152,29 +148,26 @@ namespace OpenAI
 
         /// <summary> Transcribes audio into the input language. </summary>
         /// <param name="audio"> The <see cref="CreateTranscriptionRequest"/> to use. </param>
-        /// <param name="cancellationToken"> The cancellation token to use. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="audio"/> is null. </exception>
-        public virtual async Task<ClientResult<CreateTranscriptionResponse>> CreateTranscriptionAsync(CreateTranscriptionRequest audio, CancellationToken cancellationToken = default)
+        public virtual async Task<ClientResult<CreateTranscriptionResponse>> CreateTranscriptionAsync(CreateTranscriptionRequest audio)
         {
             Argument.AssertNotNull(audio, nameof(audio));
 
-            RequestOptions options = FromCancellationToken(cancellationToken);
-            using BinaryContent content = audio.ToBinaryContent();
-            ClientResult result = await CreateTranscriptionAsync(content, options).ConfigureAwait(false);
+            (BinaryContent content, string contentType, RequestOptions options) = await audio.ToMultipartContentAsync().ConfigureAwait(false);
+            ClientResult result = await CreateTranscriptionAsync(content, contentType, options).ConfigureAwait(false);
             return ClientResult.FromValue(CreateTranscriptionResponse.FromResponse(result.GetRawResponse()), result.GetRawResponse());
         }
 
         /// <summary> Transcribes audio into the input language. </summary>
         /// <param name="audio"> The <see cref="CreateTranscriptionRequest"/> to use. </param>
-        /// <param name="cancellationToken"> The cancellation token to use. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="audio"/> is null. </exception>
-        public virtual ClientResult<CreateTranscriptionResponse> CreateTranscription(CreateTranscriptionRequest audio, CancellationToken cancellationToken = default)
+        public virtual ClientResult<CreateTranscriptionResponse> CreateTranscription(CreateTranscriptionRequest audio)
         {
             Argument.AssertNotNull(audio, nameof(audio));
 
-            RequestOptions options = FromCancellationToken(cancellationToken);
-            using BinaryContent content = audio.ToBinaryContent();
-            ClientResult result = CreateTranscription(content, options);
+            // TODO: correct pattern for sync-over-async
+            (BinaryContent content, string contentType, RequestOptions options) = audio.ToMultipartContentAsync().Result;
+            ClientResult result = CreateTranscription(content, contentType, options);
             return ClientResult.FromValue(CreateTranscriptionResponse.FromResponse(result.GetRawResponse()), result.GetRawResponse());
         }
 
@@ -188,23 +181,24 @@ namespace OpenAI
         /// </item>
         /// <item>
         /// <description>
-        /// Please try the simpler <see cref="CreateTranscriptionAsync(CreateTranscriptionRequest,CancellationToken)"/> convenience overload with strongly typed models first.
+        /// Please try the simpler <see cref="CreateTranscriptionAsync(CreateTranscriptionRequest)"/> convenience overload with strongly typed models first.
         /// </description>
         /// </item>
         /// </list>
         /// </summary>
         /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="contentType">The content type of the content in the body of the request.</param>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> CreateTranscriptionAsync(BinaryContent content, RequestOptions options = null)
+        public virtual async Task<ClientResult> CreateTranscriptionAsync(BinaryContent content, string contentType, RequestOptions options = null)
         {
             Argument.AssertNotNull(content, nameof(content));
 
             options ??= new RequestOptions();
 
-            using PipelineMessage message = CreateCreateTranscriptionRequest(content, options);
+            using PipelineMessage message = CreateCreateTranscriptionRequest(content, contentType, options);
 
             await _pipeline.SendAsync(message).ConfigureAwait(false);
 
@@ -228,23 +222,24 @@ namespace OpenAI
         /// </item>
         /// <item>
         /// <description>
-        /// Please try the simpler <see cref="CreateTranscription(CreateTranscriptionRequest,CancellationToken)"/> convenience overload with strongly typed models first.
+        /// Please try the simpler <see cref="CreateTranscription(CreateTranscriptionRequest)"/> convenience overload with strongly typed models first.
         /// </description>
         /// </item>
         /// </list>
         /// </summary>
         /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="contentType">The content type of the content in the body of the request.</param>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult CreateTranscription(BinaryContent content, RequestOptions options = null)
+        public virtual ClientResult CreateTranscription(BinaryContent content, string contentType, RequestOptions options = null)
         {
             Argument.AssertNotNull(content, nameof(content));
 
             options ??= new RequestOptions();
 
-            using PipelineMessage message = CreateCreateTranscriptionRequest(content, options);
+            using PipelineMessage message = CreateCreateTranscriptionRequest(content, contentType, options);
 
             _pipeline.Send(message);
 
@@ -260,29 +255,26 @@ namespace OpenAI
 
         /// <summary> Translates audio into English.. </summary>
         /// <param name="audio"> The <see cref="CreateTranslationRequest"/> to use. </param>
-        /// <param name="cancellationToken"> The cancellation token to use. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="audio"/> is null. </exception>
-        public virtual async Task<ClientResult<CreateTranslationResponse>> CreateTranslationAsync(CreateTranslationRequest audio, CancellationToken cancellationToken = default)
+        public virtual async Task<ClientResult<CreateTranslationResponse>> CreateTranslationAsync(CreateTranslationRequest audio)
         {
             Argument.AssertNotNull(audio, nameof(audio));
 
-            RequestOptions options = FromCancellationToken(cancellationToken);
-            using BinaryContent content = audio.ToBinaryContent();
-            ClientResult result = await CreateTranslationAsync(content, options).ConfigureAwait(false);
+            (BinaryContent content, string contentType, RequestOptions options) = await audio.ToMultipartContentAsync().ConfigureAwait(false);
+            ClientResult result = await CreateTranslationAsync(content, contentType, options).ConfigureAwait(false);
             return ClientResult.FromValue(CreateTranslationResponse.FromResponse(result.GetRawResponse()), result.GetRawResponse());
         }
 
         /// <summary> Translates audio into English.. </summary>
         /// <param name="audio"> The <see cref="CreateTranslationRequest"/> to use. </param>
-        /// <param name="cancellationToken"> The cancellation token to use. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="audio"/> is null. </exception>
-        public virtual ClientResult<CreateTranslationResponse> CreateTranslation(CreateTranslationRequest audio, CancellationToken cancellationToken = default)
+        public virtual ClientResult<CreateTranslationResponse> CreateTranslation(CreateTranslationRequest audio)
         {
             Argument.AssertNotNull(audio, nameof(audio));
 
-            RequestOptions options = FromCancellationToken(cancellationToken);
-            using BinaryContent content = audio.ToBinaryContent();
-            ClientResult result = CreateTranslation(content, options);
+            // TODO: correct pattern for sync-over-async
+            (BinaryContent content, string contentType, RequestOptions options) = audio.ToMultipartContentAsync().Result;
+            ClientResult result = CreateTranslation(content, contentType, options);
             return ClientResult.FromValue(CreateTranslationResponse.FromResponse(result.GetRawResponse()), result.GetRawResponse());
         }
 
@@ -296,23 +288,24 @@ namespace OpenAI
         /// </item>
         /// <item>
         /// <description>
-        /// Please try the simpler <see cref="CreateTranslationAsync(CreateTranslationRequest,CancellationToken)"/> convenience overload with strongly typed models first.
+        /// Please try the simpler <see cref="CreateTranslationAsync(CreateTranslationRequest)"/> convenience overload with strongly typed models first.
         /// </description>
         /// </item>
         /// </list>
         /// </summary>
         /// <param name="content"> The content to send as the body of the request. </param>
+		/// <param name="contentType">The content type of the content in the body of the request.</param>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> CreateTranslationAsync(BinaryContent content, RequestOptions options = null)
+        public virtual async Task<ClientResult> CreateTranslationAsync(BinaryContent content, string contentType, RequestOptions options = null)
         {
             Argument.AssertNotNull(content, nameof(content));
 
             options ??= new RequestOptions();
 
-            using PipelineMessage message = CreateCreateTranslationRequest(content, options);
+            using PipelineMessage message = CreateCreateTranslationRequest(content, contentType, options);
 
             await _pipeline.SendAsync(message).ConfigureAwait(false);
 
@@ -336,23 +329,24 @@ namespace OpenAI
         /// </item>
         /// <item>
         /// <description>
-        /// Please try the simpler <see cref="CreateTranslation(CreateTranslationRequest,CancellationToken)"/> convenience overload with strongly typed models first.
+        /// Please try the simpler <see cref="CreateTranslation(CreateTranslationRequest)"/> convenience overload with strongly typed models first.
         /// </description>
         /// </item>
         /// </list>
         /// </summary>
         /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="contentType">The content type of the content in the body of the request.</param>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult CreateTranslation(BinaryContent content, RequestOptions options = null)
+        public virtual ClientResult CreateTranslation(BinaryContent content, string contentType, RequestOptions options = null)
         {
             Argument.AssertNotNull(content, nameof(content));
 
             options ??= new RequestOptions();
 
-            using PipelineMessage message = CreateCreateTranslationRequest(content, options);
+            using PipelineMessage message = CreateCreateTranslationRequest(content, contentType, options);
 
             _pipeline.Send(message);
 
@@ -384,7 +378,7 @@ namespace OpenAI
             return message;
         }
 
-        internal PipelineMessage CreateCreateTranscriptionRequest(BinaryContent content, RequestOptions options)
+        internal PipelineMessage CreateCreateTranscriptionRequest(BinaryContent content, string contentType, RequestOptions options)
         {
             var message = _pipeline.CreateMessage();
             message.ResponseClassifier = PipelineMessageClassifier.Create(stackalloc ushort[] { 200 });
@@ -396,13 +390,13 @@ namespace OpenAI
             uriBuilder.Path = path.ToString();
             request.Uri = uriBuilder.Uri;
             request.Headers.Set("Accept", "application/json");
-            request.Headers.Set("content-type", "multipart/form-data");
+            request.Headers.Set("content-type", contentType);
             request.Content = content;
             message.Apply(options);
             return message;
         }
 
-        internal PipelineMessage CreateCreateTranslationRequest(BinaryContent content, RequestOptions options)
+        internal PipelineMessage CreateCreateTranslationRequest(BinaryContent content, string contentType, RequestOptions options)
         {
             var message = _pipeline.CreateMessage();
             message.ResponseClassifier = PipelineMessageClassifier.Create(stackalloc ushort[] { 200 });
@@ -414,21 +408,10 @@ namespace OpenAI
             uriBuilder.Path = path.ToString();
             request.Uri = uriBuilder.Uri;
             request.Headers.Set("Accept", "application/json");
-            request.Headers.Set("content-type", "multipart/form-data");
+            request.Headers.Set("content-type", contentType);
             request.Content = content;
             message.Apply(options);
             return message;
-        }
-
-        private static RequestOptions DefaultRequestContext = new RequestOptions();
-        internal static RequestOptions FromCancellationToken(CancellationToken cancellationToken = default)
-        {
-            if (!cancellationToken.CanBeCanceled)
-            {
-                return DefaultRequestContext;
-            }
-
-            return new RequestOptions() { CancellationToken = cancellationToken };
         }
     }
 }

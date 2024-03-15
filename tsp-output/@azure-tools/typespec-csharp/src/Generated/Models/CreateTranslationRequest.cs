@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using OpenAI.Emitted;
 
 namespace OpenAI.Models
@@ -50,7 +51,7 @@ namespace OpenAI.Models
         /// </param>
         /// <param name="model"> ID of the model to use. Only `whisper-1` is currently available. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="file"/> is null. </exception>
-        public CreateTranslationRequest(BinaryData file, CreateTranslationRequestModel model)
+        public CreateTranslationRequest(Stream file, CreateTranslationRequestModel model)
         {
             Argument.AssertNotNull(file, nameof(file));
 
@@ -79,7 +80,7 @@ namespace OpenAI.Models
         /// automatically increase the temperature until certain thresholds are hit.
         /// </param>
         /// <param name="serializedAdditionalRawData"> Keeps track of any properties unknown to the library. </param>
-        internal CreateTranslationRequest(BinaryData file, CreateTranslationRequestModel model, string prompt, CreateTranslationRequestResponseFormat? responseFormat, double? temperature, IDictionary<string, BinaryData> serializedAdditionalRawData)
+        internal CreateTranslationRequest(Stream file, CreateTranslationRequestModel model, string prompt, CreateTranslationRequestResponseFormat? responseFormat, double? temperature, IDictionary<string, BinaryData> serializedAdditionalRawData)
         {
             File = file;
             Model = model;
@@ -111,7 +112,7 @@ namespace OpenAI.Models
         /// </list>
         /// </para>
         /// </summary>
-        public BinaryData File { get; }
+        public Stream File { get; }
         /// <summary> ID of the model to use. Only `whisper-1` is currently available. </summary>
         public CreateTranslationRequestModel Model { get; }
         /// <summary>
