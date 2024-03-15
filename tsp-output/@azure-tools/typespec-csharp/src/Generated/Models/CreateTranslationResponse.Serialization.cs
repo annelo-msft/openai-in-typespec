@@ -3,17 +3,15 @@
 #nullable disable
 
 using System;
-using System.ClientModel.Internal;
+using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Text.Json;
 
 namespace OpenAI.Models
 {
-    public partial class CreateTranslationResponse : IUtf8JsonWriteable, IJsonModel<CreateTranslationResponse>
+    public partial class CreateTranslationResponse : IJsonModel<CreateTranslationResponse>
     {
-        void IUtf8JsonWriteable.Write(Utf8JsonWriter writer) => ((IJsonModel<CreateTranslationResponse>)this).Write(writer, new ModelReaderWriterOptions("W"));
-
         void IJsonModel<CreateTranslationResponse>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
         {
             var format = options.Format == "W" ? ((IPersistableModel<CreateTranslationResponse>)this).GetFormatFromOptions(options) : options.Format;
@@ -25,28 +23,28 @@ namespace OpenAI.Models
             writer.WriteStartObject();
             writer.WritePropertyName("text"u8);
             writer.WriteStringValue(Text);
-            if (OptionalProperty.IsDefined(Task))
+            if (Task is not null)
             {
                 writer.WritePropertyName("task"u8);
                 writer.WriteStringValue(Task.Value.ToString());
             }
-            if (OptionalProperty.IsDefined(Language))
+            if (Language is not null) 
             {
                 writer.WritePropertyName("language"u8);
                 writer.WriteStringValue(Language);
             }
-            if (OptionalProperty.IsDefined(Duration))
+            if (Duration is not null)
             {
                 writer.WritePropertyName("duration"u8);
                 writer.WriteNumberValue(Convert.ToInt32(Duration.Value.ToString("%s")));
             }
-            if (OptionalProperty.IsCollectionDefined(Segments))
+            if (Segments is not null)
             {
                 writer.WritePropertyName("segments"u8);
                 writer.WriteStartArray();
                 foreach (var item in Segments)
                 {
-                    writer.WriteObjectValue(item);
+                    ((IJsonModel<AudioSegment>)item).Write(writer, options);
                 }
                 writer.WriteEndArray();
             }
@@ -89,10 +87,10 @@ namespace OpenAI.Models
                 return null;
             }
             string text = default;
-            OptionalProperty<CreateTranslationResponseTask> task = default;
-            OptionalProperty<string> language = default;
-            OptionalProperty<TimeSpan> duration = default;
-            OptionalProperty<IReadOnlyList<AudioSegment>> segments = default;
+            CreateTranslationResponseTask? task = default;
+            string language = default;
+            TimeSpan? duration = default;
+            IReadOnlyList<AudioSegment> segments = default;
             IDictionary<string, BinaryData> serializedAdditionalRawData = default;
             Dictionary<string, BinaryData> additionalPropertiesDictionary = new Dictionary<string, BinaryData>();
             foreach (var property in element.EnumerateObject())
@@ -145,7 +143,7 @@ namespace OpenAI.Models
                 }
             }
             serializedAdditionalRawData = additionalPropertiesDictionary;
-            return new CreateTranslationResponse(text, OptionalProperty.ToNullable(task), language.Value, OptionalProperty.ToNullable(duration), OptionalProperty.ToList(segments), serializedAdditionalRawData);
+            return new CreateTranslationResponse(text, task, language, duration, segments, serializedAdditionalRawData);
         }
 
         BinaryData IPersistableModel<CreateTranslationResponse>.Write(ModelReaderWriterOptions options)
@@ -187,12 +185,10 @@ namespace OpenAI.Models
             return DeserializeCreateTranslationResponse(document.RootElement);
         }
 
-        /// <summary> Convert into a Utf8JsonRequestBody. </summary>
-        internal virtual RequestBody ToRequestBody()
+        /// <summary> Convert into a Utf8JsonBinaryContent. </summary>
+        internal virtual BinaryContent ToBinaryContent()
         {
-            var content = new Utf8JsonRequestBody();
-            content.JsonWriter.WriteObjectValue(this);
-            return content;
+            throw new NotImplementedException();
         }
     }
 }

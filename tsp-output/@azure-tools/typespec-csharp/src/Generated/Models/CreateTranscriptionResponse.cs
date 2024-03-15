@@ -3,8 +3,8 @@
 #nullable disable
 
 using System;
-using System.ClientModel.Internal;
 using System.Collections.Generic;
+using OpenAI.Emitted;
 
 namespace OpenAI.Models
 {
@@ -48,10 +48,10 @@ namespace OpenAI.Models
         /// <exception cref="ArgumentNullException"> <paramref name="text"/> is null. </exception>
         internal CreateTranscriptionResponse(string text)
         {
-            ClientUtilities.AssertNotNull(text, nameof(text));
+            Argument.AssertNotNull(text, nameof(text));
 
             Text = text;
-            Segments = new OptionalList<AudioSegment>();
+            Segments = default;
         }
 
         /// <summary> Initializes a new instance of <see cref="CreateTranscriptionResponse"/>. </summary>

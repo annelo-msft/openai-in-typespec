@@ -3,8 +3,8 @@
 #nullable disable
 
 using System;
-using System.ClientModel.Internal;
 using System.Collections.Generic;
+using OpenAI.Emitted;
 
 namespace OpenAI.Models
 {
@@ -54,7 +54,7 @@ namespace OpenAI.Models
         /// <exception cref="ArgumentNullException"> <paramref name="input"/> is null. </exception>
         public CreateSpeechRequest(CreateSpeechRequestModel model, string input, CreateSpeechRequestVoice voice)
         {
-            ClientUtilities.AssertNotNull(input, nameof(input));
+            Argument.AssertNotNull(input, nameof(input));
 
             Model = model;
             Input = input;

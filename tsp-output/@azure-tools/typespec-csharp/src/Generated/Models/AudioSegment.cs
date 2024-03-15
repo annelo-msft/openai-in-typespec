@@ -2,8 +2,8 @@
 
 #nullable disable
 
+using OpenAI.Emitted;
 using System;
-using System.ClientModel.Internal;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -64,8 +64,8 @@ namespace OpenAI.Models
         /// <exception cref="ArgumentNullException"> <paramref name="text"/> or <paramref name="tokens"/> is null. </exception>
         internal AudioSegment(long id, long seek, TimeSpan start, TimeSpan end, string text, IEnumerable<long> tokens, double temperature, double avgLogprob, double compressionRatio, double noSpeechProb)
         {
-            ClientUtilities.AssertNotNull(text, nameof(text));
-            ClientUtilities.AssertNotNull(tokens, nameof(tokens));
+            Argument.AssertNotNull(text, nameof(text));
+            Argument.AssertNotNull(tokens, nameof(tokens));
 
             Id = id;
             Seek = seek;

@@ -4,12 +4,12 @@
 
 using System;
 using System.ClientModel;
-using System.ClientModel.Internal;
 using System.ClientModel.Primitives;
-using System.ClientModel.Primitives.Pipeline;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using OpenAI.Models;
+using OpenAI.Emitted;
 
 namespace OpenAI
 {
@@ -18,16 +18,13 @@ namespace OpenAI
     public partial class Audio
     {
         private const string AuthorizationHeader = "Authorization";
-        private readonly KeyCredential _keyCredential;
+        private readonly ApiKeyCredential _credential;
         private const string AuthorizationApiKeyPrefix = "Bearer";
-        private readonly MessagePipeline _pipeline;
+        private readonly ClientPipeline _pipeline;
         private readonly Uri _endpoint;
 
-        /// <summary> The ClientDiagnostics is used to provide tracing support for the client library. </summary>
-        internal TelemetrySource ClientDiagnostics { get; }
-
         /// <summary> The HTTP pipeline for sending and receiving REST requests and responses. </summary>
-        public virtual MessagePipeline Pipeline => _pipeline;
+        public virtual ClientPipeline Pipeline => _pipeline;
 
         /// <summary> Initializes a new instance of Audio for mocking. </summary>
         protected Audio()
@@ -35,15 +32,13 @@ namespace OpenAI
         }
 
         /// <summary> Initializes a new instance of Audio. </summary>
-        /// <param name="clientDiagnostics"> The handler for diagnostic messaging in the client. </param>
         /// <param name="pipeline"> The HTTP pipeline for sending and receiving REST requests and responses. </param>
-        /// <param name="keyCredential"> The key credential to copy. </param>
+        /// <param name="ApiKeyCredential"> The key credential to copy. </param>
         /// <param name="endpoint"> OpenAI Endpoint. </param>
-        internal Audio(TelemetrySource clientDiagnostics, MessagePipeline pipeline, KeyCredential keyCredential, Uri endpoint)
+        internal Audio(ClientPipeline pipeline, ApiKeyCredential ApiKeyCredential, Uri endpoint)
         {
-            ClientDiagnostics = clientDiagnostics;
             _pipeline = pipeline;
-            _keyCredential = keyCredential;
+            _credential = ApiKeyCredential;
             _endpoint = endpoint;
         }
 
@@ -51,28 +46,28 @@ namespace OpenAI
         /// <param name="speech"> The <see cref="CreateSpeechRequest"/> to use. </param>
         /// <param name="cancellationToken"> The cancellation token to use. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="speech"/> is null. </exception>
-        public virtual async Task<Result<BinaryData>> CreateSpeechAsync(CreateSpeechRequest speech, CancellationToken cancellationToken = default)
+        public virtual async Task<ClientResult<BinaryData>> CreateSpeechAsync(CreateSpeechRequest speech, CancellationToken cancellationToken = default)
         {
-            ClientUtilities.AssertNotNull(speech, nameof(speech));
+            Argument.AssertNotNull(speech, nameof(speech));
 
-            RequestOptions context = FromCancellationToken(cancellationToken);
-            using RequestBody content = speech.ToRequestBody();
-            Result result = await CreateSpeechAsync(content, context).ConfigureAwait(false);
-            return Result.FromValue(result.GetRawResponse().Content, result.GetRawResponse());
+            RequestOptions options = FromCancellationToken(cancellationToken);
+            using BinaryContent content = speech.ToBinaryContent();
+            ClientResult result = await CreateSpeechAsync(content, options).ConfigureAwait(false);
+            return ClientResult.FromValue(result.GetRawResponse().Content, result.GetRawResponse());
         }
 
         /// <summary> Generates audio from the input text. </summary>
         /// <param name="speech"> The <see cref="CreateSpeechRequest"/> to use. </param>
         /// <param name="cancellationToken"> The cancellation token to use. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="speech"/> is null. </exception>
-        public virtual Result<BinaryData> CreateSpeech(CreateSpeechRequest speech, CancellationToken cancellationToken = default)
+        public virtual ClientResult<BinaryData> CreateSpeech(CreateSpeechRequest speech, CancellationToken cancellationToken = default)
         {
-            ClientUtilities.AssertNotNull(speech, nameof(speech));
+            Argument.AssertNotNull(speech, nameof(speech));
 
-            RequestOptions context = FromCancellationToken(cancellationToken);
-            using RequestBody content = speech.ToRequestBody();
-            Result result = CreateSpeech(content, context);
-            return Result.FromValue(result.GetRawResponse().Content, result.GetRawResponse());
+            RequestOptions options = FromCancellationToken(cancellationToken);
+            using BinaryContent content = speech.ToBinaryContent();
+            ClientResult result = CreateSpeech(content, options);
+            return ClientResult.FromValue(result.GetRawResponse().Content, result.GetRawResponse());
         }
 
         /// <summary>
@@ -91,26 +86,28 @@ namespace OpenAI
         /// </list>
         /// </summary>
         /// <param name="content"> The content to send as the body of the request. </param>
-        /// <param name="context"> The request context, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
-        /// <exception cref="MessageFailedException"> Service returned a non-success status code. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual async Task<Result> CreateSpeechAsync(RequestBody content, RequestOptions context = null)
+        public virtual async Task<ClientResult> CreateSpeechAsync(BinaryContent content, RequestOptions options = null)
         {
-            ClientUtilities.AssertNotNull(content, nameof(content));
+            Argument.AssertNotNull(content, nameof(content));
 
-            using var scope = ClientDiagnostics.CreateSpan("Audio.CreateSpeech");
-            scope.Start();
-            try
+            options ??= new RequestOptions();
+
+            using PipelineMessage message = CreateCreateSpeechRequest(content, options);
+
+            await _pipeline.SendAsync(message).ConfigureAwait(false);
+
+            PipelineResponse response = message.Response!;
+
+            if (response.IsError && options.ErrorOptions == ClientErrorBehaviors.Default)
             {
-                using PipelineMessage message = CreateCreateSpeechRequest(content, context);
-                return Result.FromResponse(await _pipeline.ProcessMessageAsync(message, context).ConfigureAwait(false));
+                throw await ClientResultException.CreateAsync(response).ConfigureAwait(false);
             }
-            catch (Exception e)
-            {
-                scope.Failed(e);
-                throw;
-            }
+
+            return ClientResult.FromResponse(response);
         }
 
         /// <summary>
@@ -129,54 +126,56 @@ namespace OpenAI
         /// </list>
         /// </summary>
         /// <param name="content"> The content to send as the body of the request. </param>
-        /// <param name="context"> The request context, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
-        /// <exception cref="MessageFailedException"> Service returned a non-success status code. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual Result CreateSpeech(RequestBody content, RequestOptions context = null)
+        public virtual ClientResult CreateSpeech(BinaryContent content, RequestOptions options = null)
         {
-            ClientUtilities.AssertNotNull(content, nameof(content));
+            Argument.AssertNotNull(content, nameof(content));
 
-            using var scope = ClientDiagnostics.CreateSpan("Audio.CreateSpeech");
-            scope.Start();
-            try
+            options ??= new RequestOptions();
+
+            using PipelineMessage message = CreateCreateSpeechRequest(content, options);
+
+            _pipeline.Send(message);
+
+            PipelineResponse response = message.Response!;
+
+            if (response.IsError && options.ErrorOptions == ClientErrorBehaviors.Default)
             {
-                using PipelineMessage message = CreateCreateSpeechRequest(content, context);
-                return Result.FromResponse(_pipeline.ProcessMessage(message, context));
+                throw new ClientResultException(response);
             }
-            catch (Exception e)
-            {
-                scope.Failed(e);
-                throw;
-            }
+
+            return ClientResult.FromResponse(response);
         }
 
         /// <summary> Transcribes audio into the input language. </summary>
         /// <param name="audio"> The <see cref="CreateTranscriptionRequest"/> to use. </param>
         /// <param name="cancellationToken"> The cancellation token to use. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="audio"/> is null. </exception>
-        public virtual async Task<Result<CreateTranscriptionResponse>> CreateTranscriptionAsync(CreateTranscriptionRequest audio, CancellationToken cancellationToken = default)
+        public virtual async Task<ClientResult<CreateTranscriptionResponse>> CreateTranscriptionAsync(CreateTranscriptionRequest audio, CancellationToken cancellationToken = default)
         {
-            ClientUtilities.AssertNotNull(audio, nameof(audio));
+            Argument.AssertNotNull(audio, nameof(audio));
 
-            RequestOptions context = FromCancellationToken(cancellationToken);
-            using RequestBody content = audio.ToRequestBody();
-            Result result = await CreateTranscriptionAsync(content, context).ConfigureAwait(false);
-            return Result.FromValue(CreateTranscriptionResponse.FromResponse(result.GetRawResponse()), result.GetRawResponse());
+            RequestOptions options = FromCancellationToken(cancellationToken);
+            using BinaryContent content = audio.ToBinaryContent();
+            ClientResult result = await CreateTranscriptionAsync(content, options).ConfigureAwait(false);
+            return ClientResult.FromValue(CreateTranscriptionResponse.FromResponse(result.GetRawResponse()), result.GetRawResponse());
         }
 
         /// <summary> Transcribes audio into the input language. </summary>
         /// <param name="audio"> The <see cref="CreateTranscriptionRequest"/> to use. </param>
         /// <param name="cancellationToken"> The cancellation token to use. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="audio"/> is null. </exception>
-        public virtual Result<CreateTranscriptionResponse> CreateTranscription(CreateTranscriptionRequest audio, CancellationToken cancellationToken = default)
+        public virtual ClientResult<CreateTranscriptionResponse> CreateTranscription(CreateTranscriptionRequest audio, CancellationToken cancellationToken = default)
         {
-            ClientUtilities.AssertNotNull(audio, nameof(audio));
+            Argument.AssertNotNull(audio, nameof(audio));
 
-            RequestOptions context = FromCancellationToken(cancellationToken);
-            using RequestBody content = audio.ToRequestBody();
-            Result result = CreateTranscription(content, context);
-            return Result.FromValue(CreateTranscriptionResponse.FromResponse(result.GetRawResponse()), result.GetRawResponse());
+            RequestOptions options = FromCancellationToken(cancellationToken);
+            using BinaryContent content = audio.ToBinaryContent();
+            ClientResult result = CreateTranscription(content, options);
+            return ClientResult.FromValue(CreateTranscriptionResponse.FromResponse(result.GetRawResponse()), result.GetRawResponse());
         }
 
         /// <summary>
@@ -195,26 +194,28 @@ namespace OpenAI
         /// </list>
         /// </summary>
         /// <param name="content"> The content to send as the body of the request. </param>
-        /// <param name="context"> The request context, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
-        /// <exception cref="MessageFailedException"> Service returned a non-success status code. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual async Task<Result> CreateTranscriptionAsync(RequestBody content, RequestOptions context = null)
+        public virtual async Task<ClientResult> CreateTranscriptionAsync(BinaryContent content, RequestOptions options = null)
         {
-            ClientUtilities.AssertNotNull(content, nameof(content));
+            Argument.AssertNotNull(content, nameof(content));
 
-            using var scope = ClientDiagnostics.CreateSpan("Audio.CreateTranscription");
-            scope.Start();
-            try
+            options ??= new RequestOptions();
+
+            using PipelineMessage message = CreateCreateTranscriptionRequest(content, options);
+
+            await _pipeline.SendAsync(message).ConfigureAwait(false);
+
+            PipelineResponse response = message.Response!;
+
+            if (response.IsError && options.ErrorOptions == ClientErrorBehaviors.Default)
             {
-                using PipelineMessage message = CreateCreateTranscriptionRequest(content, context);
-                return Result.FromResponse(await _pipeline.ProcessMessageAsync(message, context).ConfigureAwait(false));
+                throw await ClientResultException.CreateAsync(response).ConfigureAwait(false);
             }
-            catch (Exception e)
-            {
-                scope.Failed(e);
-                throw;
-            }
+
+            return ClientResult.FromResponse(response);
         }
 
         /// <summary>
@@ -233,54 +234,56 @@ namespace OpenAI
         /// </list>
         /// </summary>
         /// <param name="content"> The content to send as the body of the request. </param>
-        /// <param name="context"> The request context, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
-        /// <exception cref="MessageFailedException"> Service returned a non-success status code. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual Result CreateTranscription(RequestBody content, RequestOptions context = null)
+        public virtual ClientResult CreateTranscription(BinaryContent content, RequestOptions options = null)
         {
-            ClientUtilities.AssertNotNull(content, nameof(content));
+            Argument.AssertNotNull(content, nameof(content));
 
-            using var scope = ClientDiagnostics.CreateSpan("Audio.CreateTranscription");
-            scope.Start();
-            try
+            options ??= new RequestOptions();
+
+            using PipelineMessage message = CreateCreateTranscriptionRequest(content, options);
+
+            _pipeline.Send(message);
+
+            PipelineResponse response = message.Response!;
+
+            if (response.IsError && options.ErrorOptions == ClientErrorBehaviors.Default)
             {
-                using PipelineMessage message = CreateCreateTranscriptionRequest(content, context);
-                return Result.FromResponse(_pipeline.ProcessMessage(message, context));
+                throw new ClientResultException(response);
             }
-            catch (Exception e)
-            {
-                scope.Failed(e);
-                throw;
-            }
+
+            return ClientResult.FromResponse(response);
         }
 
         /// <summary> Translates audio into English.. </summary>
         /// <param name="audio"> The <see cref="CreateTranslationRequest"/> to use. </param>
         /// <param name="cancellationToken"> The cancellation token to use. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="audio"/> is null. </exception>
-        public virtual async Task<Result<CreateTranslationResponse>> CreateTranslationAsync(CreateTranslationRequest audio, CancellationToken cancellationToken = default)
+        public virtual async Task<ClientResult<CreateTranslationResponse>> CreateTranslationAsync(CreateTranslationRequest audio, CancellationToken cancellationToken = default)
         {
-            ClientUtilities.AssertNotNull(audio, nameof(audio));
+            Argument.AssertNotNull(audio, nameof(audio));
 
-            RequestOptions context = FromCancellationToken(cancellationToken);
-            using RequestBody content = audio.ToRequestBody();
-            Result result = await CreateTranslationAsync(content, context).ConfigureAwait(false);
-            return Result.FromValue(CreateTranslationResponse.FromResponse(result.GetRawResponse()), result.GetRawResponse());
+            RequestOptions options = FromCancellationToken(cancellationToken);
+            using BinaryContent content = audio.ToBinaryContent();
+            ClientResult result = await CreateTranslationAsync(content, options).ConfigureAwait(false);
+            return ClientResult.FromValue(CreateTranslationResponse.FromResponse(result.GetRawResponse()), result.GetRawResponse());
         }
 
         /// <summary> Translates audio into English.. </summary>
         /// <param name="audio"> The <see cref="CreateTranslationRequest"/> to use. </param>
         /// <param name="cancellationToken"> The cancellation token to use. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="audio"/> is null. </exception>
-        public virtual Result<CreateTranslationResponse> CreateTranslation(CreateTranslationRequest audio, CancellationToken cancellationToken = default)
+        public virtual ClientResult<CreateTranslationResponse> CreateTranslation(CreateTranslationRequest audio, CancellationToken cancellationToken = default)
         {
-            ClientUtilities.AssertNotNull(audio, nameof(audio));
+            Argument.AssertNotNull(audio, nameof(audio));
 
-            RequestOptions context = FromCancellationToken(cancellationToken);
-            using RequestBody content = audio.ToRequestBody();
-            Result result = CreateTranslation(content, context);
-            return Result.FromValue(CreateTranslationResponse.FromResponse(result.GetRawResponse()), result.GetRawResponse());
+            RequestOptions options = FromCancellationToken(cancellationToken);
+            using BinaryContent content = audio.ToBinaryContent();
+            ClientResult result = CreateTranslation(content, options);
+            return ClientResult.FromValue(CreateTranslationResponse.FromResponse(result.GetRawResponse()), result.GetRawResponse());
         }
 
         /// <summary>
@@ -299,26 +302,28 @@ namespace OpenAI
         /// </list>
         /// </summary>
         /// <param name="content"> The content to send as the body of the request. </param>
-        /// <param name="context"> The request context, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
-        /// <exception cref="MessageFailedException"> Service returned a non-success status code. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual async Task<Result> CreateTranslationAsync(RequestBody content, RequestOptions context = null)
+        public virtual async Task<ClientResult> CreateTranslationAsync(BinaryContent content, RequestOptions options = null)
         {
-            ClientUtilities.AssertNotNull(content, nameof(content));
+            Argument.AssertNotNull(content, nameof(content));
 
-            using var scope = ClientDiagnostics.CreateSpan("Audio.CreateTranslation");
-            scope.Start();
-            try
+            options ??= new RequestOptions();
+
+            using PipelineMessage message = CreateCreateTranslationRequest(content, options);
+
+            await _pipeline.SendAsync(message).ConfigureAwait(false);
+
+            PipelineResponse response = message.Response!;
+
+            if (response.IsError && options.ErrorOptions == ClientErrorBehaviors.Default)
             {
-                using PipelineMessage message = CreateCreateTranslationRequest(content, context);
-                return Result.FromResponse(await _pipeline.ProcessMessageAsync(message, context).ConfigureAwait(false));
+                throw await ClientResultException.CreateAsync(response).ConfigureAwait(false);
             }
-            catch (Exception e)
-            {
-                scope.Failed(e);
-                throw;
-            }
+
+            return ClientResult.FromResponse(response);
         }
 
         /// <summary>
@@ -337,70 +342,111 @@ namespace OpenAI
         /// </list>
         /// </summary>
         /// <param name="content"> The content to send as the body of the request. </param>
-        /// <param name="context"> The request context, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
-        /// <exception cref="MessageFailedException"> Service returned a non-success status code. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual Result CreateTranslation(RequestBody content, RequestOptions context = null)
+        public virtual ClientResult CreateTranslation(BinaryContent content, RequestOptions options = null)
         {
-            ClientUtilities.AssertNotNull(content, nameof(content));
+            Argument.AssertNotNull(content, nameof(content));
 
-            using var scope = ClientDiagnostics.CreateSpan("Audio.CreateTranslation");
-            scope.Start();
-            try
+            options ??= new RequestOptions();
+
+            using PipelineMessage message = CreateCreateTranslationRequest(content, options);
+
+            _pipeline.Send(message);
+
+            PipelineResponse response = message.Response!;
+
+            if (response.IsError && options.ErrorOptions == ClientErrorBehaviors.Default)
             {
-                using PipelineMessage message = CreateCreateTranslationRequest(content, context);
-                return Result.FromResponse(_pipeline.ProcessMessage(message, context));
+                throw new ClientResultException(response);
             }
-            catch (Exception e)
-            {
-                scope.Failed(e);
-                throw;
-            }
+
+            return ClientResult.FromResponse(response);
         }
 
-        internal PipelineMessage CreateCreateSpeechRequest(RequestBody content, RequestOptions context)
+        internal PipelineMessage CreateCreateSpeechRequest(BinaryContent content, RequestOptions options)
         {
-            var message = _pipeline.CreateMessage(context, ResponseErrorClassifier200);
+            var message = _pipeline.CreateMessage();
+            message.ResponseClassifier = PipelineMessageClassifier.Create(stackalloc ushort[] { 200 });
+
             var request = message.Request;
-            request.SetMethod("POST");
-            var uri = new RequestUri();
-            uri.Reset(_endpoint);
-            uri.AppendPath("/audio/speech", false);
-            request.Uri = uri.ToUri();
-            request.SetHeaderValue("Accept", "application/octet-stream");
-            request.SetHeaderValue("Content-Type", "application/json");
+
+            request.Method = "POST";
+
+            var uriBuilder = new UriBuilder(_endpoint.ToString());
+
+            var path = new StringBuilder();
+            path.Append("/audio/speech");
+
+            uriBuilder.Path = path.ToString();
+
+            request.Uri = uriBuilder.Uri;
+
+            request.Headers.Set("Accept", "application/octet-stream");
+            request.Headers.Set("Content-Type", "application/json");
+
             request.Content = content;
+
+            message.Apply(options);
+
             return message;
         }
 
-        internal PipelineMessage CreateCreateTranscriptionRequest(RequestBody content, RequestOptions context)
+        internal PipelineMessage CreateCreateTranscriptionRequest(BinaryContent content, RequestOptions options)
         {
-            var message = _pipeline.CreateMessage(context, ResponseErrorClassifier200);
+            var message = _pipeline.CreateMessage();
+            message.ResponseClassifier = PipelineMessageClassifier.Create(stackalloc ushort[] { 200 });
+
             var request = message.Request;
-            request.SetMethod("POST");
-            var uri = new RequestUri();
-            uri.Reset(_endpoint);
-            uri.AppendPath("/audio/transcriptions", false);
-            request.Uri = uri.ToUri();
-            request.SetHeaderValue("Accept", "application/json");
-            request.SetHeaderValue("content-type", "multipart/form-data");
+
+            request.Method = "POST";
+
+            var uriBuilder = new UriBuilder(_endpoint.ToString());
+
+            var path = new StringBuilder();
+            path.Append("/audio/transcriptions");
+
+            uriBuilder.Path = path.ToString();
+
+            request.Uri = uriBuilder.Uri;
+
+            request.Headers.Set("Accept", "application/json");
+            request.Headers.Set("content-type", "multipart/form-data");
+
             request.Content = content;
+
+            message.Apply(options);
+
             return message;
         }
 
-        internal PipelineMessage CreateCreateTranslationRequest(RequestBody content, RequestOptions context)
+        internal PipelineMessage CreateCreateTranslationRequest(BinaryContent content, RequestOptions options)
         {
-            var message = _pipeline.CreateMessage(context, ResponseErrorClassifier200);
+            var message = _pipeline.CreateMessage();
+            message.ResponseClassifier = PipelineMessageClassifier.Create(stackalloc ushort[] { 200 });
+
             var request = message.Request;
-            request.SetMethod("POST");
-            var uri = new RequestUri();
-            uri.Reset(_endpoint);
-            uri.AppendPath("/audio/translations", false);
-            request.Uri = uri.ToUri();
-            request.SetHeaderValue("Accept", "application/json");
-            request.SetHeaderValue("content-type", "multipart/form-data");
+
+            request.Method = "POST";
+
+            var uriBuilder = new UriBuilder(_endpoint.ToString());
+
+            var path = new StringBuilder();
+            path.Append("/audio/translations");
+
+            uriBuilder.Path = path.ToString();
+
+            request.Uri = uriBuilder.Uri;
+
+            request.Headers.Set("Accept", "application/json");
+            request.Headers.Set("content-type", "multipart/form-data");
+
             request.Content = content;
+
+            message.Apply(options);
+
             return message;
         }
 
@@ -414,8 +460,5 @@ namespace OpenAI
 
             return new RequestOptions() { CancellationToken = cancellationToken };
         }
-
-        private static ResponseErrorClassifier _responseErrorClassifier200;
-        private static ResponseErrorClassifier ResponseErrorClassifier200 => _responseErrorClassifier200 ??= new StatusResponseClassifier(stackalloc ushort[] { 200 });
     }
 }

@@ -3,17 +3,15 @@
 #nullable disable
 
 using System;
-using System.ClientModel.Internal;
+using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Text.Json;
 
 namespace OpenAI.Models
 {
-    public partial class CreateTranslationRequest : IUtf8JsonWriteable, IJsonModel<CreateTranslationRequest>
+    public partial class CreateTranslationRequest : IJsonModel<CreateTranslationRequest>
     {
-        void IUtf8JsonWriteable.Write(Utf8JsonWriter writer) => ((IJsonModel<CreateTranslationRequest>)this).Write(writer, new ModelReaderWriterOptions("W"));
-
         void IJsonModel<CreateTranslationRequest>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
         {
             var format = options.Format == "W" ? ((IPersistableModel<CreateTranslationRequest>)this).GetFormatFromOptions(options) : options.Format;
@@ -24,20 +22,20 @@ namespace OpenAI.Models
 
             writer.WriteStartObject();
             writer.WritePropertyName("file"u8);
-            writer.WriteBase64StringValue(File.ToArray(), "D");
+            writer.WriteBase64StringValue(File.ToArray());
             writer.WritePropertyName("model"u8);
             writer.WriteStringValue(Model.ToString());
-            if (OptionalProperty.IsDefined(Prompt))
+            if (Prompt is not null)
             {
                 writer.WritePropertyName("prompt"u8);
                 writer.WriteStringValue(Prompt);
             }
-            if (OptionalProperty.IsDefined(ResponseFormat))
+            if (ResponseFormat is not null)
             {
                 writer.WritePropertyName("response_format"u8);
                 writer.WriteStringValue(ResponseFormat.Value.ToString());
             }
-            if (OptionalProperty.IsDefined(Temperature))
+            if (Temperature is not null)
             {
                 writer.WritePropertyName("temperature"u8);
                 writer.WriteNumberValue(Temperature.Value);
@@ -82,16 +80,16 @@ namespace OpenAI.Models
             }
             BinaryData file = default;
             CreateTranslationRequestModel model = default;
-            OptionalProperty<string> prompt = default;
-            OptionalProperty<CreateTranslationRequestResponseFormat> responseFormat = default;
-            OptionalProperty<double> temperature = default;
+            string prompt = default;
+            CreateTranslationRequestResponseFormat? responseFormat = default;
+            double? temperature = default;
             IDictionary<string, BinaryData> serializedAdditionalRawData = default;
             Dictionary<string, BinaryData> additionalPropertiesDictionary = new Dictionary<string, BinaryData>();
             foreach (var property in element.EnumerateObject())
             {
                 if (property.NameEquals("file"u8))
                 {
-                    file = BinaryData.FromBytes(property.Value.GetBytesFromBase64("D"));
+                    file = BinaryData.FromBytes(property.Value.GetBytesFromBase64());
                     continue;
                 }
                 if (property.NameEquals("model"u8))
@@ -128,7 +126,7 @@ namespace OpenAI.Models
                 }
             }
             serializedAdditionalRawData = additionalPropertiesDictionary;
-            return new CreateTranslationRequest(file, model, prompt.Value, OptionalProperty.ToNullable(responseFormat), OptionalProperty.ToNullable(temperature), serializedAdditionalRawData);
+            return new CreateTranslationRequest(file, model, prompt, responseFormat, temperature, serializedAdditionalRawData);
         }
 
         BinaryData IPersistableModel<CreateTranslationRequest>.Write(ModelReaderWriterOptions options)
@@ -170,12 +168,10 @@ namespace OpenAI.Models
             return DeserializeCreateTranslationRequest(document.RootElement);
         }
 
-        /// <summary> Convert into a Utf8JsonRequestBody. </summary>
-        internal virtual RequestBody ToRequestBody()
+        /// <summary> Convert into a Utf8JsonBinaryContent. </summary>
+        internal virtual BinaryContent ToBinaryContent()
         {
-            var content = new Utf8JsonRequestBody();
-            content.JsonWriter.WriteObjectValue(this);
-            return content;
+            throw new NotImplementedException();
         }
     }
 }
