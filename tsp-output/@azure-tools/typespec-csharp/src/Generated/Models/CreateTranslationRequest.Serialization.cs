@@ -2,57 +2,37 @@
 
 #nullable disable
 
-using System.ClientModel;
 using System.ClientModel.Primitives;
-using System.IO;
-using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Threading.Tasks;
 
 namespace OpenAI.Models
 {
     public partial class CreateTranslationRequest
     {
-        internal async Task<(BinaryContent, string, RequestOptions)> ToMultipartContentAsync()
+        internal MultipartFormDataBinaryContent ToMultipartContent()
         {
-            // TODO: add boundary
-            MultipartFormDataContent content = new();
+            MultipartFormDataBinaryContent content = new();
 
             // TODO: take filename?  Something needed in TSP to support this?
-            content.Add(new StreamContent(File));
-            content.Add(new StringContent(Model.ToString()), "model");
+            content.Add(File, "file");
+            content.Add(Model.ToString(), "model");
 
             if (Prompt is not null)
             {
-                content.Add(new StringContent(Prompt), "prompt");
+                content.Add(Prompt, "prompt");
             }
 
             if (ResponseFormat is not null)
             {
-                content.Add(new StringContent(ResponseFormat.ToString()), "response_format");
+                content.Add(ResponseFormat.ToString(), "response_format");
             }
 
             if (Temperature is not null)
             {
                 // TODO: preferred way to handle floats/numerics?
-                content.Add(new StringContent($"{Temperature}"), "temperature");
+                content.Add($"{Temperature}", "temperature");
             }
 
-            string contentType = default;
-            if (content.Headers.ContentType is MediaTypeHeaderValue contentTypeValue)
-            {
-                contentType = contentTypeValue.ToString();
-            }
-
-            // TODO: transfer all headers instead of a few?
-            RequestOptions options = new();
-            if (content.Headers.ContentLength is long contentLength)
-            {
-                options.SetHeader("Content-Length", contentLength.ToString());
-            }
-
-            Stream stream = await content.ReadAsStreamAsync().ConfigureAwait(false);
-            return (BinaryContent.Create(stream), contentType, options);
+            return content;
         }
     }
 }
