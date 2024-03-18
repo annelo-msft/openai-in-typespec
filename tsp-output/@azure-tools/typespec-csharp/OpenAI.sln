@@ -4,6 +4,8 @@ VisualStudioVersion = 17.9.34701.34
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenAI", "src\OpenAI.csproj", "{28FF4005-4467-4E36-92E7-DEA27DEB1519}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "System.ClientModel", "..\..\..\..\azure-sdk-for-net\sdk\core\System.ClientModel\src\System.ClientModel.csproj", "{EC70E11A-26A7-426F-8A2B-1FA221AB4027}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -14,6 +16,10 @@ Global
 		{28FF4005-4467-4E36-92E7-DEA27DEB1519}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{28FF4005-4467-4E36-92E7-DEA27DEB1519}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{28FF4005-4467-4E36-92E7-DEA27DEB1519}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EC70E11A-26A7-426F-8A2B-1FA221AB4027}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EC70E11A-26A7-426F-8A2B-1FA221AB4027}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EC70E11A-26A7-426F-8A2B-1FA221AB4027}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EC70E11A-26A7-426F-8A2B-1FA221AB4027}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -2,8 +2,10 @@
 
 #nullable disable
 
+using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
+using System.Diagnostics;
 using System.IO;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -13,13 +15,29 @@ namespace OpenAI.Models
 {
     public partial class CreateTranscriptionRequest
     {
+        private static Random _random = new();
+        private static readonly char[] _boundaryValues = "0123456789=ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz".ToCharArray();
+
         internal async Task<(BinaryContent, string, RequestOptions)> ToMultipartContentAsync()
         {
-            // TODO: add boundary
-            MultipartFormDataContent content = new();
+            MultipartFormDataContent content = new(CreateBoundary());
 
-            // TODO: take filename?  Something needed in TSP to support this?
-            content.Add(new StreamContent(File), "file");
+            if (FileName is not null)
+            {
+                StreamContent fileContent = new StreamContent(File);
+                ContentDispositionHeaderValue header = new("form-data")
+                {
+                    Name = "file",
+                    FileName = FileName
+                };
+                content.Headers.ContentDisposition = header;
+                content.Add(new StreamContent(File));
+            }
+            else
+            {
+                content.Add(new StreamContent(File), "file");
+            }
+
             content.Add(new StringContent(Model.ToString()), "model");
 
             if (Language is not null)
@@ -59,6 +77,28 @@ namespace OpenAI.Models
 
             Stream stream = await content.ReadAsStreamAsync().ConfigureAwait(false);
             return (BinaryContent.Create(stream), contentType, options);
+        }
+
+        private static string CreateBoundary()
+        {
+            Span<char> chars = new char[70];
+
+            byte[] random = new byte[70];
+            _random.NextBytes(random);
+
+            // The following will sample evenly from the possible values.
+            // This is important to ensuring that the odds of creating a boundary
+            // that occurs in any content part are astronomically small.
+            int mask = 255 >> 2;
+
+            Debug.Assert(_boundaryValues.Length - 1 == mask);
+
+            for (int i = 0; i < 70; i++)
+            {
+                chars[i] = _boundaryValues[random[i] & mask];
+            }
+
+            return chars.ToString();
         }
     }
 }
