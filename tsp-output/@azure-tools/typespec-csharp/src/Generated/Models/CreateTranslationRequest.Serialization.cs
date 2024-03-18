@@ -6,6 +6,7 @@ using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -52,8 +53,9 @@ namespace OpenAI.Models
 
             if (Temperature is not null)
             {
-                // TODO: preferred way to handle floats/numerics?
-                content.Add(new StringContent($"{Temperature}"), "temperature");
+                // https://learn.microsoft.com/en-us/dotnet/standard/base-types/standard-numeric-format-strings#GFormatString
+                string value = Temperature.Value.ToString("G", CultureInfo.InvariantCulture);
+                content.Add(new StringContent(value), "temperature");
             }
 
             string contentType = default;
@@ -62,7 +64,6 @@ namespace OpenAI.Models
                 contentType = contentTypeValue.ToString();
             }
 
-            // TODO: transfer all headers instead of a few?
             RequestOptions options = new();
             if (content.Headers.ContentLength is long contentLength)
             {
