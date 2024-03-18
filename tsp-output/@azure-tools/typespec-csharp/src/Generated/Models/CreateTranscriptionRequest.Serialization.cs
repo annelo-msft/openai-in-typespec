@@ -32,8 +32,7 @@ namespace OpenAI.Models
 
             if (Temperature is not null)
             {
-                // TODO: preferred way to handle floats/numerics?
-                content.Add($"{Temperature}", "temperature");
+                content.Add(Temperature.Value, "temperature");
             }
 
             return content;

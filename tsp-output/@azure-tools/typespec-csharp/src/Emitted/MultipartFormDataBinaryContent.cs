@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ClientModel;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -41,6 +42,13 @@ internal class MultipartFormDataBinaryContent : BinaryContent
     public void Add(string content, string name, string fileName = default)
     {
         Add(new StringContent(content), name, fileName);
+    }
+
+    public void Add(double content, string name, string fileName = default)
+    {
+        // https://learn.microsoft.com/en-us/dotnet/standard/base-types/standard-numeric-format-strings#GFormatString
+        string value = content.ToString("G", CultureInfo.InvariantCulture);
+        Add(new StringContent(value), name, fileName);
     }
 
     public void Add(BinaryData content, string name, string fileName = default)
