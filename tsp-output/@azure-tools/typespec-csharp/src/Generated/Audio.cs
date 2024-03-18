@@ -164,8 +164,7 @@ namespace OpenAI
         {
             Argument.AssertNotNull(audio, nameof(audio));
 
-            // TODO: correct pattern for sync-over-async
-            (BinaryContent content, string contentType, RequestOptions options) = audio.ToMultipartContentAsync().Result;
+            (BinaryContent content, string contentType, RequestOptions options) = audio.ToMultipartContentAsync().GetAwaiter().GetResult();
             ClientResult result = CreateTranscription(content, contentType, options);
             return ClientResult.FromValue(CreateTranscriptionResponse.FromResponse(result.GetRawResponse()), result.GetRawResponse());
         }
@@ -271,8 +270,7 @@ namespace OpenAI
         {
             Argument.AssertNotNull(audio, nameof(audio));
 
-            // TODO: correct pattern for sync-over-async
-            (BinaryContent content, string contentType, RequestOptions options) = audio.ToMultipartContentAsync().Result;
+            (BinaryContent content, string contentType, RequestOptions options) = audio.ToMultipartContentAsync().GetAwaiter().GetResult();
             ClientResult result = CreateTranslation(content, contentType, options);
             return ClientResult.FromValue(CreateTranslationResponse.FromResponse(result.GetRawResponse()), result.GetRawResponse());
         }
