@@ -108,8 +108,7 @@ internal class MultipartFormDataBinaryContent : BinaryContent
 #if NET6_0_OR_GREATER
         _multipartContent.CopyTo(stream, default, cancellationToken);
 #else
-        // Sync over async
-        _multipartContent.CopyToAsync(stream).RunSynchronously();
+        _multipartContent.CopyToAsync(stream).GetAwaiter().GetResult();
 #endif
     }
 
