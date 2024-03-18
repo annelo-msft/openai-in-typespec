@@ -53,7 +53,6 @@ internal class MultipartFormDataBinaryContent : BinaryContent
 
     public void Add(BinaryData content, string name, string fileName = default)
     {
-        // TODO: is calling ToArray on BinaryData the most performant way?
         Add(new ByteArrayContent(content.ToArray()), name, fileName);
     }
 
@@ -112,6 +111,7 @@ internal class MultipartFormDataBinaryContent : BinaryContent
     public override void WriteTo(Stream stream, CancellationToken cancellationToken = default)
     {
         // TODO: polyfill sync-over-async for netstandard2.0 for Azure clients.
+        // Tracked by https://github.com/Azure/azure-sdk-for-net/issues/42674
 
 #if NET6_0_OR_GREATER
         _multipartContent.CopyTo(stream, default, cancellationToken);
