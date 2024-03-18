@@ -61,10 +61,9 @@ internal class MultipartFormDataBinaryContent : BinaryContent
 
     private static void AddFileNameHeader(HttpContent content, string name, string filename)
     {
-        // TODO: I think we need to add the content header manually because the
-        // default implementation is adding a `filename*` parameter to the header,
-        // which RFC 7578 says not to do -- I am following up with the BCL team
-        // on this to learn more about when this is/isn't needed.
+        // Add the content header manually because the default implementation
+        // adds a `filename*` parameter to the header, which RFC 7578 says not
+        // to do.  We are following up with the BCL team per correctness.
         ContentDispositionHeaderValue header = new("form-data")
         {
             Name = name,
