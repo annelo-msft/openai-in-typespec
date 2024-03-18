@@ -2,7 +2,7 @@
 
 #nullable disable
 
-using System.ClientModel.Primitives;
+using OpenAI.Emitted;
 
 namespace OpenAI.Models
 {
@@ -12,8 +12,7 @@ namespace OpenAI.Models
         {
             MultipartFormDataBinaryContent content = new();
 
-            // TODO: take filename?  Something needed in TSP to support this?
-            content.Add(File, "file");
+            content.Add(File, "file", FileName);
             content.Add(Model.ToString(), "model");
 
             if (Language is not null)
