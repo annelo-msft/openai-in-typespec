@@ -396,7 +396,7 @@ namespace OpenAI
             uri.AppendPath("/audio/transcriptions", false);
             request.Uri = uri.ToUri();
             request.Headers.Set("Accept", "application/json");
-            request.Headers.Set("content-type", contentType);
+            request.Headers.Set("Content-Type", contentType);
             request.Content = content;
             message.Apply(options);
             return message;
@@ -413,7 +413,7 @@ namespace OpenAI
             uri.AppendPath("/audio/translations", false);
             request.Uri = uri.ToUri();
             request.Headers.Set("Accept", "application/json");
-            request.Headers.Set("content-type", contentType);
+            request.Headers.Set("Content-Type", contentType);
             request.Content = content;
             message.Apply(options);
             return message;
