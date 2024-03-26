@@ -9,7 +9,7 @@ namespace OpenAI.Samples
     public partial class ImageSamples
     {
         [Test]
-        // [Ignore("Compilation validation only")]
+        [Ignore("Compilation validation only")]
         public async Task Sample02_SimpleImageEditAsync()
         {
             ImageClient client = new("dall-e-2", Environment.GetEnvironmentVariable("OpenAIClient_KEY"));
@@ -25,11 +25,12 @@ namespace OpenAI.Samples
             ImageEditOptions options = new()
             {
                 MaskBytes = maskBytes,
-                Size = ImageSize.Size1024x1024,
+                MaskFileName = "edit_sample_mask.png",
+                Size = GeneratedImageSize.W1024xH1024,
                 ResponseFormat = ImageResponseFormat.Bytes
             };
 
-            GeneratedImageCollection image = await client.GenerateImageEditsAsync(imageBytes, prompt, 1, options);
+            GeneratedImageCollection image = await client.GenerateImageEditsAsync(imageBytes, "edit_sample_image.png", prompt, 1, options);
             BinaryData bytes = image[0].ImageBytes;
 
             using FileStream stream = File.OpenWrite($"{Guid.NewGuid()}.png");
