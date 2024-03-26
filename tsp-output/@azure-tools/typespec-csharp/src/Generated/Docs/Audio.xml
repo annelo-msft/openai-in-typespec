@@ -1,0 +1,421 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doc>
+  <members>
+    <member name="CreateSpeechAsync(CreateSpeechRequest,CancellationToken)">
+      <example>
+This sample shows how to call CreateSpeechAsync.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+Audio client = new OpenAIClient(credential).GetAudioClient();
+
+CreateSpeechRequest speech = new CreateSpeechRequest(new CreateSpeechRequestModel("<model>"), "<input>", CreateSpeechRequestVoice.Alloy);
+Response<BinaryData> response = await client.CreateSpeechAsync(speech);
+]]></code>
+This sample shows how to call CreateSpeechAsync with all parameters.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+Audio client = new OpenAIClient(credential).GetAudioClient();
+
+CreateSpeechRequest speech = new CreateSpeechRequest(new CreateSpeechRequestModel("<model>"), "<input>", CreateSpeechRequestVoice.Alloy)
+{
+    ResponseFormat = CreateSpeechRequestResponseFormat.Mp3,
+    Speed = 123.45,
+};
+Response<BinaryData> response = await client.CreateSpeechAsync(speech);
+]]></code></example>
+    </member>
+    <member name="CreateSpeech(CreateSpeechRequest,CancellationToken)">
+      <example>
+This sample shows how to call CreateSpeech.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+Audio client = new OpenAIClient(credential).GetAudioClient();
+
+CreateSpeechRequest speech = new CreateSpeechRequest(new CreateSpeechRequestModel("<model>"), "<input>", CreateSpeechRequestVoice.Alloy);
+Response<BinaryData> response = client.CreateSpeech(speech);
+]]></code>
+This sample shows how to call CreateSpeech with all parameters.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+Audio client = new OpenAIClient(credential).GetAudioClient();
+
+CreateSpeechRequest speech = new CreateSpeechRequest(new CreateSpeechRequestModel("<model>"), "<input>", CreateSpeechRequestVoice.Alloy)
+{
+    ResponseFormat = CreateSpeechRequestResponseFormat.Mp3,
+    Speed = 123.45,
+};
+Response<BinaryData> response = client.CreateSpeech(speech);
+]]></code></example>
+    </member>
+    <member name="CreateSpeechAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call CreateSpeechAsync and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+Audio client = new OpenAIClient(credential).GetAudioClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    model = "<model>",
+    input = "<input>",
+    voice = "alloy",
+});
+Response response = await client.CreateSpeechAsync(content);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call CreateSpeechAsync with all request content and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+Audio client = new OpenAIClient(credential).GetAudioClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    model = "<model>",
+    input = "<input>",
+    voice = "alloy",
+    response_format = "mp3",
+    speed = 123.45,
+});
+Response response = await client.CreateSpeechAsync(content);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code></example>
+    </member>
+    <member name="CreateSpeech(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call CreateSpeech and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+Audio client = new OpenAIClient(credential).GetAudioClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    model = "<model>",
+    input = "<input>",
+    voice = "alloy",
+});
+Response response = client.CreateSpeech(content);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call CreateSpeech with all request content and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+Audio client = new OpenAIClient(credential).GetAudioClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    model = "<model>",
+    input = "<input>",
+    voice = "alloy",
+    response_format = "mp3",
+    speed = 123.45,
+});
+Response response = client.CreateSpeech(content);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code></example>
+    </member>
+    <member name="CreateTranscriptionAsync(CreateTranscriptionRequest,CancellationToken)">
+      <example>
+This sample shows how to call CreateTranscriptionAsync.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+Audio client = new OpenAIClient(credential).GetAudioClient();
+
+CreateTranscriptionRequest audio = new CreateTranscriptionRequest(BinaryData.FromObjectAsJson(new object()), new CreateTranscriptionRequestModel("<model>"));
+Response<CreateTranscriptionResponse> response = await client.CreateTranscriptionAsync(audio);
+]]></code>
+This sample shows how to call CreateTranscriptionAsync with all parameters.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+Audio client = new OpenAIClient(credential).GetAudioClient();
+
+CreateTranscriptionRequest audio = new CreateTranscriptionRequest(BinaryData.FromObjectAsJson(new object()), new CreateTranscriptionRequestModel("<model>"))
+{
+    Language = "<language>",
+    Prompt = "<prompt>",
+    ResponseFormat = CreateTranscriptionRequestResponseFormat.Json,
+    Temperature = 123.45,
+};
+Response<CreateTranscriptionResponse> response = await client.CreateTranscriptionAsync(audio);
+]]></code></example>
+    </member>
+    <member name="CreateTranscription(CreateTranscriptionRequest,CancellationToken)">
+      <example>
+This sample shows how to call CreateTranscription.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+Audio client = new OpenAIClient(credential).GetAudioClient();
+
+CreateTranscriptionRequest audio = new CreateTranscriptionRequest(BinaryData.FromObjectAsJson(new object()), new CreateTranscriptionRequestModel("<model>"));
+Response<CreateTranscriptionResponse> response = client.CreateTranscription(audio);
+]]></code>
+This sample shows how to call CreateTranscription with all parameters.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+Audio client = new OpenAIClient(credential).GetAudioClient();
+
+CreateTranscriptionRequest audio = new CreateTranscriptionRequest(BinaryData.FromObjectAsJson(new object()), new CreateTranscriptionRequestModel("<model>"))
+{
+    Language = "<language>",
+    Prompt = "<prompt>",
+    ResponseFormat = CreateTranscriptionRequestResponseFormat.Json,
+    Temperature = 123.45,
+};
+Response<CreateTranscriptionResponse> response = client.CreateTranscription(audio);
+]]></code></example>
+    </member>
+    <member name="CreateTranscriptionAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call CreateTranscriptionAsync and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+Audio client = new OpenAIClient(credential).GetAudioClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    file = new object(),
+    model = "<model>",
+});
+Response response = await client.CreateTranscriptionAsync(content);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("text").ToString());
+]]></code>
+This sample shows how to call CreateTranscriptionAsync with all request content and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+Audio client = new OpenAIClient(credential).GetAudioClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    file = new object(),
+    model = "<model>",
+    language = "<language>",
+    prompt = "<prompt>",
+    response_format = "json",
+    temperature = 123.45,
+});
+Response response = await client.CreateTranscriptionAsync(content);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("text").ToString());
+Console.WriteLine(result.GetProperty("task").ToString());
+Console.WriteLine(result.GetProperty("language").ToString());
+Console.WriteLine(result.GetProperty("duration").ToString());
+Console.WriteLine(result.GetProperty("segments")[0].GetProperty("id").ToString());
+Console.WriteLine(result.GetProperty("segments")[0].GetProperty("seek").ToString());
+Console.WriteLine(result.GetProperty("segments")[0].GetProperty("start").ToString());
+Console.WriteLine(result.GetProperty("segments")[0].GetProperty("end").ToString());
+Console.WriteLine(result.GetProperty("segments")[0].GetProperty("text").ToString());
+Console.WriteLine(result.GetProperty("segments")[0].GetProperty("tokens")[0].ToString());
+Console.WriteLine(result.GetProperty("segments")[0].GetProperty("temperature").ToString());
+Console.WriteLine(result.GetProperty("segments")[0].GetProperty("avg_logprob").ToString());
+Console.WriteLine(result.GetProperty("segments")[0].GetProperty("compression_ratio").ToString());
+Console.WriteLine(result.GetProperty("segments")[0].GetProperty("no_speech_prob").ToString());
+]]></code></example>
+    </member>
+    <member name="CreateTranscription(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call CreateTranscription and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+Audio client = new OpenAIClient(credential).GetAudioClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    file = new object(),
+    model = "<model>",
+});
+Response response = client.CreateTranscription(content);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("text").ToString());
+]]></code>
+This sample shows how to call CreateTranscription with all request content and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+Audio client = new OpenAIClient(credential).GetAudioClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    file = new object(),
+    model = "<model>",
+    language = "<language>",
+    prompt = "<prompt>",
+    response_format = "json",
+    temperature = 123.45,
+});
+Response response = client.CreateTranscription(content);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("text").ToString());
+Console.WriteLine(result.GetProperty("task").ToString());
+Console.WriteLine(result.GetProperty("language").ToString());
+Console.WriteLine(result.GetProperty("duration").ToString());
+Console.WriteLine(result.GetProperty("segments")[0].GetProperty("id").ToString());
+Console.WriteLine(result.GetProperty("segments")[0].GetProperty("seek").ToString());
+Console.WriteLine(result.GetProperty("segments")[0].GetProperty("start").ToString());
+Console.WriteLine(result.GetProperty("segments")[0].GetProperty("end").ToString());
+Console.WriteLine(result.GetProperty("segments")[0].GetProperty("text").ToString());
+Console.WriteLine(result.GetProperty("segments")[0].GetProperty("tokens")[0].ToString());
+Console.WriteLine(result.GetProperty("segments")[0].GetProperty("temperature").ToString());
+Console.WriteLine(result.GetProperty("segments")[0].GetProperty("avg_logprob").ToString());
+Console.WriteLine(result.GetProperty("segments")[0].GetProperty("compression_ratio").ToString());
+Console.WriteLine(result.GetProperty("segments")[0].GetProperty("no_speech_prob").ToString());
+]]></code></example>
+    </member>
+    <member name="CreateTranslationAsync(CreateTranslationRequest,CancellationToken)">
+      <example>
+This sample shows how to call CreateTranslationAsync.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+Audio client = new OpenAIClient(credential).GetAudioClient();
+
+CreateTranslationRequest audio = new CreateTranslationRequest(BinaryData.FromObjectAsJson(new object()), new CreateTranslationRequestModel("<model>"));
+Response<CreateTranslationResponse> response = await client.CreateTranslationAsync(audio);
+]]></code>
+This sample shows how to call CreateTranslationAsync with all parameters.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+Audio client = new OpenAIClient(credential).GetAudioClient();
+
+CreateTranslationRequest audio = new CreateTranslationRequest(BinaryData.FromObjectAsJson(new object()), new CreateTranslationRequestModel("<model>"))
+{
+    Prompt = "<prompt>",
+    ResponseFormat = CreateTranslationRequestResponseFormat.Json,
+    Temperature = 123.45,
+};
+Response<CreateTranslationResponse> response = await client.CreateTranslationAsync(audio);
+]]></code></example>
+    </member>
+    <member name="CreateTranslation(CreateTranslationRequest,CancellationToken)">
+      <example>
+This sample shows how to call CreateTranslation.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+Audio client = new OpenAIClient(credential).GetAudioClient();
+
+CreateTranslationRequest audio = new CreateTranslationRequest(BinaryData.FromObjectAsJson(new object()), new CreateTranslationRequestModel("<model>"));
+Response<CreateTranslationResponse> response = client.CreateTranslation(audio);
+]]></code>
+This sample shows how to call CreateTranslation with all parameters.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+Audio client = new OpenAIClient(credential).GetAudioClient();
+
+CreateTranslationRequest audio = new CreateTranslationRequest(BinaryData.FromObjectAsJson(new object()), new CreateTranslationRequestModel("<model>"))
+{
+    Prompt = "<prompt>",
+    ResponseFormat = CreateTranslationRequestResponseFormat.Json,
+    Temperature = 123.45,
+};
+Response<CreateTranslationResponse> response = client.CreateTranslation(audio);
+]]></code></example>
+    </member>
+    <member name="CreateTranslationAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call CreateTranslationAsync and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+Audio client = new OpenAIClient(credential).GetAudioClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    file = new object(),
+    model = "<model>",
+});
+Response response = await client.CreateTranslationAsync(content);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("text").ToString());
+]]></code>
+This sample shows how to call CreateTranslationAsync with all request content and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+Audio client = new OpenAIClient(credential).GetAudioClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    file = new object(),
+    model = "<model>",
+    prompt = "<prompt>",
+    response_format = "json",
+    temperature = 123.45,
+});
+Response response = await client.CreateTranslationAsync(content);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("text").ToString());
+Console.WriteLine(result.GetProperty("task").ToString());
+Console.WriteLine(result.GetProperty("language").ToString());
+Console.WriteLine(result.GetProperty("duration").ToString());
+Console.WriteLine(result.GetProperty("segments")[0].GetProperty("id").ToString());
+Console.WriteLine(result.GetProperty("segments")[0].GetProperty("seek").ToString());
+Console.WriteLine(result.GetProperty("segments")[0].GetProperty("start").ToString());
+Console.WriteLine(result.GetProperty("segments")[0].GetProperty("end").ToString());
+Console.WriteLine(result.GetProperty("segments")[0].GetProperty("text").ToString());
+Console.WriteLine(result.GetProperty("segments")[0].GetProperty("tokens")[0].ToString());
+Console.WriteLine(result.GetProperty("segments")[0].GetProperty("temperature").ToString());
+Console.WriteLine(result.GetProperty("segments")[0].GetProperty("avg_logprob").ToString());
+Console.WriteLine(result.GetProperty("segments")[0].GetProperty("compression_ratio").ToString());
+Console.WriteLine(result.GetProperty("segments")[0].GetProperty("no_speech_prob").ToString());
+]]></code></example>
+    </member>
+    <member name="CreateTranslation(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call CreateTranslation and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+Audio client = new OpenAIClient(credential).GetAudioClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    file = new object(),
+    model = "<model>",
+});
+Response response = client.CreateTranslation(content);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("text").ToString());
+]]></code>
+This sample shows how to call CreateTranslation with all request content and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+Audio client = new OpenAIClient(credential).GetAudioClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    file = new object(),
+    model = "<model>",
+    prompt = "<prompt>",
+    response_format = "json",
+    temperature = 123.45,
+});
+Response response = client.CreateTranslation(content);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("text").ToString());
+Console.WriteLine(result.GetProperty("task").ToString());
+Console.WriteLine(result.GetProperty("language").ToString());
+Console.WriteLine(result.GetProperty("duration").ToString());
+Console.WriteLine(result.GetProperty("segments")[0].GetProperty("id").ToString());
+Console.WriteLine(result.GetProperty("segments")[0].GetProperty("seek").ToString());
+Console.WriteLine(result.GetProperty("segments")[0].GetProperty("start").ToString());
+Console.WriteLine(result.GetProperty("segments")[0].GetProperty("end").ToString());
+Console.WriteLine(result.GetProperty("segments")[0].GetProperty("text").ToString());
+Console.WriteLine(result.GetProperty("segments")[0].GetProperty("tokens")[0].ToString());
+Console.WriteLine(result.GetProperty("segments")[0].GetProperty("temperature").ToString());
+Console.WriteLine(result.GetProperty("segments")[0].GetProperty("avg_logprob").ToString());
+Console.WriteLine(result.GetProperty("segments")[0].GetProperty("compression_ratio").ToString());
+Console.WriteLine(result.GetProperty("segments")[0].GetProperty("no_speech_prob").ToString());
+]]></code></example>
+    </member>
+  </members>
+</doc>
