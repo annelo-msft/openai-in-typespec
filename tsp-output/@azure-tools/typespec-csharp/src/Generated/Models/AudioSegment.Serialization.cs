@@ -17,7 +17,7 @@ namespace OpenAI.Models
             var format = options.Format == "W" ? ((IPersistableModel<AudioSegment>)this).GetFormatFromOptions(options) : options.Format;
             if (format != "J")
             {
-                throw new FormatException($"The model {nameof(AudioSegment)} does not support '{format}' format.");
+                throw new FormatException($"The model {nameof(AudioSegment)} does not support writing '{format}' format.");
             }
 
             writer.WriteStartObject();
@@ -69,7 +69,7 @@ namespace OpenAI.Models
             var format = options.Format == "W" ? ((IPersistableModel<AudioSegment>)this).GetFormatFromOptions(options) : options.Format;
             if (format != "J")
             {
-                throw new FormatException($"The model {nameof(AudioSegment)} does not support '{format}' format.");
+                throw new FormatException($"The model {nameof(AudioSegment)} does not support reading '{format}' format.");
             }
 
             using JsonDocument document = JsonDocument.ParseValue(ref reader);
@@ -159,7 +159,18 @@ namespace OpenAI.Models
                 }
             }
             serializedAdditionalRawData = additionalPropertiesDictionary;
-            return new AudioSegment(id, seek, start, end, text, tokens, temperature, avgLogprob, compressionRatio, noSpeechProb, serializedAdditionalRawData);
+            return new AudioSegment(
+                id,
+                seek,
+                start,
+                end,
+                text,
+                tokens,
+                temperature,
+                avgLogprob,
+                compressionRatio,
+                noSpeechProb,
+                serializedAdditionalRawData);
         }
 
         BinaryData IPersistableModel<AudioSegment>.Write(ModelReaderWriterOptions options)
@@ -171,7 +182,7 @@ namespace OpenAI.Models
                 case "J":
                     return ModelReaderWriter.Write(this, options);
                 default:
-                    throw new FormatException($"The model {nameof(AudioSegment)} does not support '{options.Format}' format.");
+                    throw new FormatException($"The model {nameof(AudioSegment)} does not support writing '{options.Format}' format.");
             }
         }
 
@@ -187,7 +198,7 @@ namespace OpenAI.Models
                         return DeserializeAudioSegment(document.RootElement, options);
                     }
                 default:
-                    throw new FormatException($"The model {nameof(AudioSegment)} does not support '{options.Format}' format.");
+                    throw new FormatException($"The model {nameof(AudioSegment)} does not support reading '{options.Format}' format.");
             }
         }
 
@@ -204,7 +215,7 @@ namespace OpenAI.Models
         /// <summary> Convert into a BinaryContent. </summary>
         internal virtual BinaryContent ToBinaryContent()
         {
-            return BinaryContent.Create(ModelReaderWriter.Write(this));
+            return BinaryContent.Create(this, new ModelReaderWriterOptions("W"));
         }
     }
 }

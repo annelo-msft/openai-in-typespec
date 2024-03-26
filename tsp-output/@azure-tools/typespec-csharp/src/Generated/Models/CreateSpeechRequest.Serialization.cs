@@ -17,7 +17,7 @@ namespace OpenAI.Models
             var format = options.Format == "W" ? ((IPersistableModel<CreateSpeechRequest>)this).GetFormatFromOptions(options) : options.Format;
             if (format != "J")
             {
-                throw new FormatException($"The model {nameof(CreateSpeechRequest)} does not support '{format}' format.");
+                throw new FormatException($"The model {nameof(CreateSpeechRequest)} does not support writing '{format}' format.");
             }
 
             writer.WriteStartObject();
@@ -27,12 +27,12 @@ namespace OpenAI.Models
             writer.WriteStringValue(Input);
             writer.WritePropertyName("voice"u8);
             writer.WriteStringValue(Voice.ToString());
-            if (ResponseFormat is not null)
+            if (Optional.IsDefined(ResponseFormat))
             {
                 writer.WritePropertyName("response_format"u8);
                 writer.WriteStringValue(ResponseFormat.Value.ToString());
             }
-            if (Speed is not null)
+            if (Optional.IsDefined(Speed))
             {
                 writer.WritePropertyName("speed"u8);
                 writer.WriteNumberValue(Speed.Value);
@@ -60,7 +60,7 @@ namespace OpenAI.Models
             var format = options.Format == "W" ? ((IPersistableModel<CreateSpeechRequest>)this).GetFormatFromOptions(options) : options.Format;
             if (format != "J")
             {
-                throw new FormatException($"The model {nameof(CreateSpeechRequest)} does not support '{format}' format.");
+                throw new FormatException($"The model {nameof(CreateSpeechRequest)} does not support reading '{format}' format.");
             }
 
             using JsonDocument document = JsonDocument.ParseValue(ref reader);
@@ -123,7 +123,13 @@ namespace OpenAI.Models
                 }
             }
             serializedAdditionalRawData = additionalPropertiesDictionary;
-            return new CreateSpeechRequest(model, input, voice, responseFormat, speed, serializedAdditionalRawData);
+            return new CreateSpeechRequest(
+                model,
+                input,
+                voice,
+                responseFormat,
+                speed,
+                serializedAdditionalRawData);
         }
 
         BinaryData IPersistableModel<CreateSpeechRequest>.Write(ModelReaderWriterOptions options)
@@ -135,7 +141,7 @@ namespace OpenAI.Models
                 case "J":
                     return ModelReaderWriter.Write(this, options);
                 default:
-                    throw new FormatException($"The model {nameof(CreateSpeechRequest)} does not support '{options.Format}' format.");
+                    throw new FormatException($"The model {nameof(CreateSpeechRequest)} does not support writing '{options.Format}' format.");
             }
         }
 
@@ -151,7 +157,7 @@ namespace OpenAI.Models
                         return DeserializeCreateSpeechRequest(document.RootElement, options);
                     }
                 default:
-                    throw new FormatException($"The model {nameof(CreateSpeechRequest)} does not support '{options.Format}' format.");
+                    throw new FormatException($"The model {nameof(CreateSpeechRequest)} does not support reading '{options.Format}' format.");
             }
         }
 
@@ -168,7 +174,7 @@ namespace OpenAI.Models
         /// <summary> Convert into a BinaryContent. </summary>
         internal virtual BinaryContent ToBinaryContent()
         {
-            return BinaryContent.Create(ModelReaderWriter.Write(this));
+            return BinaryContent.Create(this, new ModelReaderWriterOptions("W"));
         }
     }
 }

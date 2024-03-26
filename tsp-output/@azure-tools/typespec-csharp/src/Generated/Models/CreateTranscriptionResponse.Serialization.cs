@@ -17,34 +17,34 @@ namespace OpenAI.Models
             var format = options.Format == "W" ? ((IPersistableModel<CreateTranscriptionResponse>)this).GetFormatFromOptions(options) : options.Format;
             if (format != "J")
             {
-                throw new FormatException($"The model {nameof(CreateTranscriptionResponse)} does not support '{format}' format.");
+                throw new FormatException($"The model {nameof(CreateTranscriptionResponse)} does not support writing '{format}' format.");
             }
 
             writer.WriteStartObject();
             writer.WritePropertyName("text"u8);
             writer.WriteStringValue(Text);
-            if (Task is not null)
+            if (Optional.IsDefined(Task))
             {
                 writer.WritePropertyName("task"u8);
                 writer.WriteStringValue(Task.Value.ToString());
             }
-            if (Language is not null)
+            if (Optional.IsDefined(Language))
             {
                 writer.WritePropertyName("language"u8);
                 writer.WriteStringValue(Language);
             }
-            if (Duration is not null)
+            if (Optional.IsDefined(Duration))
             {
                 writer.WritePropertyName("duration"u8);
                 writer.WriteNumberValue(Convert.ToInt32(Duration.Value.ToString("%s")));
             }
-            if (Segments is not null)
+            if (Optional.IsCollectionDefined(Segments))
             {
                 writer.WritePropertyName("segments"u8);
                 writer.WriteStartArray();
                 foreach (var item in Segments)
                 {
-                    ((IJsonModel<AudioSegment>)item).Write(writer, options);
+                    writer.WriteObjectValue<AudioSegment>(item, options);
                 }
                 writer.WriteEndArray();
             }
@@ -71,7 +71,7 @@ namespace OpenAI.Models
             var format = options.Format == "W" ? ((IPersistableModel<CreateTranscriptionResponse>)this).GetFormatFromOptions(options) : options.Format;
             if (format != "J")
             {
-                throw new FormatException($"The model {nameof(CreateTranscriptionResponse)} does not support '{format}' format.");
+                throw new FormatException($"The model {nameof(CreateTranscriptionResponse)} does not support reading '{format}' format.");
             }
 
             using JsonDocument document = JsonDocument.ParseValue(ref reader);
@@ -132,7 +132,7 @@ namespace OpenAI.Models
                     List<AudioSegment> array = new List<AudioSegment>();
                     foreach (var item in property.Value.EnumerateArray())
                     {
-                        array.Add(AudioSegment.DeserializeAudioSegment(item));
+                        array.Add(AudioSegment.DeserializeAudioSegment(item, options));
                     }
                     segments = array;
                     continue;
@@ -143,7 +143,13 @@ namespace OpenAI.Models
                 }
             }
             serializedAdditionalRawData = additionalPropertiesDictionary;
-            return new CreateTranscriptionResponse(text, task, language, duration, segments, serializedAdditionalRawData);
+            return new CreateTranscriptionResponse(
+                text,
+                task,
+                language,
+                duration,
+                segments ?? new ChangeTrackingList<AudioSegment>(),
+                serializedAdditionalRawData);
         }
 
         BinaryData IPersistableModel<CreateTranscriptionResponse>.Write(ModelReaderWriterOptions options)
@@ -155,7 +161,7 @@ namespace OpenAI.Models
                 case "J":
                     return ModelReaderWriter.Write(this, options);
                 default:
-                    throw new FormatException($"The model {nameof(CreateTranscriptionResponse)} does not support '{options.Format}' format.");
+                    throw new FormatException($"The model {nameof(CreateTranscriptionResponse)} does not support writing '{options.Format}' format.");
             }
         }
 
@@ -171,7 +177,7 @@ namespace OpenAI.Models
                         return DeserializeCreateTranscriptionResponse(document.RootElement, options);
                     }
                 default:
-                    throw new FormatException($"The model {nameof(CreateTranscriptionResponse)} does not support '{options.Format}' format.");
+                    throw new FormatException($"The model {nameof(CreateTranscriptionResponse)} does not support reading '{options.Format}' format.");
             }
         }
 
@@ -188,7 +194,7 @@ namespace OpenAI.Models
         /// <summary> Convert into a BinaryContent. </summary>
         internal virtual BinaryContent ToBinaryContent()
         {
-            return BinaryContent.Create(ModelReaderWriter.Write(this));
+            return BinaryContent.Create(this, new ModelReaderWriterOptions("W"));
         }
     }
 }
