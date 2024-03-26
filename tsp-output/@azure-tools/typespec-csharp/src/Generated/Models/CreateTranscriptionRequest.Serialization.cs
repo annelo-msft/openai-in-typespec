@@ -2,8 +2,6 @@
 
 #nullable disable
 
-using OpenAI.Emitted;
-
 namespace OpenAI.Models
 {
     public partial class CreateTranscriptionRequest

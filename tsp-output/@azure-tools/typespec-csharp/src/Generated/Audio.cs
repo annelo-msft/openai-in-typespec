@@ -217,7 +217,7 @@ namespace OpenAI
             Argument.AssertNotNull(audio, nameof(audio));
 
             using MultipartFormDataBinaryContent content = audio.ToMultipartContent();
-            ClientResult result = await CreateTranslationAsync(content,content.ContentType).ConfigureAwait(false);
+            ClientResult result = await CreateTranslationAsync(content, content.ContentType).ConfigureAwait(false);
             return ClientResult.FromValue(CreateTranslationResponse.FromResponse(result.GetRawResponse()), result.GetRawResponse());
         }
 
