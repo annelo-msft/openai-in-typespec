@@ -358,7 +358,7 @@ namespace OpenAI
         internal PipelineMessage CreateCreateSpeechRequest(BinaryContent content, RequestOptions options)
         {
             var message = _pipeline.CreateMessage();
-            message.ResponseClassifier = ResponseErrorClassifier200;
+            message.ResponseClassifier = PipelineMessageClassifier200;
             var request = message.Request;
             request.Method = "POST";
             var uri = new ClientUriBuilder();
@@ -375,7 +375,7 @@ namespace OpenAI
         internal PipelineMessage CreateCreateTranscriptionRequest(BinaryContent content, string contentType, RequestOptions options)
         {
             var message = _pipeline.CreateMessage();
-            message.ResponseClassifier = ResponseErrorClassifier200;
+            message.ResponseClassifier = PipelineMessageClassifier200;
             var request = message.Request;
             request.Method = "POST";
             var uri = new ClientUriBuilder();
@@ -392,7 +392,7 @@ namespace OpenAI
         internal PipelineMessage CreateCreateTranslationRequest(BinaryContent content, string contentType, RequestOptions options)
         {
             var message = _pipeline.CreateMessage();
-            message.ResponseClassifier = ResponseErrorClassifier200;
+            message.ResponseClassifier = PipelineMessageClassifier200;
             var request = message.Request;
             request.Method = "POST";
             var uri = new ClientUriBuilder();
@@ -406,7 +406,7 @@ namespace OpenAI
             return message;
         }
 
-        private static PipelineMessageClassifier _responseErrorClassifier200;
-        private static PipelineMessageClassifier ResponseErrorClassifier200 => _responseErrorClassifier200 ??= PipelineMessageClassifier.Create(stackalloc ushort[] { 200 });
+        private static PipelineMessageClassifier _pipelineMessageClassifier200;
+        private static PipelineMessageClassifier PipelineMessageClassifier200 => _pipelineMessageClassifier200 ??= PipelineMessageClassifier.Create(stackalloc ushort[] { 200 });
     }
 }
