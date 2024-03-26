@@ -4,7 +4,8 @@
 
 using System;
 using System.Text;
-namespace OpenAI.Emitted;
+
+namespace OpenAI;
 
 internal class ClientUriBuilder
 {

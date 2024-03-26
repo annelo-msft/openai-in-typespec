@@ -2,7 +2,6 @@
 
 #nullable disable
 
-using OpenAI.Emitted;
 using OpenAI.Models;
 using System;
 using System.ClientModel;
@@ -43,7 +42,6 @@ namespace OpenAI
         /// <summary> Generates audio from the input text. </summary>
         /// <param name="speech"> The <see cref="CreateSpeechRequest"/> to use. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="speech"/> is null. </exception>
-        /// <include file="Docs/Audio.xml" path="doc/members/member[@name='CreateSpeechAsync(CreateSpeechRequest,CancellationToken)']/*" />
         public virtual async Task<ClientResult<BinaryData>> CreateSpeechAsync(CreateSpeechRequest speech)
         {
             Argument.AssertNotNull(speech, nameof(speech));
@@ -56,7 +54,6 @@ namespace OpenAI
         /// <summary> Generates audio from the input text. </summary>
         /// <param name="speech"> The <see cref="CreateSpeechRequest"/> to use. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="speech"/> is null. </exception>
-        /// <include file="Docs/Audio.xml" path="doc/members/member[@name='CreateSpeech(CreateSpeechRequest,CancellationToken)']/*" />
         public virtual ClientResult<BinaryData> CreateSpeech(CreateSpeechRequest speech)
         {
             Argument.AssertNotNull(speech, nameof(speech));
@@ -71,7 +68,7 @@ namespace OpenAI
         /// <list type="bullet">
         /// <item>
         /// <description>
-        /// This <see href="https://github.com/Azure/azure-sdk-for-net/blob/main/sdk/core/Azure.Core/samples/ProtocolMethods.md">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios.
+        /// This <see href="https://azsdk/net/protocol/quickstart">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios.
         /// </description>
         /// </item>
         /// <item>
@@ -86,7 +83,6 @@ namespace OpenAI
         /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        /// <include file="Docs/Audio.xml" path="doc/members/member[@name='CreateSpeechAsync(RequestContent,RequestContext)']/*" />
         public virtual async Task<ClientResult> CreateSpeechAsync(BinaryContent content, RequestOptions options = null)
         {
             Argument.AssertNotNull(content, nameof(content));
@@ -94,17 +90,7 @@ namespace OpenAI
             options ??= new RequestOptions();
 
             using PipelineMessage message = CreateCreateSpeechRequest(content, options);
-
-            await _pipeline.SendAsync(message).ConfigureAwait(false);
-
-            PipelineResponse response = message.Response!;
-
-            if (response.IsError && options.ErrorOptions == ClientErrorBehaviors.Default)
-            {
-                throw await ClientResultException.CreateAsync(response).ConfigureAwait(false);
-            }
-
-            return ClientResult.FromResponse(response);
+            return ClientResult.FromResponse(await _pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
         }
 
         /// <summary>
@@ -112,7 +98,7 @@ namespace OpenAI
         /// <list type="bullet">
         /// <item>
         /// <description>
-        /// This <see href="https://github.com/Azure/azure-sdk-for-net/blob/main/sdk/core/Azure.Core/samples/ProtocolMethods.md">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios.
+        /// This <see href="https://azsdk/net/protocol/quickstart">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios.
         /// </description>
         /// </item>
         /// <item>
@@ -127,7 +113,6 @@ namespace OpenAI
         /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        /// <include file="Docs/Audio.xml" path="doc/members/member[@name='CreateSpeech(RequestContent,RequestContext)']/*" />
         public virtual ClientResult CreateSpeech(BinaryContent content, RequestOptions options = null)
         {
             Argument.AssertNotNull(content, nameof(content));
@@ -135,23 +120,12 @@ namespace OpenAI
             options ??= new RequestOptions();
 
             using PipelineMessage message = CreateCreateSpeechRequest(content, options);
-
-            _pipeline.Send(message);
-
-            PipelineResponse response = message.Response!;
-
-            if (response.IsError && options.ErrorOptions == ClientErrorBehaviors.Default)
-            {
-                throw new ClientResultException(response);
-            }
-
-            return ClientResult.FromResponse(response);
+            return ClientResult.FromResponse(_pipeline.ProcessMessage(message, options));
         }
 
         /// <summary> Transcribes audio into the input language. </summary>
         /// <param name="audio"> The <see cref="CreateTranscriptionRequest"/> to use. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="audio"/> is null. </exception>
-        /// <include file="Docs/Audio.xml" path="doc/members/member[@name='CreateTranscriptionAsync(CreateTranscriptionRequest,CancellationToken)']/*" />
         public virtual async Task<ClientResult<CreateTranscriptionResponse>> CreateTranscriptionAsync(CreateTranscriptionRequest audio)
         {
             Argument.AssertNotNull(audio, nameof(audio));
@@ -164,7 +138,6 @@ namespace OpenAI
         /// <summary> Transcribes audio into the input language. </summary>
         /// <param name="audio"> The <see cref="CreateTranscriptionRequest"/> to use. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="audio"/> is null. </exception>
-        /// <include file="Docs/Audio.xml" path="doc/members/member[@name='CreateTranscription(CreateTranscriptionRequest,CancellationToken)']/*" />
         public virtual ClientResult<CreateTranscriptionResponse> CreateTranscription(CreateTranscriptionRequest audio)
         {
             Argument.AssertNotNull(audio, nameof(audio));
@@ -179,7 +152,7 @@ namespace OpenAI
         /// <list type="bullet">
         /// <item>
         /// <description>
-        /// This <see href="https://github.com/Azure/azure-sdk-for-net/blob/main/sdk/core/Azure.Core/samples/ProtocolMethods.md">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios.
+        /// This <see href="https://azsdk/net/protocol/quickstart">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios.
         /// </description>
         /// </item>
         /// <item>
@@ -195,7 +168,6 @@ namespace OpenAI
         /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        /// <include file="Docs/Audio.xml" path="doc/members/member[@name='CreateTranscriptionAsync(RequestContent,RequestContext)']/*" />
         public virtual async Task<ClientResult> CreateTranscriptionAsync(BinaryContent content, string contentType, RequestOptions options = null)
         {
             Argument.AssertNotNull(content, nameof(content));
@@ -203,17 +175,7 @@ namespace OpenAI
             options ??= new RequestOptions();
 
             using PipelineMessage message = CreateCreateTranscriptionRequest(content, contentType, options);
-
-            await _pipeline.SendAsync(message).ConfigureAwait(false);
-
-            PipelineResponse response = message.Response!;
-
-            if (response.IsError && options.ErrorOptions == ClientErrorBehaviors.Default)
-            {
-                throw await ClientResultException.CreateAsync(response).ConfigureAwait(false);
-            }
-
-            return ClientResult.FromResponse(response);
+            return ClientResult.FromResponse(await _pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
         }
 
         /// <summary>
@@ -221,7 +183,7 @@ namespace OpenAI
         /// <list type="bullet">
         /// <item>
         /// <description>
-        /// This <see href="https://github.com/Azure/azure-sdk-for-net/blob/main/sdk/core/Azure.Core/samples/ProtocolMethods.md">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios.
+        /// This <see href="https://azsdk/net/protocol/quickstart">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios.
         /// </description>
         /// </item>
         /// <item>
@@ -237,7 +199,6 @@ namespace OpenAI
         /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        /// <include file="Docs/Audio.xml" path="doc/members/member[@name='CreateTranscription(RequestContent,RequestContext)']/*" />
         public virtual ClientResult CreateTranscription(BinaryContent content, string contentType, RequestOptions options = null)
         {
             Argument.AssertNotNull(content, nameof(content));
@@ -245,23 +206,12 @@ namespace OpenAI
             options ??= new RequestOptions();
 
             using PipelineMessage message = CreateCreateTranscriptionRequest(content, contentType, options);
-
-            _pipeline.Send(message);
-
-            PipelineResponse response = message.Response!;
-
-            if (response.IsError && options.ErrorOptions == ClientErrorBehaviors.Default)
-            {
-                throw new ClientResultException(response);
-            }
-
-            return ClientResult.FromResponse(response);
+            return ClientResult.FromResponse(_pipeline.ProcessMessage(message, options));
         }
 
         /// <summary> Translates audio into English.. </summary>
         /// <param name="audio"> The <see cref="CreateTranslationRequest"/> to use. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="audio"/> is null. </exception>
-        /// <include file="Docs/Audio.xml" path="doc/members/member[@name='CreateTranslationAsync(CreateTranslationRequest,CancellationToken)']/*" />
         public virtual async Task<ClientResult<CreateTranslationResponse>> CreateTranslationAsync(CreateTranslationRequest audio)
         {
             Argument.AssertNotNull(audio, nameof(audio));
@@ -274,7 +224,6 @@ namespace OpenAI
         /// <summary> Translates audio into English.. </summary>
         /// <param name="audio"> The <see cref="CreateTranslationRequest"/> to use. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="audio"/> is null. </exception>
-        /// <include file="Docs/Audio.xml" path="doc/members/member[@name='CreateTranslation(CreateTranslationRequest,CancellationToken)']/*" />
         public virtual ClientResult<CreateTranslationResponse> CreateTranslation(CreateTranslationRequest audio)
         {
             Argument.AssertNotNull(audio, nameof(audio));
@@ -289,7 +238,7 @@ namespace OpenAI
         /// <list type="bullet">
         /// <item>
         /// <description>
-        /// This <see href="https://github.com/Azure/azure-sdk-for-net/blob/main/sdk/core/Azure.Core/samples/ProtocolMethods.md">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios.
+        /// This <see href="https://azsdk/net/protocol/quickstart">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios.
         /// </description>
         /// </item>
         /// <item>
@@ -305,7 +254,6 @@ namespace OpenAI
         /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        /// <include file="Docs/Audio.xml" path="doc/members/member[@name='CreateTranslationAsync(RequestContent,RequestContext)']/*" />
         public virtual async Task<ClientResult> CreateTranslationAsync(BinaryContent content, string contentType, RequestOptions options = null)
         {
             Argument.AssertNotNull(content, nameof(content));
@@ -313,17 +261,7 @@ namespace OpenAI
             options ??= new RequestOptions();
 
             using PipelineMessage message = CreateCreateTranslationRequest(content, contentType, options);
-
-            await _pipeline.SendAsync(message).ConfigureAwait(false);
-
-            PipelineResponse response = message.Response!;
-
-            if (response.IsError && options.ErrorOptions == ClientErrorBehaviors.Default)
-            {
-                throw await ClientResultException.CreateAsync(response).ConfigureAwait(false);
-            }
-
-            return ClientResult.FromResponse(response);
+            return ClientResult.FromResponse(await _pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
         }
 
         /// <summary>
@@ -331,7 +269,7 @@ namespace OpenAI
         /// <list type="bullet">
         /// <item>
         /// <description>
-        /// This <see href="https://github.com/Azure/azure-sdk-for-net/blob/main/sdk/core/Azure.Core/samples/ProtocolMethods.md">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios.
+        /// This <see href="https://azsdk/net/protocol/quickstart">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios.
         /// </description>
         /// </item>
         /// <item>
@@ -347,7 +285,6 @@ namespace OpenAI
         /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        /// <include file="Docs/Audio.xml" path="doc/members/member[@name='CreateTranslation(RequestContent,RequestContext)']/*" />
         public virtual ClientResult CreateTranslation(BinaryContent content, string contentType, RequestOptions options = null)
         {
             Argument.AssertNotNull(content, nameof(content));
@@ -355,23 +292,13 @@ namespace OpenAI
             options ??= new RequestOptions();
 
             using PipelineMessage message = CreateCreateTranslationRequest(content, contentType, options);
-
-            _pipeline.Send(message);
-
-            PipelineResponse response = message.Response!;
-
-            if (response.IsError && options.ErrorOptions == ClientErrorBehaviors.Default)
-            {
-                throw new ClientResultException(response);
-            }
-
-            return ClientResult.FromResponse(response);
+            return ClientResult.FromResponse(_pipeline.ProcessMessage(message, options));
         }
 
-        internal PipelineMessage CreateCreateSpeechRequest(BinaryContent content, RequestOptions options)
+        private PipelineMessage CreateCreateSpeechRequest(BinaryContent content, RequestOptions options)
         {
             var message = _pipeline.CreateMessage();
-            message.ResponseClassifier = ResponseErrorClassifier200;
+            message.ResponseClassifier = PipelineMessageClassifier200;
             var request = message.Request;
             request.Method = "POST";
             var uri = new ClientUriBuilder();
@@ -385,10 +312,10 @@ namespace OpenAI
             return message;
         }
 
-        internal PipelineMessage CreateCreateTranscriptionRequest(BinaryContent content, string contentType, RequestOptions options)
+        private PipelineMessage CreateCreateTranscriptionRequest(BinaryContent content, string contentType, RequestOptions options)
         {
             var message = _pipeline.CreateMessage();
-            message.ResponseClassifier = ResponseErrorClassifier200;
+            message.ResponseClassifier = PipelineMessageClassifier200;
             var request = message.Request;
             request.Method = "POST";
             var uri = new ClientUriBuilder();
@@ -402,10 +329,10 @@ namespace OpenAI
             return message;
         }
 
-        internal PipelineMessage CreateCreateTranslationRequest(BinaryContent content, string contentType, RequestOptions options)
+        private PipelineMessage CreateCreateTranslationRequest(BinaryContent content, string contentType, RequestOptions options)
         {
             var message = _pipeline.CreateMessage();
-            message.ResponseClassifier = ResponseErrorClassifier200;
+            message.ResponseClassifier = PipelineMessageClassifier200;
             var request = message.Request;
             request.Method = "POST";
             var uri = new ClientUriBuilder();
@@ -419,7 +346,7 @@ namespace OpenAI
             return message;
         }
 
-        private static PipelineMessageClassifier _responseErrorClassifier200;
-        private static PipelineMessageClassifier ResponseErrorClassifier200 => _responseErrorClassifier200 ??= PipelineMessageClassifier.Create(stackalloc ushort[] { 200 });
+        private static PipelineMessageClassifier _pipelineMessageClassifier200;
+        private static PipelineMessageClassifier PipelineMessageClassifier200 => _pipelineMessageClassifier200 ??= PipelineMessageClassifier.Create(stackalloc ushort[] { 200 });
     }
 }

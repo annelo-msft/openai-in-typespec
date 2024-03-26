@@ -4,7 +4,6 @@
 
 using System;
 using System.Collections.Generic;
-using OpenAI.Emitted;
 
 namespace OpenAI.Models
 {
@@ -51,7 +50,7 @@ namespace OpenAI.Models
             Argument.AssertNotNull(text, nameof(text));
 
             Text = text;
-            Segments = default;
+            Segments = new ChangeTrackingList<AudioSegment>();
         }
 
         /// <summary> Initializes a new instance of <see cref="CreateTranscriptionResponse"/>. </summary>
