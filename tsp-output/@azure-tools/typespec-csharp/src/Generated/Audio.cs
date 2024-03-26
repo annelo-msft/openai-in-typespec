@@ -2,7 +2,6 @@
 
 #nullable disable
 
-using OpenAI.Emitted;
 using OpenAI.Models;
 using System;
 using System.ClientModel;
@@ -43,7 +42,6 @@ namespace OpenAI
         /// <summary> Generates audio from the input text. </summary>
         /// <param name="speech"> The <see cref="CreateSpeechRequest"/> to use. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="speech"/> is null. </exception>
-        /// <include file="Docs/Audio.xml" path="doc/members/member[@name='CreateSpeechAsync(CreateSpeechRequest,CancellationToken)']/*" />
         public virtual async Task<ClientResult<BinaryData>> CreateSpeechAsync(CreateSpeechRequest speech)
         {
             Argument.AssertNotNull(speech, nameof(speech));
@@ -56,7 +54,6 @@ namespace OpenAI
         /// <summary> Generates audio from the input text. </summary>
         /// <param name="speech"> The <see cref="CreateSpeechRequest"/> to use. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="speech"/> is null. </exception>
-        /// <include file="Docs/Audio.xml" path="doc/members/member[@name='CreateSpeech(CreateSpeechRequest,CancellationToken)']/*" />
         public virtual ClientResult<BinaryData> CreateSpeech(CreateSpeechRequest speech)
         {
             Argument.AssertNotNull(speech, nameof(speech));
@@ -71,7 +68,7 @@ namespace OpenAI
         /// <list type="bullet">
         /// <item>
         /// <description>
-        /// This <see href="https://github.com/Azure/azure-sdk-for-net/blob/main/sdk/core/Azure.Core/samples/ProtocolMethods.md">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios.
+        /// This <see href="https://azsdk/net/protocol/quickstart">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios.
         /// </description>
         /// </item>
         /// <item>
@@ -86,7 +83,6 @@ namespace OpenAI
         /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        /// <include file="Docs/Audio.xml" path="doc/members/member[@name='CreateSpeechAsync(RequestContent,RequestContext)']/*" />
         public virtual async Task<ClientResult> CreateSpeechAsync(BinaryContent content, RequestOptions options = null)
         {
             Argument.AssertNotNull(content, nameof(content));
@@ -112,7 +108,7 @@ namespace OpenAI
         /// <list type="bullet">
         /// <item>
         /// <description>
-        /// This <see href="https://github.com/Azure/azure-sdk-for-net/blob/main/sdk/core/Azure.Core/samples/ProtocolMethods.md">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios.
+        /// This <see href="https://azsdk/net/protocol/quickstart">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios.
         /// </description>
         /// </item>
         /// <item>
@@ -127,7 +123,6 @@ namespace OpenAI
         /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        /// <include file="Docs/Audio.xml" path="doc/members/member[@name='CreateSpeech(RequestContent,RequestContext)']/*" />
         public virtual ClientResult CreateSpeech(BinaryContent content, RequestOptions options = null)
         {
             Argument.AssertNotNull(content, nameof(content));
@@ -151,7 +146,6 @@ namespace OpenAI
         /// <summary> Transcribes audio into the input language. </summary>
         /// <param name="audio"> The <see cref="CreateTranscriptionRequest"/> to use. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="audio"/> is null. </exception>
-        /// <include file="Docs/Audio.xml" path="doc/members/member[@name='CreateTranscriptionAsync(CreateTranscriptionRequest,CancellationToken)']/*" />
         public virtual async Task<ClientResult<CreateTranscriptionResponse>> CreateTranscriptionAsync(CreateTranscriptionRequest audio)
         {
             Argument.AssertNotNull(audio, nameof(audio));
@@ -164,7 +158,6 @@ namespace OpenAI
         /// <summary> Transcribes audio into the input language. </summary>
         /// <param name="audio"> The <see cref="CreateTranscriptionRequest"/> to use. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="audio"/> is null. </exception>
-        /// <include file="Docs/Audio.xml" path="doc/members/member[@name='CreateTranscription(CreateTranscriptionRequest,CancellationToken)']/*" />
         public virtual ClientResult<CreateTranscriptionResponse> CreateTranscription(CreateTranscriptionRequest audio)
         {
             Argument.AssertNotNull(audio, nameof(audio));
@@ -179,7 +172,7 @@ namespace OpenAI
         /// <list type="bullet">
         /// <item>
         /// <description>
-        /// This <see href="https://github.com/Azure/azure-sdk-for-net/blob/main/sdk/core/Azure.Core/samples/ProtocolMethods.md">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios.
+        /// This <see href="https://azsdk/net/protocol/quickstart">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios.
         /// </description>
         /// </item>
         /// <item>
@@ -195,7 +188,6 @@ namespace OpenAI
         /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        /// <include file="Docs/Audio.xml" path="doc/members/member[@name='CreateTranscriptionAsync(RequestContent,RequestContext)']/*" />
         public virtual async Task<ClientResult> CreateTranscriptionAsync(BinaryContent content, string contentType, RequestOptions options = null)
         {
             Argument.AssertNotNull(content, nameof(content));
@@ -221,7 +213,7 @@ namespace OpenAI
         /// <list type="bullet">
         /// <item>
         /// <description>
-        /// This <see href="https://github.com/Azure/azure-sdk-for-net/blob/main/sdk/core/Azure.Core/samples/ProtocolMethods.md">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios.
+        /// This <see href="https://azsdk/net/protocol/quickstart">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios.
         /// </description>
         /// </item>
         /// <item>
@@ -237,7 +229,6 @@ namespace OpenAI
         /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        /// <include file="Docs/Audio.xml" path="doc/members/member[@name='CreateTranscription(RequestContent,RequestContext)']/*" />
         public virtual ClientResult CreateTranscription(BinaryContent content, string contentType, RequestOptions options = null)
         {
             Argument.AssertNotNull(content, nameof(content));
@@ -261,7 +252,6 @@ namespace OpenAI
         /// <summary> Translates audio into English.. </summary>
         /// <param name="audio"> The <see cref="CreateTranslationRequest"/> to use. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="audio"/> is null. </exception>
-        /// <include file="Docs/Audio.xml" path="doc/members/member[@name='CreateTranslationAsync(CreateTranslationRequest,CancellationToken)']/*" />
         public virtual async Task<ClientResult<CreateTranslationResponse>> CreateTranslationAsync(CreateTranslationRequest audio)
         {
             Argument.AssertNotNull(audio, nameof(audio));
@@ -274,7 +264,6 @@ namespace OpenAI
         /// <summary> Translates audio into English.. </summary>
         /// <param name="audio"> The <see cref="CreateTranslationRequest"/> to use. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="audio"/> is null. </exception>
-        /// <include file="Docs/Audio.xml" path="doc/members/member[@name='CreateTranslation(CreateTranslationRequest,CancellationToken)']/*" />
         public virtual ClientResult<CreateTranslationResponse> CreateTranslation(CreateTranslationRequest audio)
         {
             Argument.AssertNotNull(audio, nameof(audio));
@@ -289,7 +278,7 @@ namespace OpenAI
         /// <list type="bullet">
         /// <item>
         /// <description>
-        /// This <see href="https://github.com/Azure/azure-sdk-for-net/blob/main/sdk/core/Azure.Core/samples/ProtocolMethods.md">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios.
+        /// This <see href="https://azsdk/net/protocol/quickstart">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios.
         /// </description>
         /// </item>
         /// <item>
@@ -305,7 +294,6 @@ namespace OpenAI
         /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        /// <include file="Docs/Audio.xml" path="doc/members/member[@name='CreateTranslationAsync(RequestContent,RequestContext)']/*" />
         public virtual async Task<ClientResult> CreateTranslationAsync(BinaryContent content, string contentType, RequestOptions options = null)
         {
             Argument.AssertNotNull(content, nameof(content));
@@ -331,7 +319,7 @@ namespace OpenAI
         /// <list type="bullet">
         /// <item>
         /// <description>
-        /// This <see href="https://github.com/Azure/azure-sdk-for-net/blob/main/sdk/core/Azure.Core/samples/ProtocolMethods.md">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios.
+        /// This <see href="https://azsdk/net/protocol/quickstart">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios.
         /// </description>
         /// </item>
         /// <item>
@@ -347,7 +335,6 @@ namespace OpenAI
         /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        /// <include file="Docs/Audio.xml" path="doc/members/member[@name='CreateTranslation(RequestContent,RequestContext)']/*" />
         public virtual ClientResult CreateTranslation(BinaryContent content, string contentType, RequestOptions options = null)
         {
             Argument.AssertNotNull(content, nameof(content));

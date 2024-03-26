@@ -5,7 +5,6 @@
 
 #nullable disable
 
-using OpenAI.Emitted;
 using System;
 using System.Collections.Generic;
 using System.Linq;
