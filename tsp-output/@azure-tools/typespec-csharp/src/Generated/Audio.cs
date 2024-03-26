@@ -7,7 +7,6 @@ using OpenAI.Models;
 using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace OpenAI
@@ -43,8 +42,8 @@ namespace OpenAI
 
         /// <summary> Generates audio from the input text. </summary>
         /// <param name="speech"> The <see cref="CreateSpeechRequest"/> to use. </param>
-        /// <include file="Docs/Audio.xml" path="doc/members/member[@name='CreateSpeechAsync(CreateSpeechRequest,CancellationToken)']/*" />
         /// <exception cref="ArgumentNullException"> <paramref name="speech"/> is null. </exception>
+        /// <include file="Docs/Audio.xml" path="doc/members/member[@name='CreateSpeechAsync(CreateSpeechRequest,CancellationToken)']/*" />
         public virtual async Task<ClientResult<BinaryData>> CreateSpeechAsync(CreateSpeechRequest speech)
         {
             Argument.AssertNotNull(speech, nameof(speech));
@@ -56,8 +55,8 @@ namespace OpenAI
 
         /// <summary> Generates audio from the input text. </summary>
         /// <param name="speech"> The <see cref="CreateSpeechRequest"/> to use. </param>
-        /// <include file="Docs/Audio.xml" path="doc/members/member[@name='CreateSpeech(CreateSpeechRequest,CancellationToken)']/*" />
         /// <exception cref="ArgumentNullException"> <paramref name="speech"/> is null. </exception>
+        /// <include file="Docs/Audio.xml" path="doc/members/member[@name='CreateSpeech(CreateSpeechRequest,CancellationToken)']/*" />
         public virtual ClientResult<BinaryData> CreateSpeech(CreateSpeechRequest speech)
         {
             Argument.AssertNotNull(speech, nameof(speech));
@@ -301,7 +300,7 @@ namespace OpenAI
         /// </list>
         /// </summary>
         /// <param name="content"> The content to send as the body of the request. </param>
-		/// <param name="contentType">The content type of the content in the body of the request.</param>
+        /// <param name="contentType">The content type of the content in the body of the request.</param>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
