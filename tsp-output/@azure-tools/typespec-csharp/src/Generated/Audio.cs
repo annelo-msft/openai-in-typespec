@@ -90,17 +90,7 @@ namespace OpenAI
             options ??= new RequestOptions();
 
             using PipelineMessage message = CreateCreateSpeechRequest(content, options);
-
-            await _pipeline.SendAsync(message).ConfigureAwait(false);
-
-            PipelineResponse response = message.Response!;
-
-            if (response.IsError && options.ErrorOptions == ClientErrorBehaviors.Default)
-            {
-                throw await ClientResultException.CreateAsync(response).ConfigureAwait(false);
-            }
-
-            return ClientResult.FromResponse(response);
+            return ClientResult.FromResponse(await _pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
         }
 
         /// <summary>
@@ -130,17 +120,7 @@ namespace OpenAI
             options ??= new RequestOptions();
 
             using PipelineMessage message = CreateCreateSpeechRequest(content, options);
-
-            _pipeline.Send(message);
-
-            PipelineResponse response = message.Response!;
-
-            if (response.IsError && options.ErrorOptions == ClientErrorBehaviors.Default)
-            {
-                throw new ClientResultException(response);
-            }
-
-            return ClientResult.FromResponse(response);
+            return ClientResult.FromResponse(_pipeline.ProcessMessage(message, options));
         }
 
         /// <summary> Transcribes audio into the input language. </summary>
@@ -195,17 +175,7 @@ namespace OpenAI
             options ??= new RequestOptions();
 
             using PipelineMessage message = CreateCreateTranscriptionRequest(content, contentType, options);
-
-            await _pipeline.SendAsync(message).ConfigureAwait(false);
-
-            PipelineResponse response = message.Response!;
-
-            if (response.IsError && options.ErrorOptions == ClientErrorBehaviors.Default)
-            {
-                throw await ClientResultException.CreateAsync(response).ConfigureAwait(false);
-            }
-
-            return ClientResult.FromResponse(response);
+            return ClientResult.FromResponse(await _pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
         }
 
         /// <summary>
@@ -236,17 +206,7 @@ namespace OpenAI
             options ??= new RequestOptions();
 
             using PipelineMessage message = CreateCreateTranscriptionRequest(content, contentType, options);
-
-            _pipeline.Send(message);
-
-            PipelineResponse response = message.Response!;
-
-            if (response.IsError && options.ErrorOptions == ClientErrorBehaviors.Default)
-            {
-                throw new ClientResultException(response);
-            }
-
-            return ClientResult.FromResponse(response);
+            return ClientResult.FromResponse(_pipeline.ProcessMessage(message, options));
         }
 
         /// <summary> Translates audio into English.. </summary>
@@ -301,17 +261,7 @@ namespace OpenAI
             options ??= new RequestOptions();
 
             using PipelineMessage message = CreateCreateTranslationRequest(content, contentType, options);
-
-            await _pipeline.SendAsync(message).ConfigureAwait(false);
-
-            PipelineResponse response = message.Response!;
-
-            if (response.IsError && options.ErrorOptions == ClientErrorBehaviors.Default)
-            {
-                throw await ClientResultException.CreateAsync(response).ConfigureAwait(false);
-            }
-
-            return ClientResult.FromResponse(response);
+            return ClientResult.FromResponse(await _pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
         }
 
         /// <summary>
@@ -342,20 +292,10 @@ namespace OpenAI
             options ??= new RequestOptions();
 
             using PipelineMessage message = CreateCreateTranslationRequest(content, contentType, options);
-
-            _pipeline.Send(message);
-
-            PipelineResponse response = message.Response!;
-
-            if (response.IsError && options.ErrorOptions == ClientErrorBehaviors.Default)
-            {
-                throw new ClientResultException(response);
-            }
-
-            return ClientResult.FromResponse(response);
+            return ClientResult.FromResponse(_pipeline.ProcessMessage(message, options));
         }
 
-        internal PipelineMessage CreateCreateSpeechRequest(BinaryContent content, RequestOptions options)
+        private PipelineMessage CreateCreateSpeechRequest(BinaryContent content, RequestOptions options)
         {
             var message = _pipeline.CreateMessage();
             message.ResponseClassifier = PipelineMessageClassifier200;
@@ -372,7 +312,7 @@ namespace OpenAI
             return message;
         }
 
-        internal PipelineMessage CreateCreateTranscriptionRequest(BinaryContent content, string contentType, RequestOptions options)
+        private PipelineMessage CreateCreateTranscriptionRequest(BinaryContent content, string contentType, RequestOptions options)
         {
             var message = _pipeline.CreateMessage();
             message.ResponseClassifier = PipelineMessageClassifier200;
@@ -389,7 +329,7 @@ namespace OpenAI
             return message;
         }
 
-        internal PipelineMessage CreateCreateTranslationRequest(BinaryContent content, string contentType, RequestOptions options)
+        private PipelineMessage CreateCreateTranslationRequest(BinaryContent content, string contentType, RequestOptions options)
         {
             var message = _pipeline.CreateMessage();
             message.ResponseClassifier = PipelineMessageClassifier200;
