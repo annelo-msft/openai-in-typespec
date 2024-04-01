@@ -32,8 +32,6 @@ internal class MultipartFormDataBinaryContent : BinaryContent
         }
     }
 
-    internal HttpContent HttpContent => _multipartContent;
-
     public void Add(Stream stream, string name, string fileName = default)
     {
         Add(new StreamContent(stream), name, fileName);
