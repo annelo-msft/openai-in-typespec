@@ -110,6 +110,7 @@ internal class MultipartFormDataBinaryContent : BinaryContent
             Name = name,
             FileName = filename
         };
+
         content.Headers.ContentDisposition = header;
     }
 
@@ -137,7 +138,8 @@ internal class MultipartFormDataBinaryContent : BinaryContent
 
     public override bool TryComputeLength(out long length)
     {
-        // We can't call the protected method on HttpContent
+        // We can't call the protected TryComputeLength method on HttpContent,
+        // but if the Content-Length header is available, we can use that.
 
         if (_multipartContent.Headers.ContentLength is long contentLength)
         {
@@ -151,9 +153,6 @@ internal class MultipartFormDataBinaryContent : BinaryContent
 
     public override void WriteTo(Stream stream, CancellationToken cancellationToken = default)
     {
-        // TODO: polyfill sync-over-async for netstandard2.0 for Azure clients.
-        // Tracked by https://github.com/Azure/azure-sdk-for-net/issues/42674
-
 #if NET6_0_OR_GREATER
         _multipartContent.CopyTo(stream, default, cancellationToken);
 #else
