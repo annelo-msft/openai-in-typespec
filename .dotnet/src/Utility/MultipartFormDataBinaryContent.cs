@@ -14,7 +14,7 @@ internal class MultipartFormDataBinaryContent : BinaryContent
 {
     private readonly MultipartFormDataContent _multipartContent;
 
-    private static readonly Random _random = new();
+    private static Random _random = new();
     private static readonly char[] _boundaryValues = "0123456789=ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz".ToCharArray();
 
     public MultipartFormDataBinaryContent()
@@ -32,26 +32,20 @@ internal class MultipartFormDataBinaryContent : BinaryContent
         }
     }
 
+    internal HttpContent HttpContent => _multipartContent;
+
     public void Add(Stream stream, string name, string fileName = default)
     {
-        Argument.AssertNotNull(stream, nameof(stream));
-        Argument.AssertNotNullOrEmpty(name, nameof(name));
-
         Add(new StreamContent(stream), name, fileName);
     }
 
     public void Add(string content, string name, string fileName = default)
     {
-        Argument.AssertNotNull(content, nameof(content));
-        Argument.AssertNotNullOrEmpty(name, nameof(name));
-
         Add(new StringContent(content), name, fileName);
     }
 
     public void Add(int content, string name, string fileName = default)
     {
-        Argument.AssertNotNullOrEmpty(name, nameof(name));
-
         // https://learn.microsoft.com/en-us/dotnet/standard/base-types/standard-numeric-format-strings#GFormatString
         string value = content.ToString("G", CultureInfo.InvariantCulture);
         Add(new StringContent(value), name, fileName);
@@ -59,8 +53,6 @@ internal class MultipartFormDataBinaryContent : BinaryContent
 
     public void Add(double content, string name, string fileName = default)
     {
-        Argument.AssertNotNullOrEmpty(name, nameof(name));
-
         // https://learn.microsoft.com/en-us/dotnet/standard/base-types/standard-numeric-format-strings#GFormatString
         string value = content.ToString("G", CultureInfo.InvariantCulture);
         Add(new StringContent(value), name, fileName);
@@ -68,17 +60,11 @@ internal class MultipartFormDataBinaryContent : BinaryContent
 
     public void Add(byte[] content, string name, string fileName = default)
     {
-        Argument.AssertNotNull(content, nameof(content));
-        Argument.AssertNotNullOrEmpty(name, nameof(name));
-
         Add(new ByteArrayContent(content), name, fileName);
     }
 
     public void Add(BinaryData content, string name, string fileName = default)
     {
-        Argument.AssertNotNull(content, nameof(content));
-        Argument.AssertNotNullOrEmpty(name, nameof(name));
-
         Add(new ByteArrayContent(content.ToArray()), name, fileName);
     }
 
@@ -86,8 +72,6 @@ internal class MultipartFormDataBinaryContent : BinaryContent
     {
         if (fileName is not null)
         {
-            Argument.AssertNotNullOrEmpty(fileName, nameof(fileName));
-
             AddFileNameHeader(content, name, fileName);
         }
 
