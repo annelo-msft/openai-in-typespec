@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 
 namespace OpenAI.Models
 {
@@ -47,13 +48,15 @@ namespace OpenAI.Models
         /// The audio file object (not file name) to transcribe, in one of these formats: flac, mp3, mp4,
         /// mpeg, mpga, m4a, ogg, wav, or webm.
         /// </param>
+        /// <param name="filename">The name of the file passed in <paramref name="file"/>.</param>
         /// <param name="model"> ID of the model to use. Only `whisper-1` is currently available. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="file"/> is null. </exception>
-        public CreateTranscriptionRequest(BinaryData file, CreateTranscriptionRequestModel model)
+        public CreateTranscriptionRequest(Stream file, string filename, CreateTranscriptionRequestModel model)
         {
             Argument.AssertNotNull(file, nameof(file));
 
             File = file;
+            Filename = filename;
             Model = model;
         }
 
@@ -62,6 +65,7 @@ namespace OpenAI.Models
         /// The audio file object (not file name) to transcribe, in one of these formats: flac, mp3, mp4,
         /// mpeg, mpga, m4a, ogg, wav, or webm.
         /// </param>
+        /// <param name="filename">The name of the file passed in <paramref name="file"/>.</param>
         /// <param name="model"> ID of the model to use. Only `whisper-1` is currently available. </param>
         /// <param name="language">
         /// The language of the input audio. Supplying the input language in
@@ -83,9 +87,10 @@ namespace OpenAI.Models
         /// automatically increase the temperature until certain thresholds are hit.
         /// </param>
         /// <param name="serializedAdditionalRawData"> Keeps track of any properties unknown to the library. </param>
-        internal CreateTranscriptionRequest(BinaryData file, CreateTranscriptionRequestModel model, string language, string prompt, CreateTranscriptionRequestResponseFormat? responseFormat, double? temperature, IDictionary<string, BinaryData> serializedAdditionalRawData)
+        internal CreateTranscriptionRequest(Stream file, string filename, CreateTranscriptionRequestModel model, string language, string prompt, CreateTranscriptionRequestResponseFormat? responseFormat, double? temperature, IDictionary<string, BinaryData> serializedAdditionalRawData)
         {
             File = file;
+            Filename = filename;
             Model = model;
             Language = language;
             Prompt = prompt;
@@ -116,7 +121,11 @@ namespace OpenAI.Models
         /// </list>
         /// </para>
         /// </summary>
-        public BinaryData File { get; }
+        public Stream File { get; }
+        /// <summary>
+        /// The name of the file passed in <see cref="File"/>.
+        /// </summary>
+        public string Filename { get; }
         /// <summary> ID of the model to use. Only `whisper-1` is currently available. </summary>
         public CreateTranscriptionRequestModel Model { get; }
         /// <summary>

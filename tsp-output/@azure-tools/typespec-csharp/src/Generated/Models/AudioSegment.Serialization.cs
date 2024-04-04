@@ -205,15 +205,15 @@ namespace OpenAI.Models
         string IPersistableModel<AudioSegment>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
 
         /// <summary> Deserializes the model from a raw response. </summary>
-        /// <param name="response"> The result to deserialize the model from. </param>
+        /// <param name="response"> The response to deserialize the model from. </param>
         internal static AudioSegment FromResponse(PipelineResponse response)
         {
             using var document = JsonDocument.Parse(response.Content);
             return DeserializeAudioSegment(document.RootElement);
         }
 
-        /// <summary> Convert into a Utf8JsonRequestBody. </summary>
-        internal virtual BinaryContent ToBinaryBody()
+        /// <summary> Convert into a BinaryContent. </summary>
+        internal virtual BinaryContent ToBinaryContent()
         {
             return BinaryContent.Create(this, new ModelReaderWriterOptions("W"));
         }
