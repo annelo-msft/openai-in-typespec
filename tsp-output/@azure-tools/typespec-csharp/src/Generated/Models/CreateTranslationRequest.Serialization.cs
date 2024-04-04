@@ -2,98 +2,33 @@
 
 #nullable disable
 
-using System;
-using System.ClientModel;
-using System.ClientModel.Primitives;
-using System.Diagnostics;
-using System.Globalization;
-using System.IO;
-using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Threading.Tasks;
-
 namespace OpenAI.Models
 {
     public partial class CreateTranslationRequest
     {
-        private static Random _random = new();
-        private static readonly char[] _boundaryValues = "0123456789=ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz".ToCharArray();
-
-        internal async Task<(BinaryContent, string, RequestOptions)> ToMultipartContentAsync()
+        internal MultipartFormDataBinaryContent ToMultipartContent()
         {
-            MultipartFormDataContent content = new(CreateBoundary());
+            MultipartFormDataBinaryContent content = new();
 
-            if (FileName is not null)
-            {
-                StreamContent fileContent = new StreamContent(File);
-                ContentDispositionHeaderValue header = new("form-data")
-                {
-                    Name = "file",
-                    FileName = FileName
-                };
-                content.Headers.ContentDisposition = header;
-                content.Add(new StreamContent(File));
-            }
-            else
-            {
-                content.Add(new StreamContent(File), "file");
-            }
-
-            content.Add(new StringContent(Model.ToString()), "model");
+            content.Add(File, "file", Filename);
+            content.Add(Model.ToString(), "model");
 
             if (Prompt is not null)
             {
-                content.Add(new StringContent(Prompt), "prompt");
+                content.Add(Prompt, "prompt");
             }
 
             if (ResponseFormat is not null)
             {
-                content.Add(new StringContent(ResponseFormat.ToString()), "response_format");
+                content.Add(ResponseFormat.ToString(), "response_format");
             }
 
             if (Temperature is not null)
             {
-                // https://learn.microsoft.com/en-us/dotnet/standard/base-types/standard-numeric-format-strings#GFormatString
-                string value = Temperature.Value.ToString("G", CultureInfo.InvariantCulture);
-                content.Add(new StringContent(value), "temperature");
+                content.Add(Temperature.Value, "temperature");
             }
 
-            string contentType = default;
-            if (content.Headers.ContentType is MediaTypeHeaderValue contentTypeValue)
-            {
-                contentType = contentTypeValue.ToString();
-            }
-
-            RequestOptions options = new();
-            if (content.Headers.ContentLength is long contentLength)
-            {
-                options.SetHeader("Content-Length", contentLength.ToString());
-            }
-
-            Stream stream = await content.ReadAsStreamAsync().ConfigureAwait(false);
-            return (BinaryContent.Create(stream), contentType, options);
-        }
-
-        private static string CreateBoundary()
-        {
-            Span<char> chars = new char[70];
-
-            byte[] random = new byte[70];
-            _random.NextBytes(random);
-
-            // The following will sample evenly from the possible values.
-            // This is important to ensuring that the odds of creating a boundary
-            // that occurs in any content part are astronomically small.
-            int mask = 255 >> 2;
-
-            Debug.Assert(_boundaryValues.Length - 1 == mask);
-
-            for (int i = 0; i < 70; i++)
-            {
-                chars[i] = _boundaryValues[random[i] & mask];
-            }
-
-            return chars.ToString();
+            return content;
         }
     }
 }

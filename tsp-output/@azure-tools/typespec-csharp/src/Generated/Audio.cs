@@ -130,8 +130,8 @@ namespace OpenAI
         {
             Argument.AssertNotNull(audio, nameof(audio));
 
-            (BinaryContent content, string contentType, RequestOptions options) = await audio.ToMultipartContentAsync().ConfigureAwait(false);
-            ClientResult result = await CreateTranscriptionAsync(content, contentType, options).ConfigureAwait(false);
+            using MultipartFormDataBinaryContent content = audio.ToMultipartContent();
+            ClientResult result = await CreateTranscriptionAsync(content, content.ContentType).ConfigureAwait(false);
             return ClientResult.FromValue(CreateTranscriptionResponse.FromResponse(result.GetRawResponse()), result.GetRawResponse());
         }
 
@@ -142,8 +142,8 @@ namespace OpenAI
         {
             Argument.AssertNotNull(audio, nameof(audio));
 
-            (BinaryContent content, string contentType, RequestOptions options) = audio.ToMultipartContentAsync().GetAwaiter().GetResult();
-            ClientResult result = CreateTranscription(content, contentType, options);
+            using MultipartFormDataBinaryContent content = audio.ToMultipartContent();
+            ClientResult result = CreateTranscription(content, content.ContentType);
             return ClientResult.FromValue(CreateTranscriptionResponse.FromResponse(result.GetRawResponse()), result.GetRawResponse());
         }
 
@@ -216,8 +216,8 @@ namespace OpenAI
         {
             Argument.AssertNotNull(audio, nameof(audio));
 
-            (BinaryContent content, string contentType, RequestOptions options) = await audio.ToMultipartContentAsync().ConfigureAwait(false);
-            ClientResult result = await CreateTranslationAsync(content, contentType, options).ConfigureAwait(false);
+            using MultipartFormDataBinaryContent content = audio.ToMultipartContent();
+            ClientResult result = await CreateTranslationAsync(content, content.ContentType).ConfigureAwait(false);
             return ClientResult.FromValue(CreateTranslationResponse.FromResponse(result.GetRawResponse()), result.GetRawResponse());
         }
 
@@ -228,8 +228,8 @@ namespace OpenAI
         {
             Argument.AssertNotNull(audio, nameof(audio));
 
-            (BinaryContent content, string contentType, RequestOptions options) = audio.ToMultipartContentAsync().GetAwaiter().GetResult();
-            ClientResult result = CreateTranslation(content, contentType, options);
+            using MultipartFormDataBinaryContent content = audio.ToMultipartContent();
+            ClientResult result = CreateTranslation(content, content.ContentType);
             return ClientResult.FromValue(CreateTranslationResponse.FromResponse(result.GetRawResponse()), result.GetRawResponse());
         }
 
