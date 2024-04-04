@@ -10,7 +10,7 @@ namespace OpenAI.Models
         {
             MultipartFormDataBinaryContent content = new();
 
-            content.Add(File, "file", FileName);
+            content.Add(File, "file", Filename);
             content.Add(Model.ToString(), "model");
 
             if (Prompt is not null)

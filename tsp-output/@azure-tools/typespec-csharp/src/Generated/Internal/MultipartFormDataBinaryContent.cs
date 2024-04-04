@@ -38,69 +38,69 @@ internal class MultipartFormDataBinaryContent : BinaryContent
 
     internal HttpContent HttpContent => _multipartContent;
 
-    public void Add(Stream stream, string name, string? fileName = default)
+    public void Add(Stream stream, string name, string? filename = default)
     {
         Argument.AssertNotNull(stream, nameof(stream));
         Argument.AssertNotNullOrEmpty(name, nameof(name));
 
-        Add(new StreamContent(stream), name, fileName);
+        Add(new StreamContent(stream), name, filename);
     }
 
-    public void Add(string content, string name, string? fileName = default)
+    public void Add(string content, string name, string? filename = default)
     {
         Argument.AssertNotNull(content, nameof(content));
         Argument.AssertNotNullOrEmpty(name, nameof(name));
 
-        Add(new StringContent(content), name, fileName);
+        Add(new StringContent(content), name, filename);
     }
 
-    public void Add(int content, string name, string? fileName = default)
+    public void Add(int content, string name, string? filename = default)
     {
         Argument.AssertNotNullOrEmpty(name, nameof(name));
 
         // https://learn.microsoft.com/en-us/dotnet/standard/base-types/standard-numeric-format-strings#GFormatString
         string value = content.ToString("G", CultureInfo.InvariantCulture);
-        Add(new StringContent(value), name, fileName);
+        Add(new StringContent(value), name, filename);
     }
 
-    public void Add(double content, string name, string? fileName = default)
+    public void Add(double content, string name, string? filename = default)
     {
         Argument.AssertNotNullOrEmpty(name, nameof(name));
 
         // https://learn.microsoft.com/en-us/dotnet/standard/base-types/standard-numeric-format-strings#GFormatString
         string value = content.ToString("G", CultureInfo.InvariantCulture);
-        Add(new StringContent(value), name, fileName);
+        Add(new StringContent(value), name, filename);
     }
 
-    public void Add(byte[] content, string name, string? fileName = default)
+    public void Add(byte[] content, string name, string? filename = default)
     {
         Argument.AssertNotNull(content, nameof(content));
         Argument.AssertNotNullOrEmpty(name, nameof(name));
 
-        Add(new ByteArrayContent(content), name, fileName);
+        Add(new ByteArrayContent(content), name, filename);
     }
 
-    public void Add(BinaryData content, string name, string? fileName = default)
+    public void Add(BinaryData content, string name, string? filename = default)
     {
         Argument.AssertNotNull(content, nameof(content));
         Argument.AssertNotNullOrEmpty(name, nameof(name));
 
-        Add(new ByteArrayContent(content.ToArray()), name, fileName);
+        Add(new ByteArrayContent(content.ToArray()), name, filename);
     }
 
-    private void Add(HttpContent content, string name, string? fileName)
+    private void Add(HttpContent content, string name, string? filename)
     {
-        if (fileName is not null)
+        if (filename is not null)
         {
-            Argument.AssertNotNullOrEmpty(fileName, nameof(fileName));
+            Argument.AssertNotNullOrEmpty(filename, nameof(filename));
 
-            AddFileNameHeader(content, name, fileName);
+            AddFilenameHeader(content, name, filename);
         }
 
         _multipartContent.Add(content, name);
     }
 
-    private static void AddFileNameHeader(HttpContent content, string name, string filename)
+    private static void AddFilenameHeader(HttpContent content, string name, string filename)
     {
         // Add the content header manually because the default implementation
         // adds a `filename*` parameter to the header, which RFC 7578 says not
