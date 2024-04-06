@@ -70,7 +70,7 @@ public partial class OpenAIClient
     /// the same configuration details.
     /// </remarks>
     /// <returns> A new <see cref="ChatClient"/>. </returns>
-    public ChatClient GetChatClient(string model) => new(model, _cachedCredential, _cachedOptions);
+    public virtual ChatClient GetChatClient(string model) => new(model, _cachedCredential, _cachedOptions);
 
     /// <summary>
     /// Gets a new instance of <see cref="EmbeddingClient"/> that reuses the client configuration details provided to
