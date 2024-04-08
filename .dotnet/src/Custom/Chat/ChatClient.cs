@@ -299,7 +299,14 @@ public partial class ChatClient
         );
     }
 
-    private PipelineMessage CreateCustomRequestMessage(IEnumerable<ChatRequestMessage> messages, int? choiceCount, ChatCompletionOptions options)
+    /// <summary>
+    /// TBD.
+    /// </summary>
+    /// <param name="messages"></param>
+    /// <param name="choiceCount"></param>
+    /// <param name="options"></param>
+    /// <returns></returns>
+    protected virtual PipelineMessage CreateCustomRequestMessage(IEnumerable<ChatRequestMessage> messages, int? choiceCount, ChatCompletionOptions options)
     {
         Internal.Models.CreateChatCompletionRequest internalRequest = CreateInternalRequest(messages, options, choiceCount, stream: true);
         BinaryContent content = BinaryContent.Create(internalRequest);
