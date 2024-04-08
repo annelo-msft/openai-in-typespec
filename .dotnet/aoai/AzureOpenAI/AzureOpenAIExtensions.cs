@@ -1,11 +1,4 @@
-﻿using Azure;
-using OpenAI;
-using System;
-using System.ClientModel.Primitives;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using OpenAI;
 
 namespace AzureOpenAI;
 

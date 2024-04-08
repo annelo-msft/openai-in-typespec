@@ -5,7 +5,6 @@ using OpenAI.Embeddings;
 using OpenAI.Files;
 using OpenAI.FineTuningManagement;
 using OpenAI.Images;
-using OpenAI.LegacyCompletions;
 using OpenAI.ModelManagement;
 using OpenAI.Moderations;
 using System.ClientModel;

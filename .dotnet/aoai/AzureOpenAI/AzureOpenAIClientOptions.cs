@@ -1,12 +1,7 @@
-﻿using Azure.Core;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ClientModel.Primitives;
 
 namespace AzureOpenAI;
 
-public class AzureOpenAIClientOptions : ClientOptions
+public class AzureOpenAIClientOptions : ClientPipelineOptions
 {
 }
