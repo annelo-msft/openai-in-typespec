@@ -9,4 +9,9 @@ public class AzureOpenAIClient : OpenAIClient
         : base(endpoint, credential, options)
     {
     }
+
+    public override Chat GetChatClient()
+    {
+        return new AzureChatClient(Pipeline, KeyCredential, Endpoint);
+    }
 }
