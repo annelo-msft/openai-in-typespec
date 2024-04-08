@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 
 namespace OpenAI.Models
@@ -42,6 +43,9 @@ namespace OpenAI.Models
         /// </para>
         /// </summary>
         private IDictionary<string, BinaryData> _serializedAdditionalRawData;
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public IDictionary<string, BinaryData> AzureProperties => _serializedAdditionalRawData;
 
         /// <summary> Initializes a new instance of <see cref="CreateChatCompletionRequest"/>. </summary>
         /// <param name="messages">
