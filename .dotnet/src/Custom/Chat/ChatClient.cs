@@ -190,7 +190,6 @@ public partial class ChatClient
     ///     The number of independent, alternative choices that the chat completion request should generate.
     /// </param>
     /// <param name="options"> Additional options for the chat completion request. </param>
-    /// <param name="cancellationToken"> The cancellation token for the operation. </param>
     /// <returns> A streaming result with incremental chat completion updates. </returns>
     public virtual StreamingClientResult<StreamingChatUpdate> CompleteChatStreaming(
         IEnumerable<ChatRequestMessage> messages,
@@ -228,7 +227,6 @@ public partial class ChatClient
     ///     The number of independent, alternative choices that the chat completion request should generate.
     /// </param>
     /// <param name="options"> Additional options for the chat completion request. </param>
-    /// <param name="cancellationToken"> The cancellation token for the operation. </param>
     /// <returns> A streaming result with incremental chat completion updates. </returns>
     public virtual async Task<StreamingClientResult<StreamingChatUpdate>> CompleteChatStreamingAsync(
         IEnumerable<ChatRequestMessage> messages,
@@ -301,7 +299,14 @@ public partial class ChatClient
         );
     }
 
-    private PipelineMessage CreateCustomRequestMessage(IEnumerable<ChatRequestMessage> messages, int? choiceCount, ChatCompletionOptions options)
+    /// <summary>
+    /// TBD.
+    /// </summary>
+    /// <param name="messages"></param>
+    /// <param name="choiceCount"></param>
+    /// <param name="options"></param>
+    /// <returns></returns>
+    protected virtual PipelineMessage CreateCustomRequestMessage(IEnumerable<ChatRequestMessage> messages, int? choiceCount, ChatCompletionOptions options)
     {
         Internal.Models.CreateChatCompletionRequest internalRequest = CreateInternalRequest(messages, options, choiceCount, stream: true);
         BinaryContent content = BinaryContent.Create(internalRequest);
