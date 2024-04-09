@@ -2,6 +2,8 @@
 using OpenAI.Models;
 using System.ClientModel;
 
+using AzureOpenAI.Models;
+
 Console.WriteLine("Hello, World!");
 
 //Uri endpoint = new("https://annelo-openai-01.openai.azure.com/");
@@ -20,7 +22,12 @@ var message = new
 };
 messages.Add(BinaryData.FromObjectAsJson(message));
 
+// Add Azure property
+AzureSearchChatExtensionParameters searchParams = new(new Uri("https://azure.search.com"), "MySearchIndex");
+AzureSearchChatExtensionConfiguration dataSource = new(searchParams);
+
 CreateChatCompletionRequest request = new CreateChatCompletionRequest(messages, CreateChatCompletionRequestModel.Gpt35Turbo);
+request.SetAzureDataSource(dataSource);
 
 ClientResult<CreateChatCompletionResponse> result = chatClient.CreateChatCompletion(request);
 

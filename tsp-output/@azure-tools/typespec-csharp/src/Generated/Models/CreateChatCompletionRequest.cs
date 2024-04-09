@@ -46,7 +46,7 @@ namespace OpenAI.Models
 
         private IDictionary<string, object> _additionalTypedProperties;
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public IDictionary<string, object> AdditionalTypedProperties => _additionalTypedProperties;
+        public IDictionary<string, object> AdditionalTypedProperties => _additionalTypedProperties ??= new Dictionary<string, object>();
 
         /// <summary> Initializes a new instance of <see cref="CreateChatCompletionRequest"/>. </summary>
         /// <param name="messages">

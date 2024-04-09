@@ -259,13 +259,36 @@ namespace OpenAI.Models
                 {
                     writer.WritePropertyName(item.Key);
 #if NET6_0_OR_GREATER
-				writer.WriteRawValue(item.Value);
+				    writer.WriteRawValue(item.Value);
 #else
                     using (JsonDocument document = JsonDocument.Parse(item.Value))
                     {
                         JsonSerializer.Serialize(writer, document.RootElement);
                     }
 #endif
+                }
+            }
+
+            // Note: we were holding strongly-typed values for added Azure properties
+            // We have to serialize them separately here.
+            // TODO: Does the format matter here?  It seems like we want to write them
+            // in every case.
+            if (_additionalTypedProperties != null)
+            {
+                foreach (var property in _additionalTypedProperties)
+                {
+                    // TODO: it might be nice to have generated collections that
+                    // implement IPersistableModel<T>, IJsonModel<T>
+                    if (property.Value is not IJsonModel<object> model)
+                    {
+                        // TODO: how do we validate this on the input side?
+                        throw new InvalidOperationException($"invalid typed property, type is '{property.Value.GetType()}'");
+                    }
+
+                    writer.WritePropertyName(property.Key);
+
+                    // Note: what if it's just a primitive, i.e. a string or int, what do we do?
+                    model.Write(writer, options);
                 }
             }
             writer.WriteEndObject();

@@ -8,6 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\azoai\AzureOpenAI\AzureOpenAI.csproj" />
     <ProjectReference Include="..\..\src\OpenAI.csproj" />
   </ItemGroup>
 

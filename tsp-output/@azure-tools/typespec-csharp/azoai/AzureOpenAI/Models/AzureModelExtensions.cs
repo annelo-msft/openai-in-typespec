@@ -3,7 +3,7 @@ using System.Diagnostics;
 
 namespace AzureOpenAI.Models;
 
-internal static class AzureModelExtensions
+public static class AzureModelExtensions
 {
     public static void SetAzureDataSource(this CreateChatCompletionRequest request, AzureChatExtensionConfiguration dataSource)
     {
@@ -30,15 +30,14 @@ internal static class AzureModelExtensions
         // For now: Let's have serialized raw data and strongly-typed additional properties.
         // This lets us wait to serialize them until we can do it in an optimal fashion.
 
-
         // Add the list if it doesn't already exist
-        IList<AzureChatExtensionConfiguration> dataSources;
+        JsonModelList<AzureChatExtensionConfiguration> dataSources;
 
         if (request.AdditionalTypedProperties.TryGetValue("data_sources", out object? value))
         {
-            Debug.Assert(value is IList<AzureChatExtensionConfiguration>);
+            Debug.Assert(value is JsonModelList<AzureChatExtensionConfiguration>);
 
-            dataSources = (value as IList<AzureChatExtensionConfiguration>)!;
+            dataSources = (value as JsonModelList<AzureChatExtensionConfiguration>)!;
         }
         else
         {
