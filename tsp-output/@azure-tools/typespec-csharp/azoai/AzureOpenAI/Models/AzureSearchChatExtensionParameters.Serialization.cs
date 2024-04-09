@@ -12,8 +12,6 @@ namespace AzureOpenAI.Models;
 
 public partial class AzureSearchChatExtensionParameters : IJsonModel<AzureSearchChatExtensionParameters>
 {
-    void IUtf8JsonSerializable.Write(Utf8JsonWriter writer) => ((IJsonModel<AzureSearchChatExtensionParameters>)this).Write(writer, new ModelReaderWriterOptions("W"));
-
     void IJsonModel<AzureSearchChatExtensionParameters>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
     {
         var format = options.Format == "W" ? ((IPersistableModel<AzureSearchChatExtensionParameters>)this).GetFormatFromOptions(options) : options.Format;
@@ -23,11 +21,11 @@ public partial class AzureSearchChatExtensionParameters : IJsonModel<AzureSearch
         }
 
         writer.WriteStartObject();
-        if (Optional.IsDefined(Authentication))
-        {
-            writer.WritePropertyName("authentication"u8);
-            writer.WriteObjectValue<OnYourDataAuthenticationOptions>(Authentication, options);
-        }
+        //if (Optional.IsDefined(Authentication))
+        //{
+        //    writer.WritePropertyName("authentication"u8);
+        //    writer.WriteObjectValue<OnYourDataAuthenticationOptions>(Authentication, options);
+        //}
         if (Optional.IsDefined(DocumentCount))
         {
             writer.WritePropertyName("top_n_documents"u8);
@@ -52,16 +50,16 @@ public partial class AzureSearchChatExtensionParameters : IJsonModel<AzureSearch
         writer.WriteStringValue(SearchEndpoint.AbsoluteUri);
         writer.WritePropertyName("index_name"u8);
         writer.WriteStringValue(IndexName);
-        if (Optional.IsDefined(FieldMappingOptions))
-        {
-            writer.WritePropertyName("fields_mapping"u8);
-            writer.WriteObjectValue<AzureSearchIndexFieldMappingOptions>(FieldMappingOptions, options);
-        }
-        if (Optional.IsDefined(QueryType))
-        {
-            writer.WritePropertyName("query_type"u8);
-            writer.WriteStringValue(QueryType.Value.ToString());
-        }
+        //if (Optional.IsDefined(FieldMappingOptions))
+        //{
+        //    writer.WritePropertyName("fields_mapping"u8);
+        //    writer.WriteObjectValue<AzureSearchIndexFieldMappingOptions>(FieldMappingOptions, options);
+        //}
+        //if (Optional.IsDefined(QueryType))
+        //{
+        //    writer.WritePropertyName("query_type"u8);
+        //    writer.WriteStringValue(QueryType.Value.ToString());
+        //}
         if (Optional.IsDefined(SemanticConfiguration))
         {
             writer.WritePropertyName("semantic_configuration"u8);
@@ -72,11 +70,11 @@ public partial class AzureSearchChatExtensionParameters : IJsonModel<AzureSearch
             writer.WritePropertyName("filter"u8);
             writer.WriteStringValue(Filter);
         }
-        if (Optional.IsDefined(EmbeddingDependency))
-        {
-            writer.WritePropertyName("embedding_dependency"u8);
-            writer.WriteObjectValue<OnYourDataVectorizationSource>(EmbeddingDependency, options);
-        }
+        //if (Optional.IsDefined(EmbeddingDependency))
+        //{
+        //    writer.WritePropertyName("embedding_dependency"u8);
+        //    writer.WriteObjectValue<OnYourDataVectorizationSource>(EmbeddingDependency, options);
+        //}
         if (options.Format != "W" && _serializedAdditionalRawData != null)
         {
             foreach (var item in _serializedAdditionalRawData)
@@ -115,31 +113,31 @@ public partial class AzureSearchChatExtensionParameters : IJsonModel<AzureSearch
         {
             return null;
         }
-        OnYourDataAuthenticationOptions authentication = default;
+        //OnYourDataAuthenticationOptions authentication = default;
         int? topNDocuments = default;
         bool? inScope = default;
         int? strictness = default;
         string roleInformation = default;
         Uri endpoint = default;
         string indexName = default;
-        AzureSearchIndexFieldMappingOptions fieldsMapping = default;
-        AzureSearchQueryType? queryType = default;
+        //AzureSearchIndexFieldMappingOptions fieldsMapping = default;
+        //AzureSearchQueryType? queryType = default;
         string semanticConfiguration = default;
         string filter = default;
-        OnYourDataVectorizationSource embeddingDependency = default;
+        //OnYourDataVectorizationSource embeddingDependency = default;
         IDictionary<string, BinaryData> serializedAdditionalRawData = default;
         Dictionary<string, BinaryData> rawDataDictionary = new Dictionary<string, BinaryData>();
         foreach (var property in element.EnumerateObject())
         {
-            if (property.NameEquals("authentication"u8))
-            {
-                if (property.Value.ValueKind == JsonValueKind.Null)
-                {
-                    continue;
-                }
-                authentication = OnYourDataAuthenticationOptions.DeserializeOnYourDataAuthenticationOptions(property.Value, options);
-                continue;
-            }
+            //if (property.NameEquals("authentication"u8))
+            //{
+            //    if (property.Value.ValueKind == JsonValueKind.Null)
+            //    {
+            //        continue;
+            //    }
+            //    authentication = OnYourDataAuthenticationOptions.DeserializeOnYourDataAuthenticationOptions(property.Value, options);
+            //    continue;
+            //}
             if (property.NameEquals("top_n_documents"u8))
             {
                 if (property.Value.ValueKind == JsonValueKind.Null)
@@ -182,24 +180,24 @@ public partial class AzureSearchChatExtensionParameters : IJsonModel<AzureSearch
                 indexName = property.Value.GetString();
                 continue;
             }
-            if (property.NameEquals("fields_mapping"u8))
-            {
-                if (property.Value.ValueKind == JsonValueKind.Null)
-                {
-                    continue;
-                }
-                fieldsMapping = AzureSearchIndexFieldMappingOptions.DeserializeAzureSearchIndexFieldMappingOptions(property.Value, options);
-                continue;
-            }
-            if (property.NameEquals("query_type"u8))
-            {
-                if (property.Value.ValueKind == JsonValueKind.Null)
-                {
-                    continue;
-                }
-                queryType = new AzureSearchQueryType(property.Value.GetString());
-                continue;
-            }
+            //if (property.NameEquals("fields_mapping"u8))
+            //{
+            //    if (property.Value.ValueKind == JsonValueKind.Null)
+            //    {
+            //        continue;
+            //    }
+            //    fieldsMapping = AzureSearchIndexFieldMappingOptions.DeserializeAzureSearchIndexFieldMappingOptions(property.Value, options);
+            //    continue;
+            //}
+            //if (property.NameEquals("query_type"u8))
+            //{
+            //    if (property.Value.ValueKind == JsonValueKind.Null)
+            //    {
+            //        continue;
+            //    }
+            //    queryType = new AzureSearchQueryType(property.Value.GetString());
+            //    continue;
+            //}
             if (property.NameEquals("semantic_configuration"u8))
             {
                 semanticConfiguration = property.Value.GetString();
@@ -210,15 +208,15 @@ public partial class AzureSearchChatExtensionParameters : IJsonModel<AzureSearch
                 filter = property.Value.GetString();
                 continue;
             }
-            if (property.NameEquals("embedding_dependency"u8))
-            {
-                if (property.Value.ValueKind == JsonValueKind.Null)
-                {
-                    continue;
-                }
-                embeddingDependency = OnYourDataVectorizationSource.DeserializeOnYourDataVectorizationSource(property.Value, options);
-                continue;
-            }
+            //if (property.NameEquals("embedding_dependency"u8))
+            //{
+            //    if (property.Value.ValueKind == JsonValueKind.Null)
+            //    {
+            //        continue;
+            //    }
+            //    embeddingDependency = OnYourDataVectorizationSource.DeserializeOnYourDataVectorizationSource(property.Value, options);
+            //    continue;
+            //}
             if (options.Format != "W")
             {
                 rawDataDictionary.Add(property.Name, BinaryData.FromString(property.Value.GetRawText()));
@@ -226,18 +224,18 @@ public partial class AzureSearchChatExtensionParameters : IJsonModel<AzureSearch
         }
         serializedAdditionalRawData = rawDataDictionary;
         return new AzureSearchChatExtensionParameters(
-            authentication,
+            //authentication,
             topNDocuments,
             inScope,
             strictness,
             roleInformation,
             endpoint,
             indexName,
-            fieldsMapping,
-            queryType,
+            //fieldsMapping,
+            //queryType,
             semanticConfiguration,
             filter,
-            embeddingDependency,
+            //embeddingDependency,
             serializedAdditionalRawData);
     }
 
@@ -272,19 +270,19 @@ public partial class AzureSearchChatExtensionParameters : IJsonModel<AzureSearch
 
     string IPersistableModel<AzureSearchChatExtensionParameters>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
 
-    /// <summary> Deserializes the model from a raw response. </summary>
-    /// <param name="response"> The response to deserialize the model from. </param>
-    internal static AzureSearchChatExtensionParameters FromResponse(Response response)
-    {
-        using var document = JsonDocument.Parse(response.Content);
-        return DeserializeAzureSearchChatExtensionParameters(document.RootElement);
-    }
+    ///// <summary> Deserializes the model from a raw response. </summary>
+    ///// <param name="response"> The response to deserialize the model from. </param>
+    //internal static AzureSearchChatExtensionParameters FromResponse(Response response)
+    //{
+    //    using var document = JsonDocument.Parse(response.Content);
+    //    return DeserializeAzureSearchChatExtensionParameters(document.RootElement);
+    //}
 
-    /// <summary> Convert into a Utf8JsonRequestContent. </summary>
-    internal virtual RequestContent ToRequestContent()
-    {
-        var content = new Utf8JsonRequestContent();
-        content.JsonWriter.WriteObjectValue<AzureSearchChatExtensionParameters>(this, new ModelReaderWriterOptions("W"));
-        return content;
-    }
+    ///// <summary> Convert into a Utf8JsonRequestContent. </summary>
+    //internal virtual RequestContent ToRequestContent()
+    //{
+    //    var content = new Utf8JsonRequestContent();
+    //    content.JsonWriter.WriteObjectValue<AzureSearchChatExtensionParameters>(this, new ModelReaderWriterOptions("W"));
+    //    return content;
+    //}
 }
