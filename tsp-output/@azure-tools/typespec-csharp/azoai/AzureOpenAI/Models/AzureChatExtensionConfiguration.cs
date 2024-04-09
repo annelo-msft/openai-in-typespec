@@ -49,6 +49,11 @@ public abstract partial class AzureChatExtensionConfiguration
     /// </list>
     /// </para>
     /// </summary>
+    
+    // TODO: Could this be IDictionary<string, IPerstistableModel<T>> or even
+    // IDictionary<string, IJsonModel<T>> in some cases.  What would that do?
+    //
+    // Note: No, because you don't have the T.
     private protected IDictionary<string, BinaryData> _serializedAdditionalRawData;
 
     /// <summary> Initializes a new instance of <see cref="AzureChatExtensionConfiguration"/>. </summary>

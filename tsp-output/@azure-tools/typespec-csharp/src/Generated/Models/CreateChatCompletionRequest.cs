@@ -44,8 +44,9 @@ namespace OpenAI.Models
         /// </summary>
         private IDictionary<string, BinaryData> _serializedAdditionalRawData;
 
+        private IDictionary<string, object> _additionalTypedProperties;
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public IDictionary<string, BinaryData> AzureProperties => _serializedAdditionalRawData;
+        public IDictionary<string, object> AdditionalTypedProperties => _additionalTypedProperties;
 
         /// <summary> Initializes a new instance of <see cref="CreateChatCompletionRequest"/>. </summary>
         /// <param name="messages">

@@ -11,6 +11,15 @@ public class AzureChatClient : Chat
     {
     }
 
+    // TODO: Show how this would differ for this case.  Do we still need OperationName and the
+    // remapping policy?
+    //   1. Version parameter
+    //   2. Auth key is different - does that show up here or in the client?
+    //   3. DeploymentId in path
+    // 
+    // Note: Model content is already serialized by the time we get here.  Nothing 
+    // content-related should happen in this method.  If we can show that, do we need
+    // to make these methods protected virtual?
     protected override PipelineMessage CreateCreateChatCompletionRequest(BinaryContent content, RequestOptions context)
     {
         var message = Pipeline.CreateMessage();
