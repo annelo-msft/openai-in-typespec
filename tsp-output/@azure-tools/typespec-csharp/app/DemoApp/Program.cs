@@ -30,6 +30,13 @@ CreateChatCompletionRequest request = new CreateChatCompletionRequest(messages, 
 request.SetAzureDataSource(dataSource);
 
 ClientResult<CreateChatCompletionResponse> result = chatClient.CreateChatCompletion(request);
+CreateChatCompletionResponse completion = result.Value;
+
+if (completion.Choices[0].Message.GetAzureExtensionsContext().Citations.Count > 0)
+{
+    // TODO: Do a thing
+}
+
 
 //AzureOpenAIClient client = new AzureOpenAIClient(endpoint, new ApiKeyCredential(apiKey));
 //Chat chatClient = client.GetChatClient("gpt-35-turbo-instruct");
