@@ -1,10 +1,16 @@
 ﻿using OpenAI.Models;
+using System.ClientModel;
 using System.Diagnostics;
 
 namespace AzureOpenAI.Models;
 
 public static class AzureModelExtensions
 {
+    public static BinaryContent ToBinaryBody(this CreateChatCompletionRequest request)
+    {
+        throw new NotImplementedException();
+    }
+
     public static void SetAzureDataSource(this CreateChatCompletionRequest request, AzureChatExtensionConfiguration dataSource)
     {
         Argument.AssertNotNull(dataSource, nameof(dataSource));

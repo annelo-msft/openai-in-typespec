@@ -34,15 +34,6 @@ ClientResult<CreateChatCompletionResponse> result = chatClient.CreateChatComplet
 //AzureOpenAIClient client = new AzureOpenAIClient(endpoint, new ApiKeyCredential(apiKey));
 //Chat chatClient = client.GetChatClient("gpt-35-turbo-instruct");
 
-// TODO: Here.  What is the convenience model story?
-// Should the Azure client return Response<ChatCompletion>?
 //ClientResult<ChatCompletion> result = await chatClient.CompleteChatAsync()
 
-// TODO: How do we reconcile returning Response from Azure client protocol methods
-// and ClientResult from unbranded client protocol methods?
-
 // TODO: MRW story - input model and output models too.
-
-//Client
-
-//OpenAIClient client = new()
