@@ -1,4 +1,5 @@
 ﻿using OpenAI;
+using OpenAI.Models;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 
@@ -9,6 +10,11 @@ public class AzureChatClient : Chat
     internal AzureChatClient(ClientPipeline pipeline, ApiKeyCredential credential, Uri endpoint)
         : base(pipeline, credential, endpoint)
     {
+    }
+
+    public Task<ClientResult<CreateChatCompletionResponse>> CreateChatCompletionAsync(CreateChatCompletionRequest createChatCompletionRequest, CancellationToken cancellationToken = default)
+    {
+        return base.CreateChatCompletionAsync(createChatCompletionRequest, cancellationToken);
     }
 
     // TODO: Show how this would differ for this case.  Do we still need OperationName and the
