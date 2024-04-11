@@ -1,9 +1,9 @@
-﻿using OpenAI;
+﻿using AzureOpenAI;
+using AzureOpenAI.Models;
+using ClientModel.Tests.Mocks;
+using OpenAI;
 using OpenAI.Models;
 using System.ClientModel;
-
-using AzureOpenAI.Models;
-using AzureOpenAI;
 
 Console.WriteLine("Hello, World!");
 
@@ -15,7 +15,7 @@ void CallUnbrandedService()
     // <Third party>
     string apiKey = Environment.GetEnvironmentVariable("OPENAI_KEY")!;
 
-    OpenAIClient client = new(new ApiKeyCredential(apiKey));
+    OpenAIClient client = new(new Uri("https://www.mock-oai.com"), new ApiKeyCredential(apiKey), GetUnbrandedClientOptions());
     // </Third party>
 
     Chat chatClient = client.GetChatClient();
@@ -34,6 +34,16 @@ void CallUnbrandedService()
     CreateChatCompletionResponse completion = result.Value;
 
     // TODO: Do something with output
+}
+
+OpenAIClientOptions GetUnbrandedClientOptions()
+{
+    OpenAIClientOptions options = new()
+    {
+        Transport = new MockPipelineTransport("Transport", i => 200)
+    };
+
+    return options;
 }
 
 void CallAzureService()
