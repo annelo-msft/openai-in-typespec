@@ -8,6 +8,9 @@ public static class AzureModelExtensions
 {
     public static IList<AzureChatExtensionConfiguration> GetDataSources(this CreateChatCompletionRequest request)
     {
+        // TODO: How can we validate that this is being called in the right context,
+        // e.g. user is using an Azure client instance and not an unbranded one?
+
         // Note:
         //   1. The patterns here are different for input and output
         //   2. The extension properties are actually quite simple -- they just get
@@ -18,6 +21,10 @@ public static class AzureModelExtensions
         // wanted to mutate a SeriazliedAdditionalRawData, do we deserialize it
         // and stick it in AdditionalTypedProperties (are these "deserialized
         // additional properties, e.g.?).
+
+        // TODO: what is our concurrency story for models in unbranded clients?
+        // Are we happy with taking the Azure client stance of "models don't need
+        // to be thread-safe because they are rarely shared between threads"? 
         JsonModelList<AzureChatExtensionConfiguration> dataSources;
 
         if (request.AdditionalTypedProperties.TryGetValue("data_sources", out object? value))
@@ -37,10 +44,17 @@ public static class AzureModelExtensions
 
     public static AzureChatExtensionsMessageContext? GetAzureExtensionsContext(this ChatCompletionResponseMessage message)
     {
+        // TODO: How can we validate that this is being called in the right context,
+        // e.g. user is using an Azure client instance and not an unbranded one?
+
         if (message.SerializedAdditionalRawData.TryGetValue("context", out BinaryData? context))
         {
             using JsonDocument doc = JsonDocument.Parse(context);
             return AzureChatExtensionsMessageContext.DeserializeAzureChatExtensionsMessageContext(doc.RootElement);
+
+            // TODO: once retrieved, should this be stored in AdditionalTypedProperties, e.g.
+            // in case the end-user mutates it in a round-trip scenario?  If so, should it be
+            // removed from SerializedAdditionalRawData so it's only in one place?
         }
 
         return null;
