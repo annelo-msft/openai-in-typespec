@@ -1,5 +1,6 @@
 ﻿using OpenAI.Models;
 using System.Diagnostics;
+using System.Text.Json;
 
 namespace AzureOpenAI.Models;
 
@@ -49,10 +50,17 @@ public static class AzureModelExtensions
     }
 
 
-    public static AzureChatExtensionsMessageContext GetAzureExtensionsContext(this ChatCompletionResponseMessage message)
+    public static AzureChatExtensionsMessageContext? GetAzureExtensionsContext(this ChatCompletionResponseMessage message)
     {
-        throw new NotImplementedException();
+        if (message.SerializedAdditionalRawData.TryGetValue("context", out BinaryData? context))
+        {
+            using JsonDocument doc = JsonDocument.Parse(context);
+            return AzureChatExtensionsMessageContext.DeserializeAzureChatExtensionsMessageContext(doc.RootElement);
+        }
+
+        return null;
     }
+
     //// TODO: return type for collection?
     //public static IList<AzureChatExtensionConfiguration>? GetDataSources(this CreateChatCompletionRequest request)
     //{
