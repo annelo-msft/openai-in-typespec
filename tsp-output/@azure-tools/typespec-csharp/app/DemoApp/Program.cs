@@ -159,7 +159,9 @@ AzureOpenAIClientOptions GetAzureClientOptions()
 
     mockTransport.OnSendingRequest = (i, m) =>
     {
-        Console.WriteLine($"Request: Uri={m.Request.Uri!.ToString()}, Content={WriteAsString(m.Request.Content!)}");
+        Console.WriteLine("Request:");
+        Console.WriteLine($"  Uri='{m.Request.Uri}'");
+        Console.WriteLine($"  Content='{WriteAsString(m.Request.Content!)}'");
     };
 
     AzureOpenAIClientOptions options = new()
