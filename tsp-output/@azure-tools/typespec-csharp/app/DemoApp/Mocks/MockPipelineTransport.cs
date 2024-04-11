@@ -13,8 +13,8 @@ public class MockPipelineTransport : PipelineTransport
 
     public string Id { get; }
 
-    public Action<int>? OnSendingRequest { get; set; }
-    public Action<int>? OnReceivedResponse { get; set; }
+    public Action<int, PipelineMessage>? OnSendingRequest { get; set; }
+    public Action<int, PipelineMessage>? OnReceivedResponse { get; set; }
 
     public MockPipelineTransport(string id, params int[] codes)
         : this(id, i => (codes[i], BinaryData.FromString(string.Empty)))
@@ -38,7 +38,7 @@ public class MockPipelineTransport : PipelineTransport
         {
             Stamp(message, "Transport");
 
-            OnSendingRequest?.Invoke(_retryCount);
+            OnSendingRequest?.Invoke(_retryCount, message);
 
             if (message is RetriableTransportMessage transportMessage)
             {
@@ -46,7 +46,7 @@ public class MockPipelineTransport : PipelineTransport
                 transportMessage.SetResponse(status, content);
             }
 
-            OnReceivedResponse?.Invoke(_retryCount);
+            OnReceivedResponse?.Invoke(_retryCount, message);
         }
         finally
         {
@@ -60,7 +60,7 @@ public class MockPipelineTransport : PipelineTransport
         {
             Stamp(message, "Transport");
 
-            OnSendingRequest?.Invoke(_retryCount);
+            OnSendingRequest?.Invoke(_retryCount, message);
 
             if (message is RetriableTransportMessage transportMessage)
             {
@@ -68,7 +68,7 @@ public class MockPipelineTransport : PipelineTransport
                 transportMessage.SetResponse(status, content);
             }
 
-            OnReceivedResponse?.Invoke(_retryCount);
+            OnReceivedResponse?.Invoke(_retryCount, message);
         }
         finally
         {

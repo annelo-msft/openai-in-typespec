@@ -52,7 +52,7 @@ namespace OpenAI
 
             RequestOptions context = FromCancellationToken(cancellationToken);
             using BinaryContent content = createChatCompletionRequest.ToBinaryBody();
-            ClientResult result = await CreateChatCompletionAsync(content, context).ConfigureAwait(false);
+            ClientResult result = await CreateChatCompletionAsync(createChatCompletionRequest.Model.ToString(), content, context).ConfigureAwait(false);
             return ClientResult.FromValue(CreateChatCompletionResponse.FromResponse(result.GetRawResponse()), result.GetRawResponse());
         }
 
@@ -66,7 +66,7 @@ namespace OpenAI
 
             RequestOptions context = FromCancellationToken(cancellationToken);
             using BinaryContent content = createChatCompletionRequest.ToBinaryBody();
-            ClientResult result = CreateChatCompletion(content, context);
+            ClientResult result = CreateChatCompletion(createChatCompletionRequest.Model.ToString(), content, context);
             return ClientResult.FromValue(CreateChatCompletionResponse.FromResponse(result.GetRawResponse()), result.GetRawResponse());
         }
 
@@ -90,11 +90,11 @@ namespace OpenAI
         /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> CreateChatCompletionAsync(BinaryContent content, RequestOptions context = null)
+        public virtual async Task<ClientResult> CreateChatCompletionAsync(string model, BinaryContent content, RequestOptions context = null)
         {
             Argument.AssertNotNull(content, nameof(content));
 
-            using PipelineMessage message = CreateCreateChatCompletionRequest(content, context);
+            using PipelineMessage message = CreateCreateChatCompletionRequest(model, content, context);
             return ClientResult.FromResponse(await _pipeline.ProcessMessageAsync(message, context).ConfigureAwait(false));
         }
 
@@ -118,15 +118,20 @@ namespace OpenAI
         /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult CreateChatCompletion(BinaryContent content, RequestOptions context = null)
+
+        // TODO: Note -- maybe we don't want to add a required parameter to the protocol
+        // method on the base type?
+
+        public virtual ClientResult CreateChatCompletion(string model, BinaryContent content, RequestOptions context = null)
         {
+            Argument.AssertNotNull(model, nameof(model));
             Argument.AssertNotNull(content, nameof(content));
 
-            using PipelineMessage message = CreateCreateChatCompletionRequest(content, context);
+            using PipelineMessage message = CreateCreateChatCompletionRequest(model, content, context);
             return ClientResult.FromResponse(_pipeline.ProcessMessage(message, context));
         }
 
-        protected virtual PipelineMessage CreateCreateChatCompletionRequest(BinaryContent content, RequestOptions context)
+        protected virtual PipelineMessage CreateCreateChatCompletionRequest(string model, BinaryContent content, RequestOptions context)
         {
             var message = _pipeline.CreateMessage();
             if (context != null)

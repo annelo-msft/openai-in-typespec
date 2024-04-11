@@ -6,9 +6,12 @@ namespace AzureOpenAI;
 
 internal class AzureChatClient : Chat
 {
-    internal AzureChatClient(ClientPipeline pipeline, ApiKeyCredential credential, Uri endpoint)
+    private readonly string _apiVersion;
+
+    internal AzureChatClient(ClientPipeline pipeline, ApiKeyCredential credential, Uri endpoint, string apiVersion)
         : base(pipeline, credential, endpoint)
     {
+        _apiVersion = apiVersion;
     }
 
     // TODO: Show how this would differ for this case.  Do we still need OperationName and the
@@ -20,7 +23,7 @@ internal class AzureChatClient : Chat
     // Note: Model content is already serialized by the time we get here.  Nothing 
     // content-related should happen in this method.  If we can show that, do we need
     // to make these methods protected virtual?
-    protected override PipelineMessage CreateCreateChatCompletionRequest(BinaryContent content, RequestOptions context)
+    protected override PipelineMessage CreateCreateChatCompletionRequest(string model, BinaryContent content, RequestOptions context)
     {
         var message = Pipeline.CreateMessage();
         message.ResponseClassifier = PipelineMessageClassifier200;
@@ -30,7 +33,10 @@ internal class AzureChatClient : Chat
 
         var uri = new ClientUriBuilder();
         uri.Reset(Endpoint);
+        uri.AppendPath("/openai/deployments/", false);
+        uri.AppendPath(model, false);
         uri.AppendPath("/chat/completions", false);
+        uri.AppendQuery("api-version", _apiVersion, true);
         request.Uri = uri.ToUri();
 
         request.Headers.Set("Accept", "application/json");

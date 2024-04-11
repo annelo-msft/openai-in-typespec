@@ -4,6 +4,7 @@ using ClientModel.Tests.Mocks;
 using OpenAI;
 using OpenAI.Models;
 using System.ClientModel;
+using System.ClientModel.Primitives;
 
 Console.WriteLine("Hello, World!");
 
@@ -121,9 +122,7 @@ AzureSearchChatExtensionConfiguration GetAzureSearchDataSource()
 
 AzureOpenAIClientOptions GetAzureClientOptions()
 {
-    AzureOpenAIClientOptions options = new()
-    {
-        Transport = new MockPipelineTransport("Transport", i => (200, BinaryData.FromString(
+    MockPipelineTransport mockTransport = new("Transport", i => (200, BinaryData.FromString(
             """
             {
               "id": "chatcmpl-7R1nGnsXO8n4oi9UPz2f3UHdgAYMn",
@@ -156,8 +155,25 @@ AzureOpenAIClientOptions GetAzureClientOptions()
                 "total_tokens": 590
               }
             }
-            """)))
+            """)));
+
+    mockTransport.OnSendingRequest = (i, m) =>
+    {
+        Console.WriteLine($"Request: Uri={m.Request.Uri!.ToString()}, Content={WriteAsString(m.Request.Content!)}");
+    };
+
+    AzureOpenAIClientOptions options = new()
+    {
+        Transport = mockTransport
     };
 
     return options;
+}
+
+string WriteAsString(BinaryContent content)
+{
+    MemoryStream stream = new();
+    content.WriteTo(stream);
+    stream.Position = 0;
+    return BinaryData.FromStream(stream).ToString();
 }
