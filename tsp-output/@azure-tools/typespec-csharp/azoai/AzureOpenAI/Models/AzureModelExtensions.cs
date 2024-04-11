@@ -6,32 +6,18 @@ namespace AzureOpenAI.Models;
 
 public static class AzureModelExtensions
 {
-    public static void SetAzureDataSource(this CreateChatCompletionRequest request, AzureChatExtensionConfiguration dataSource)
+    public static IList<AzureChatExtensionConfiguration> GetDataSources(this CreateChatCompletionRequest request)
     {
-        Argument.AssertNotNull(dataSource, nameof(dataSource));
-
-        // TODO: we can do it slow via MRW.Write to BinaryData;
-        // can we do it fast via MRW.Write to Utf8JsonWriter?
-
-        // TODO: Does it matter to pass MRW Options here?
-        //BinaryData serializedValue = ModelReaderWriter.Write(dataSource);
-
-        // Note: One observation here is - working in the "BinaryData space" is 
-        // different depending on input/output models.  We could make it all 
-        // strongly-typed for input, but we'd have a lot of properties to [EBN].
-
-        // If the BinaryData represents JSON, then we need to mutate the JSON
-        // to add a collection, and this is expensive.
-
-        // We could use MutableJsonDocument 😮, JsonNode, etc.
-        // We could keep separate property bags for input and output types, i.e.
-        // for different scenarios.
-        // We could do something like PipelineMessage and hold an ArrayBackedPropertyBag
-
-        // For now: Let's have serialized raw data and strongly-typed additional properties.
-        // This lets us wait to serialize them until we can do it in an optimal fashion.
-
-        // Add the list if it doesn't already exist
+        // Note:
+        //   1. The patterns here are different for input and output
+        //   2. The extension properties are actually quite simple -- they just get
+        //      or set stuff in either the input or output properties dictionaries.
+        //
+        // TODO: What is the interplay of SerializedAdditionalRawData and 
+        // AdditionalTypedProperties?  i.e. in a round-trip scenario, if we
+        // wanted to mutate a SeriazliedAdditionalRawData, do we deserialize it
+        // and stick it in AdditionalTypedProperties (are these "deserialized
+        // additional properties, e.g.?).
         JsonModelList<AzureChatExtensionConfiguration> dataSources;
 
         if (request.AdditionalTypedProperties.TryGetValue("data_sources", out object? value))
@@ -46,9 +32,8 @@ public static class AzureModelExtensions
             request.AdditionalTypedProperties.Add("data_sources", dataSources);
         }
 
-        dataSources.Add(dataSource);
+        return (IList<AzureChatExtensionConfiguration>)dataSources;
     }
-
 
     public static AzureChatExtensionsMessageContext? GetAzureExtensionsContext(this ChatCompletionResponseMessage message)
     {
@@ -60,6 +45,49 @@ public static class AzureModelExtensions
 
         return null;
     }
+
+    //public static void SetDataSource(this CreateChatCompletionRequest request, AzureChatExtensionConfiguration dataSource)
+    //{
+    //    Argument.AssertNotNull(dataSource, nameof(dataSource));
+
+    //    // TODO: we can do it slow via MRW.Write to BinaryData;
+    //    // can we do it fast via MRW.Write to Utf8JsonWriter?
+
+    //    // TODO: Does it matter to pass MRW Options here?
+    //    //BinaryData serializedValue = ModelReaderWriter.Write(dataSource);
+
+    //    // Note: One observation here is - working in the "BinaryData space" is 
+    //    // different depending on input/output models.  We could make it all 
+    //    // strongly-typed for input, but we'd have a lot of properties to [EBN].
+
+    //    // If the BinaryData represents JSON, then we need to mutate the JSON
+    //    // to add a collection, and this is expensive.
+
+    //    // We could use MutableJsonDocument 😮, JsonNode, etc.
+    //    // We could keep separate property bags for input and output types, i.e.
+    //    // for different scenarios.
+    //    // We could do something like PipelineMessage and hold an ArrayBackedPropertyBag
+
+    //    // For now: Let's have serialized raw data and strongly-typed additional properties.
+    //    // This lets us wait to serialize them until we can do it in an optimal fashion.
+
+    //    // Add the list if it doesn't already exist
+    //    JsonModelList<AzureChatExtensionConfiguration> dataSources;
+
+    //    if (request.AdditionalTypedProperties.TryGetValue("data_sources", out object? value))
+    //    {
+    //        Debug.Assert(value is JsonModelList<AzureChatExtensionConfiguration>);
+
+    //        dataSources = (value as JsonModelList<AzureChatExtensionConfiguration>)!;
+    //    }
+    //    else
+    //    {
+    //        dataSources = [];
+    //        request.AdditionalTypedProperties.Add("data_sources", dataSources);
+    //    }
+
+    //    dataSources.Add(dataSource);
+    //}
 
     //// TODO: return type for collection?
     //public static IList<AzureChatExtensionConfiguration>? GetDataSources(this CreateChatCompletionRequest request)

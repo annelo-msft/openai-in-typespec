@@ -4,7 +4,7 @@ using System.ClientModel.Primitives;
 
 namespace AzureOpenAI;
 
-public class AzureChatClient : Chat
+internal class AzureChatClient : Chat
 {
     internal AzureChatClient(ClientPipeline pipeline, ApiKeyCredential credential, Uri endpoint)
         : base(pipeline, credential, endpoint)

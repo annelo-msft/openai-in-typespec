@@ -59,9 +59,8 @@ void CallAzureService()
 
     // <Azure>
     // Add Azure input property via extension methods
-    AzureSearchChatExtensionParameters searchParams = new(new Uri("https://azure.search.com"), "MySearchIndex");
-    AzureSearchChatExtensionConfiguration dataSource = new(searchParams);
-    request.SetAzureDataSource(dataSource);
+    request.GetDataSources().Add(GetAzureSearchDataSource());
+
     // </Azure>
 
     ClientResult<CreateChatCompletionResponse> result = chatClient.CreateChatCompletion(request);
@@ -76,4 +75,10 @@ void CallAzureService()
         // TODO: Do something with output
     }
     // </Azure>
+}
+
+AzureSearchChatExtensionConfiguration GetAzureSearchDataSource()
+{
+    AzureSearchChatExtensionParameters searchParams = new(new Uri("https://azure.search.com"), "MySearchIndex");
+    return new(searchParams);
 }
