@@ -8,7 +8,7 @@ namespace ClientModel.Tests.Mocks;
 
 public class MockPipelineTransport : PipelineTransport
 {
-    private readonly Func<int, int> _responseFactory;
+    private readonly Func<int, (int Status, BinaryData? Content)> _responseFactory;
     private int _retryCount;
 
     public string Id { get; }
@@ -17,11 +17,11 @@ public class MockPipelineTransport : PipelineTransport
     public Action<int>? OnReceivedResponse { get; set; }
 
     public MockPipelineTransport(string id, params int[] codes)
-        : this(id, i => codes[i])
+        : this(id, i => (codes[i], BinaryData.FromString(string.Empty)))
     {
     }
 
-    public MockPipelineTransport(string id, Func<int, int> responseFactory)
+    public MockPipelineTransport(string id, Func<int, (int Status, BinaryData? Content)> responseFactory)
     {
         Id = id;
         _responseFactory = responseFactory;
@@ -42,8 +42,8 @@ public class MockPipelineTransport : PipelineTransport
 
             if (message is RetriableTransportMessage transportMessage)
             {
-                int status = _responseFactory(_retryCount);
-                transportMessage.SetResponse(status);
+                (int status, BinaryData? content) = _responseFactory(_retryCount);
+                transportMessage.SetResponse(status, content);
             }
 
             OnReceivedResponse?.Invoke(_retryCount);
@@ -64,8 +64,8 @@ public class MockPipelineTransport : PipelineTransport
 
             if (message is RetriableTransportMessage transportMessage)
             {
-                int status = _responseFactory(_retryCount);
-                transportMessage.SetResponse(status);
+                (int status, BinaryData? content) = _responseFactory(_retryCount);
+                transportMessage.SetResponse(status, content);
             }
 
             OnReceivedResponse?.Invoke(_retryCount);
@@ -106,9 +106,9 @@ public class MockPipelineTransport : PipelineTransport
         {
         }
 
-        public void SetResponse(int status)
+        public void SetResponse(int status, BinaryData? content)
         {
-            Response = new RetriableTransportResponse(status);
+            Response = new RetriableTransportResponse(status, content);
         }
     }
 
@@ -116,19 +116,22 @@ public class MockPipelineTransport : PipelineTransport
     {
         private Uri? _uri;
         private readonly PipelineRequestHeaders _headers;
+        private string _method;
+        private BinaryContent? _content;
 
         public TransportRequest()
         {
             _headers = new MockRequestHeaders();
             _uri = new Uri("https://www.example.com");
+            _method = "GET";
         }
 
         public override void Dispose() { }
 
         protected override BinaryContent? ContentCore
         {
-            get => throw new NotImplementedException();
-            set => throw new NotImplementedException();
+            get => _content;
+            set => _content = value;
         }
 
         protected override PipelineRequestHeaders HeadersCore
@@ -136,8 +139,8 @@ public class MockPipelineTransport : PipelineTransport
 
         protected override string MethodCore
         {
-            get => throw new NotImplementedException();
-            set => throw new NotImplementedException();
+            get => _method;
+            set => _method = value;
         }
 
         protected override Uri? UriCore
@@ -149,9 +152,14 @@ public class MockPipelineTransport : PipelineTransport
 
     private class RetriableTransportResponse : PipelineResponse
     {
-        public RetriableTransportResponse(int status)
+        private Stream? _contentStream;
+        private BinaryData _content;
+
+        public RetriableTransportResponse(int status, BinaryData? content)
         {
             Status = status;
+            ContentStream = content?.ToStream();
+            _content = content ?? BinaryData.FromString(string.Empty);
         }
 
         public override int Status { get; }
@@ -160,11 +168,11 @@ public class MockPipelineTransport : PipelineTransport
 
         public override Stream? ContentStream
         {
-            get => null;
-            set => throw new NotImplementedException();
+            get => _contentStream;
+            set => _contentStream = value;
         }
 
-        public override BinaryData Content => throw new NotImplementedException();
+        public override BinaryData Content => _content;
 
         protected override PipelineResponseHeaders HeadersCore
             => throw new NotImplementedException();
@@ -173,12 +181,16 @@ public class MockPipelineTransport : PipelineTransport
 
         public override BinaryData BufferContent(CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            return _content = _contentStream == null ?
+                BinaryData.FromString(string.Empty) :
+                BinaryData.FromStream(_contentStream);
         }
 
         public override ValueTask<BinaryData> BufferContentAsync(CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            return new(_content = _contentStream == null ?
+                BinaryData.FromString(string.Empty) :
+                BinaryData.FromStream(_contentStream));
         }
     }
 }
