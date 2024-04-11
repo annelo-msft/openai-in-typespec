@@ -3,7 +3,8 @@ using System.Text.Json;
 
 namespace AzureOpenAI;
 
-internal class PersistableModelList<TModel> : List<IPersistableModel<TModel>>, IPersistableModel<PersistableModelList<TModel>>
+internal class PersistableModelList<TModel> : List<TModel>, IPersistableModel<PersistableModelList<TModel>>
+    where TModel : IPersistableModel<TModel>
 {
     public PersistableModelList<TModel> Create(BinaryData data, ModelReaderWriterOptions options)
     {
@@ -21,7 +22,8 @@ internal class PersistableModelList<TModel> : List<IPersistableModel<TModel>>, I
     }
 }
 
-internal class JsonModelList<TModel> : List<IJsonModel<TModel>>, IJsonModel<JsonModelList<TModel>>
+internal class JsonModelList<TModel> : List<TModel>, IJsonModel<JsonModelList<TModel>>
+    where TModel : IJsonModel<TModel>
 {
     public JsonModelList<TModel> Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
     {

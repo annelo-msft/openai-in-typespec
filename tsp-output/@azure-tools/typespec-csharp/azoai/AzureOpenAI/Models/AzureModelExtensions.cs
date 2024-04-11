@@ -39,7 +39,7 @@ public static class AzureModelExtensions
             request.AdditionalTypedProperties.Add("data_sources", dataSources);
         }
 
-        return (IList<AzureChatExtensionConfiguration>)dataSources;
+        return dataSources;
     }
 
     public static AzureChatExtensionsMessageContext? GetAzureExtensionsContext(this ChatCompletionResponseMessage message)

@@ -104,7 +104,11 @@ void CallAzureService()
 
     if (azureContext is not null && azureContext.Citations.Count > 0)
     {
-        // TODO: Do something with output
+        int i = 0;
+        foreach (var citation in azureContext.Citations)
+        {
+            Console.WriteLine($"Citation {i++}: Content={citation.Content}, Uri={citation.Url}, Title={citation.Title}");
+        }
     }
     // </Azure>
 }
