@@ -1,4 +1,5 @@
 ﻿using OpenAI;
+using OpenAI.Models;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 
@@ -19,16 +20,49 @@ internal class AzureChatClient : Chat
         _apiVersion = apiVersion;
     }
 
-    // TODO: Show how this would differ for this case.  Do we still need OperationName and the
-    // remapping policy?
-    //   1. Version parameter
-    //   2. Auth key is different - does that show up here or in the client?
-    //   3. DeploymentId in path
-    // 
-    // Note: Model content is already serialized by the time we get here.  Nothing 
-    // content-related should happen in this method.  If we can show that, do we need
-    // to make these methods protected virtual?
-    protected override PipelineMessage CreateCreateChatCompletionRequest(string model, BinaryContent content, RequestOptions context)
+    public override Task<ClientResult<CreateChatCompletionResponse>> CreateChatCompletionAsync(CreateChatCompletionRequest createChatCompletionRequest, CancellationToken cancellationToken = default)
+    {
+        return base.CreateChatCompletionAsync(createChatCompletionRequest, cancellationToken);
+    }
+
+    public override ClientResult<CreateChatCompletionResponse> CreateChatCompletion(CreateChatCompletionRequest createChatCompletionRequest, CancellationToken cancellationToken = default)
+    {
+        return base.CreateChatCompletion(createChatCompletionRequest, cancellationToken);
+    }
+
+    public override Task<ClientResult> CreateChatCompletionAsync(BinaryContent content, RequestOptions context = null)
+    {
+        throw new InvalidOperationException("Improperly formatted content -- Azure service requires different format. " +
+            $"Please consult the REST API documentation and call the '{nameof(CreateChatCompletion)}' method overload that " +
+            "takes a 'model' parameter.");
+    }
+
+    public override ClientResult CreateChatCompletion(BinaryContent content, RequestOptions context = null)
+    {
+        throw new InvalidOperationException("Improperly formatted content -- Azure service requires different format. " +
+            $"Please consult the REST API documentation and call the '{nameof(CreateChatCompletion)}' method overload that " +
+            "takes a 'model' parameter.");
+    }
+
+    public ClientResult CreateChatCompletion(string model, BinaryContent content, RequestOptions context = null)
+    {
+        Argument.AssertNotNull(model, nameof(model));
+        Argument.AssertNotNull(content, nameof(content));
+
+        using PipelineMessage message = CreateCreateChatCompletionRequest(model, content, context);
+        return ClientResult.FromResponse(Pipeline.ProcessMessage(message, context));
+    }
+
+    public async Task<ClientResult> CreateChatCompletionAsync(string model, BinaryContent content, RequestOptions context = null)
+    {
+        Argument.AssertNotNull(model, nameof(model));
+        Argument.AssertNotNull(content, nameof(content));
+
+        using PipelineMessage message = CreateCreateChatCompletionRequest(model, content, context);
+        return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, context).ConfigureAwait(false));
+    }
+
+    private PipelineMessage CreateCreateChatCompletionRequest(string model, BinaryContent content, RequestOptions context)
     {
         var message = Pipeline.CreateMessage();
         message.ResponseClassifier = PipelineMessageClassifier200;
