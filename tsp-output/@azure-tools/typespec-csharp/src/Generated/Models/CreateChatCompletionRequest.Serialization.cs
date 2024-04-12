@@ -614,9 +614,9 @@ namespace OpenAI.Models
         }
 
         /// <summary> Convert into a Utf8JsonRequestBody. </summary>
-        internal virtual BinaryContent ToBinaryBody()
+        internal virtual BinaryContent ToBinaryBody(ModelReaderWriterOptions options)
         {
-            return BinaryContent.Create(this, new ModelReaderWriterOptions("W"));
+            return BinaryContent.Create(this, options);
         }
     }
 }

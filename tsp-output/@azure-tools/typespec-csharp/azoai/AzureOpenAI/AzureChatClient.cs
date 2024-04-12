@@ -8,6 +8,8 @@ internal class AzureChatClient : Chat
 {
     private readonly string _apiVersion;
 
+    protected override ModelReaderWriterOptions ModelReaderWriterOptions => new("AzureWire");
+
     internal AzureChatClient(ClientPipeline pipeline, ApiKeyCredential credential, Uri endpoint, string apiVersion)
         : base(pipeline, credential, endpoint)
     {
