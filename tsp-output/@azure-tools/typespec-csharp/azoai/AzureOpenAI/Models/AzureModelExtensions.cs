@@ -49,30 +49,14 @@ public static class AzureModelExtensions
     }
 
     // Output property
-    // Note: we can just create an internal subtype, and we're done
-    // TODO: get the value from the Azure model property.
     public static AzureChatExtensionsMessageContext? GetAzureExtensionsContext(this ChatCompletionResponseMessage message)
     {
-        // TODO: How can we validate that this is being called in the right context,
-        // e.g. user is using an Azure client instance and not an unbranded one?
-        // Answer: when request is composed in convenience method, we validate the format
-        // against whether these extension methods have been called.
-        // Observation -- this works for inputs, but is there a way for it to work 
-        // for outputs?  When we create the response model, we know which client we're in,
-        // so we can use that.  The alternative is to fail silently because the properties
-        // just aren't present.
-
-        if (message.SerializedAdditionalRawData.TryGetValue("context", out BinaryData? context))
+        if (message is not AzureChatCompletionResponseMessage azureMessage)
         {
-            using JsonDocument doc = JsonDocument.Parse(context);
-            return AzureChatExtensionsMessageContext.DeserializeAzureChatExtensionsMessageContext(doc.RootElement);
-
-            // TODO: once retrieved, should this be stored in AdditionalTypedProperties, e.g.
-            // in case the end-user mutates it in a round-trip scenario?  If so, should it be
-            // removed from SerializedAdditionalRawData so it's only in one place?
+            throw new NotSupportedException("Cannot get AzureExtensionsContext when not using the Azure OpeAI client.");
         }
-
-        return null;
+        
+        return azureMessage.AzureExtensionsContext;
     }
 
     //public static void SetDataSource(this CreateChatCompletionRequest request, AzureChatExtensionConfiguration dataSource)

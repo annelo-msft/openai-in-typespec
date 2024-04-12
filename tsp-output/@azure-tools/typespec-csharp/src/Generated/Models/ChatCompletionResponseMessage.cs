@@ -43,9 +43,6 @@ namespace OpenAI.Models
         /// </summary>
         private IDictionary<string, BinaryData> _serializedAdditionalRawData;
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public IDictionary<string, BinaryData> SerializedAdditionalRawData => _serializedAdditionalRawData;
-
         /// <summary> Initializes a new instance of <see cref="ChatCompletionResponseMessage"/>. </summary>
         /// <param name="content"> The contents of the message. </param>
         internal ChatCompletionResponseMessage(string content)
@@ -70,7 +67,7 @@ namespace OpenAI.Models
         }
 
         /// <summary> Initializes a new instance of <see cref="ChatCompletionResponseMessage"/> for deserialization. </summary>
-        internal ChatCompletionResponseMessage()
+        protected internal ChatCompletionResponseMessage()
         {
         }
 
