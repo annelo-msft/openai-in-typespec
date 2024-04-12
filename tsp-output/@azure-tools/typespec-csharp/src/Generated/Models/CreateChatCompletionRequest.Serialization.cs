@@ -616,6 +616,12 @@ namespace OpenAI.Models
         /// <summary> Convert into a Utf8JsonRequestBody. </summary>
         internal virtual BinaryContent ToBinaryBody(ModelReaderWriterOptions options)
         {
+            if (options.Format != "AzureWire" &&
+                _additionalTypedProperties is not null)
+            {
+                throw new NotSupportedException("Cannot use extension properties except in derived Azure client.");
+            }
+
             return BinaryContent.Create(this, options);
         }
     }

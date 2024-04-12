@@ -46,6 +46,12 @@ public static class AzureModelExtensions
     {
         // TODO: How can we validate that this is being called in the right context,
         // e.g. user is using an Azure client instance and not an unbranded one?
+        // Answer: when request is composed in convenience method, we validate the format
+        // against whether these extension methods have been called.
+        // Observation -- this works for inputs, but is there a way for it to work 
+        // for outputs?  When we create the response model, we know which client we're in,
+        // so we can use that.  The alternative is to fail silently because the properties
+        // just aren't present.
 
         if (message.SerializedAdditionalRawData.TryGetValue("context", out BinaryData? context))
         {

@@ -8,6 +8,9 @@ internal class AzureChatClient : Chat
 {
     private readonly string _apiVersion;
 
+    // TODO/Note: doesn't need to be virtual -- derived client could also set it in the 
+    // constructor.  Is one approach better?  I guess setting it in the constructor
+    // requires making it settable which maybe we don't want.
     protected override ModelReaderWriterOptions ModelReaderWriterOptions => new("AzureWire");
 
     internal AzureChatClient(ClientPipeline pipeline, ApiKeyCredential credential, Uri endpoint, string apiVersion)
