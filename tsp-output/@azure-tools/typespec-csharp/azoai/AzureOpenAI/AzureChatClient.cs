@@ -1,4 +1,5 @@
-﻿using OpenAI;
+﻿using AzureOpenAI.Models;
+using OpenAI;
 using OpenAI.Models;
 using System.ClientModel;
 using System.ClientModel.Primitives;
@@ -9,29 +10,41 @@ internal class AzureChatClient : Chat
 {
     private readonly string _apiVersion;
 
-    // TODO/Note: doesn't need to be virtual -- derived client could also set it in the 
-    // constructor.  Is one approach better?  I guess setting it in the constructor
-    // requires making it settable which maybe we don't want.
-    protected override ModelReaderWriterOptions ModelReaderWriterOptions => new("AzureWire");
-
     internal AzureChatClient(ClientPipeline pipeline, ApiKeyCredential credential, Uri endpoint, string apiVersion)
         : base(pipeline, credential, endpoint)
     {
         _apiVersion = apiVersion;
     }
 
-    public override Task<ClientResult<CreateChatCompletionResponse>> CreateChatCompletionAsync(CreateChatCompletionRequest createChatCompletionRequest, CancellationToken cancellationToken = default)
+    public override async Task<ClientResult<CreateChatCompletionResponse>> CreateChatCompletionAsync(CreateChatCompletionRequest createChatCompletionRequest, CancellationToken cancellationToken = default)
     {
-        return base.CreateChatCompletionAsync(createChatCompletionRequest, cancellationToken);
+        Argument.AssertNotNull(createChatCompletionRequest, nameof(createChatCompletionRequest));
+
+        // Initialize Azure input model
+        AzureCreateChatCompletionRequest azureChatCompletionOptions = new(createChatCompletionRequest);
+
+        using BinaryContent content = azureChatCompletionOptions.ToBinaryBody();
+        ClientResult result = await CreateChatCompletionAsync(createChatCompletionRequest.Model.ToString(), content, context: default).ConfigureAwait(false);
+        return ClientResult.FromValue(AzureCreateChatCompletionResponse.FromResponse(result.GetRawResponse()), result.GetRawResponse());
     }
 
     public override ClientResult<CreateChatCompletionResponse> CreateChatCompletion(CreateChatCompletionRequest createChatCompletionRequest, CancellationToken cancellationToken = default)
     {
-        return base.CreateChatCompletion(createChatCompletionRequest, cancellationToken);
+        Argument.AssertNotNull(createChatCompletionRequest, nameof(createChatCompletionRequest));
+
+        // Initialize Azure input model
+        AzureCreateChatCompletionRequest azureChatCompletionOptions = new(createChatCompletionRequest);
+
+        using BinaryContent content = azureChatCompletionOptions.ToBinaryBody();
+        ClientResult result = CreateChatCompletion(createChatCompletionRequest.Model.ToString(), content, context: default);
+        return ClientResult.FromValue(AzureCreateChatCompletionResponse.FromResponse(result.GetRawResponse()), result.GetRawResponse());
     }
 
     public override Task<ClientResult> CreateChatCompletionAsync(BinaryContent content, RequestOptions context = null)
     {
+        // Note, that we can later remap the values from the 3rd party client format to the 
+        // Azure client format, but this has a perf cost and it's an improvement that can 
+        // come later.
         throw new InvalidOperationException("Improperly formatted content -- Azure service requires different format. " +
             $"Please consult the REST API documentation and call the '{nameof(CreateChatCompletion)}' method overload that " +
             "takes a 'model' parameter.");

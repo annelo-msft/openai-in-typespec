@@ -7,6 +7,11 @@ namespace AzureOpenAI.Models;
 public static class AzureModelExtensions
 {
     // Input model property
+    // Note: on the input-side, we are unable to type-check that we're using an Azure
+    // model, because the end-user created an instance of an unbranded model.  We'll
+    // later convert this to an Azure model that can serialize to the Azure format,
+    // but for now, we need to stash the values in a collection of objects that we'll
+    // use to populate the Azure model properties later.
     public static IList<AzureChatExtensionConfiguration> GetDataSources(this CreateChatCompletionRequest request)
     {
         // TODO: How can we validate that this is being called in the right context,
@@ -28,7 +33,7 @@ public static class AzureModelExtensions
         // to be thread-safe because they are rarely shared between threads"? 
         JsonModelList<AzureChatExtensionConfiguration> dataSources;
 
-        if (request.AdditionalTypedProperties.TryGetValue("data_sources", out object? value))
+        if (request.SerializedAdditionalRawData.TryGetValue("data_sources", out object? value))
         {
             Debug.Assert(value is JsonModelList<AzureChatExtensionConfiguration>);
 
@@ -37,7 +42,7 @@ public static class AzureModelExtensions
         else
         {
             dataSources = [];
-            request.AdditionalTypedProperties.Add("data_sources", dataSources);
+            request.SerializedAdditionalRawData.Add("data_sources", dataSources);
         }
 
         return dataSources;
@@ -45,6 +50,7 @@ public static class AzureModelExtensions
 
     // Output property
     // Note: we can just create an internal subtype, and we're done
+    // TODO: get the value from the Azure model property.
     public static AzureChatExtensionsMessageContext? GetAzureExtensionsContext(this ChatCompletionResponseMessage message)
     {
         // TODO: How can we validate that this is being called in the right context,

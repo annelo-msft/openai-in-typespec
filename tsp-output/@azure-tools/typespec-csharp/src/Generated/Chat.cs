@@ -23,9 +23,6 @@ namespace OpenAI
 
         protected Uri Endpoint => _endpoint;
 
-        protected virtual ModelReaderWriterOptions ModelReaderWriterOptions =>
-            new ModelReaderWriterOptions("W");
-
         /// <summary> The HTTP pipeline for sending and receiving REST requests and responses. </summary>
         public virtual ClientPipeline Pipeline => _pipeline;
 
@@ -54,7 +51,7 @@ namespace OpenAI
             Argument.AssertNotNull(createChatCompletionRequest, nameof(createChatCompletionRequest));
 
             RequestOptions context = FromCancellationToken(cancellationToken);
-            using BinaryContent content = createChatCompletionRequest.ToBinaryBody(ModelReaderWriterOptions);
+            using BinaryContent content = createChatCompletionRequest.ToBinaryBody();
             ClientResult result = await CreateChatCompletionAsync(content, context).ConfigureAwait(false);
             return ClientResult.FromValue(CreateChatCompletionResponse.FromResponse(result.GetRawResponse()), result.GetRawResponse());
         }
@@ -68,7 +65,7 @@ namespace OpenAI
             Argument.AssertNotNull(createChatCompletionRequest, nameof(createChatCompletionRequest));
 
             RequestOptions context = FromCancellationToken(cancellationToken);
-            using BinaryContent content = createChatCompletionRequest.ToBinaryBody(ModelReaderWriterOptions);
+            using BinaryContent content = createChatCompletionRequest.ToBinaryBody();
             ClientResult result = CreateChatCompletion(content, context);
             return ClientResult.FromValue(CreateChatCompletionResponse.FromResponse(result.GetRawResponse()), result.GetRawResponse());
         }
