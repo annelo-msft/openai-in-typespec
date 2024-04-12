@@ -6,6 +6,7 @@ namespace AzureOpenAI.Models;
 
 public static class AzureModelExtensions
 {
+    // Input model property
     public static IList<AzureChatExtensionConfiguration> GetDataSources(this CreateChatCompletionRequest request)
     {
         // TODO: How can we validate that this is being called in the right context,
@@ -42,6 +43,8 @@ public static class AzureModelExtensions
         return dataSources;
     }
 
+    // Output property
+    // Note: we can just create an internal subtype, and we're done
     public static AzureChatExtensionsMessageContext? GetAzureExtensionsContext(this ChatCompletionResponseMessage message)
     {
         // TODO: How can we validate that this is being called in the right context,
