@@ -4,7 +4,6 @@ using ClientModel.Tests.Mocks;
 using OpenAI;
 using OpenAI.Models;
 using System.ClientModel;
-using System.ClientModel.Primitives;
 
 Console.WriteLine("Hello, World!");
 
@@ -112,6 +111,8 @@ void CallAzureService()
         }
     }
     // </Azure>
+
+    // TODO: illustrate calls to protocol method overloads.
 }
 
 AzureSearchChatExtensionConfiguration GetAzureSearchDataSource()

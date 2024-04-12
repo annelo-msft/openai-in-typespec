@@ -1,6 +1,5 @@
 ﻿using OpenAI.Models;
 using System.Diagnostics;
-using System.Text.Json;
 
 namespace AzureOpenAI.Models;
 
