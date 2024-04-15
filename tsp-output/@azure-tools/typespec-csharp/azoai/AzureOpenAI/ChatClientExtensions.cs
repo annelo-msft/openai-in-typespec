@@ -4,7 +4,7 @@ using System.ClientModel.Primitives;
 
 namespace AzureOpenAI;
 
-public static class AzureClientExtensions
+public static class ChatClientExtensions
 {
     // Expose overloads of protocol methods as extensions to the base client
     public static ClientResult CreateChatCompletion(this Chat client, string model, BinaryContent content, RequestOptions options = default)
