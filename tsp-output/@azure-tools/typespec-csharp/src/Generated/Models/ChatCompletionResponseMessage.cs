@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 
 namespace OpenAI.Models
 {
@@ -66,7 +67,7 @@ namespace OpenAI.Models
         }
 
         /// <summary> Initializes a new instance of <see cref="ChatCompletionResponseMessage"/> for deserialization. </summary>
-        internal ChatCompletionResponseMessage()
+        protected internal ChatCompletionResponseMessage()
         {
         }
 

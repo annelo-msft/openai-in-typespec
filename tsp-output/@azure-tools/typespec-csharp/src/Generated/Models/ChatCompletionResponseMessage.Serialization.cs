@@ -131,10 +131,11 @@ namespace OpenAI.Models
                     functionCall = ChatCompletionResponseMessageFunctionCall.DeserializeChatCompletionResponseMessageFunctionCall(property.Value, options);
                     continue;
                 }
-                if (options.Format != "W")
-                {
+                // TODO: Why only when format == 'W'?
+                //if (options.Format != "W")
+                //{
                     additionalPropertiesDictionary.Add(property.Name, BinaryData.FromString(property.Value.GetRawText()));
-                }
+                //}
             }
             serializedAdditionalRawData = additionalPropertiesDictionary;
             return new ChatCompletionResponseMessage(content, toolCalls ?? new ChangeTrackingList<ChatCompletionMessageToolCall>(), role, functionCall, serializedAdditionalRawData);

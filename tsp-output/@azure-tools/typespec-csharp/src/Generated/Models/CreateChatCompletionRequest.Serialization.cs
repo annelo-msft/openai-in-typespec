@@ -257,11 +257,16 @@ namespace OpenAI.Models
             {
                 foreach (var item in _serializedAdditionalRawData)
                 {
+                    if (item.Value is not BinaryData serializedValue)
+                    {
+                        throw new InvalidOperationException("_serializedAdditionalRawData should not hold un-serialized values at the time of serialization.");
+                    }
+
                     writer.WritePropertyName(item.Key);
 #if NET6_0_OR_GREATER
-				writer.WriteRawValue(item.Value);
+				    writer.WriteRawValue(serializedValue);
 #else
-                    using (JsonDocument document = JsonDocument.Parse(item.Value))
+                    using (JsonDocument document = JsonDocument.Parse(serializedValue))
                     {
                         JsonSerializer.Serialize(writer, document.RootElement);
                     }
@@ -311,8 +316,8 @@ namespace OpenAI.Models
             string user = default;
             BinaryData functionCall = default;
             IList<ChatCompletionFunctions> functions = default;
-            IDictionary<string, BinaryData> serializedAdditionalRawData = default;
-            Dictionary<string, BinaryData> additionalPropertiesDictionary = new Dictionary<string, BinaryData>();
+            IDictionary<string, object> serializedAdditionalRawData = default;
+            Dictionary<string, object> additionalPropertiesDictionary = new Dictionary<string, object>();
             foreach (var property in element.EnumerateObject())
             {
                 if (property.NameEquals("messages"u8))
