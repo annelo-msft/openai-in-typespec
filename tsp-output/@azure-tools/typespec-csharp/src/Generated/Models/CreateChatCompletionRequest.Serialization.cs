@@ -257,40 +257,34 @@ namespace OpenAI.Models
             {
                 foreach (var item in _serializedAdditionalRawData)
                 {
-                    writer.WritePropertyName(item.Key);
+                    // TODO: revisit for "dictionary approach"
+                    if (item.Value is BinaryData serializedValue)
+                    {
+                        writer.WritePropertyName(item.Key);
 #if NET6_0_OR_GREATER
-				    writer.WriteRawValue(item.Value);
+				        writer.WriteRawValue(serializedValue);
 #else
-                    using (JsonDocument document = JsonDocument.Parse(item.Value))
-                    {
-                        JsonSerializer.Serialize(writer, document.RootElement);
-                    }
+                        using (JsonDocument document = JsonDocument.Parse(serializedValue))
+                        {
+                            JsonSerializer.Serialize(writer, document.RootElement);
+                        }
 #endif
-                }
-            }
-
-            // Note: we were holding strongly-typed values for added Azure properties
-            // We have to serialize them separately here.
-            // TODO: Does the format matter here?  It seems like we want to write them
-            // in every case.
-            if (_additionalTypedProperties != null)
-            {
-                foreach (var property in _additionalTypedProperties)
-                {
-                    // TODO: it might be nice to have generated collections that
-                    // implement IPersistableModel<T>, IJsonModel<T>
-                    if (property.Value is not IJsonModel<object> model)
-                    {
-                        // TODO: how do we validate this on the input side?
-                        throw new InvalidOperationException($"invalid typed property, type is '{property.Value.GetType()}'");
                     }
 
-                    writer.WritePropertyName(property.Key);
+                    // Note: we were holding strongly-typed values for added Azure properties
+                    // We have to serialize them separately here.
+                    // TODO: Does the format matter here?  It seems like we want to write them
+                    // in every case.
+                    else if (item.Value is IJsonModel<object> model)
+                    {
+                        writer.WritePropertyName(item.Key);
 
-                    // Note: what if it's just a primitive, i.e. a string or int, what do we do?
-                    model.Write(writer, options);
+                        // Note: what if it's just a primitive, i.e. a string or int, what do we do?
+                        model.Write(writer, options);
+                    }
                 }
             }
+
             writer.WriteEndObject();
         }
 
@@ -334,8 +328,8 @@ namespace OpenAI.Models
             string user = default;
             BinaryData functionCall = default;
             IList<ChatCompletionFunctions> functions = default;
-            IDictionary<string, BinaryData> serializedAdditionalRawData = default;
-            Dictionary<string, BinaryData> additionalPropertiesDictionary = new Dictionary<string, BinaryData>();
+            IDictionary<string, object> serializedAdditionalRawData = default;
+            Dictionary<string, object> additionalPropertiesDictionary = new Dictionary<string, object>();
             foreach (var property in element.EnumerateObject())
             {
                 if (property.NameEquals("messages"u8))

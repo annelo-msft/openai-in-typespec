@@ -42,11 +42,10 @@ namespace OpenAI.Models
         /// </list>
         /// </para>
         /// </summary>
-        private IDictionary<string, BinaryData> _serializedAdditionalRawData;
-
-        private IDictionary<string, object> _additionalTypedProperties;
+        private IDictionary<string, object> _serializedAdditionalRawData;
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public IDictionary<string, object> AdditionalTypedProperties => _additionalTypedProperties ??= new Dictionary<string, object>();
+        // TODO: lazily instantiate; also, add it to all models.
+        public IDictionary<string, object> SerializedAdditionalRawData => _serializedAdditionalRawData ??= new Dictionary<string, object>();
 
         /// <summary> Initializes a new instance of <see cref="CreateChatCompletionRequest"/>. </summary>
         /// <param name="messages">
@@ -192,7 +191,7 @@ namespace OpenAI.Models
         /// A list of functions the model may generate JSON inputs for.
         /// </param>
         /// <param name="serializedAdditionalRawData"> Keeps track of any properties unknown to the library. </param>
-        internal CreateChatCompletionRequest(IList<BinaryData> messages, CreateChatCompletionRequestModel model, double? frequencyPenalty, IDictionary<string, long> logitBias, bool? logprobs, long? topLogprobs, long? maxTokens, long? n, double? presencePenalty, CreateChatCompletionRequestResponseFormat responseFormat, long? seed, BinaryData stop, bool? stream, double? temperature, double? topP, IList<ChatCompletionTool> tools, BinaryData toolChoice, string user, BinaryData functionCall, IList<ChatCompletionFunctions> functions, IDictionary<string, BinaryData> serializedAdditionalRawData)
+        internal CreateChatCompletionRequest(IList<BinaryData> messages, CreateChatCompletionRequestModel model, double? frequencyPenalty, IDictionary<string, long> logitBias, bool? logprobs, long? topLogprobs, long? maxTokens, long? n, double? presencePenalty, CreateChatCompletionRequestResponseFormat responseFormat, long? seed, BinaryData stop, bool? stream, double? temperature, double? topP, IList<ChatCompletionTool> tools, BinaryData toolChoice, string user, BinaryData functionCall, IList<ChatCompletionFunctions> functions, IDictionary<string, object> serializedAdditionalRawData)
         {
             Messages = messages;
             Model = model;
