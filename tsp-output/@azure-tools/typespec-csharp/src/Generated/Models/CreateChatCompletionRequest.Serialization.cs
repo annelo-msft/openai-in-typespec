@@ -31,7 +31,7 @@ namespace OpenAI.Models
                     continue;
                 }
 #if NET6_0_OR_GREATER
-				writer.WriteRawValue(item);
+                writer.WriteRawValue(item);
 #else
                 using (JsonDocument document = JsonDocument.Parse(item))
                 {
@@ -235,7 +235,7 @@ namespace OpenAI.Models
             {
                 writer.WritePropertyName("function_call"u8);
 #if NET6_0_OR_GREATER
-				writer.WriteRawValue(FunctionCall);
+                writer.WriteRawValue(FunctionCall);
 #else
                 using (JsonDocument document = JsonDocument.Parse(FunctionCall))
                 {
@@ -262,7 +262,7 @@ namespace OpenAI.Models
                     {
                         writer.WritePropertyName(item.Key);
 #if NET6_0_OR_GREATER
-				        writer.WriteRawValue(serializedValue);
+                        writer.WriteRawValue(serializedValue);
 #else
                         using (JsonDocument document = JsonDocument.Parse(serializedValue))
                         {

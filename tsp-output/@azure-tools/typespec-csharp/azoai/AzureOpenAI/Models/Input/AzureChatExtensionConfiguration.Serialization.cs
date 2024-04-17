@@ -30,7 +30,7 @@ public partial class AzureChatExtensionConfiguration : IJsonModel<AzureChatExten
             {
                 writer.WritePropertyName(item.Key);
 #if NET6_0_OR_GREATER
-				writer.WriteRawValue(item.Value);
+                writer.WriteRawValue(item.Value);
 #else
                 using (JsonDocument document = JsonDocument.Parse(item.Value))
                 {
@@ -69,8 +69,8 @@ public partial class AzureChatExtensionConfiguration : IJsonModel<AzureChatExten
                 //case "azure_cosmos_db": return AzureCosmosDBChatExtensionConfiguration.DeserializeAzureCosmosDBChatExtensionConfiguration(element, options);
                 //case "azure_ml_index": return AzureMachineLearningIndexChatExtensionConfiguration.DeserializeAzureMachineLearningIndexChatExtensionConfiguration(element, options);
                 case "azure_search": return AzureSearchChatExtensionConfiguration.DeserializeAzureSearchChatExtensionConfiguration(element, options);
-                //case "elasticsearch": return ElasticsearchChatExtensionConfiguration.DeserializeElasticsearchChatExtensionConfiguration(element, options);
-                //case "pinecone": return PineconeChatExtensionConfiguration.DeserializePineconeChatExtensionConfiguration(element, options);
+                    //case "elasticsearch": return ElasticsearchChatExtensionConfiguration.DeserializeElasticsearchChatExtensionConfiguration(element, options);
+                    //case "pinecone": return PineconeChatExtensionConfiguration.DeserializePineconeChatExtensionConfiguration(element, options);
             }
         }
         return UnknownAzureChatExtensionConfiguration.DeserializeUnknownAzureChatExtensionConfiguration(element, options);

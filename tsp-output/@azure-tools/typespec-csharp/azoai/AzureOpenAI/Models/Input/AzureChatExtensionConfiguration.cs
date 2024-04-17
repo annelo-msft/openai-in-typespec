@@ -49,7 +49,7 @@ public abstract partial class AzureChatExtensionConfiguration
     /// </list>
     /// </para>
     /// </summary>
-    
+
     // TODO: Could this be IDictionary<string, IPerstistableModel<T>> or even
     // IDictionary<string, IJsonModel<T>> in some cases.  What would that do?
     //
