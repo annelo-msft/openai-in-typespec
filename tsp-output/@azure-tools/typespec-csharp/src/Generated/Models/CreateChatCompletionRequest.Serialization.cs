@@ -155,7 +155,7 @@ namespace OpenAI.Models
                 {
                     writer.WritePropertyName("stop"u8);
 #if NET6_0_OR_GREATER
-				writer.WriteRawValue(Stop);
+				    writer.WriteRawValue(Stop);
 #else
                     using (JsonDocument document = JsonDocument.Parse(Stop))
                     {
@@ -257,30 +257,31 @@ namespace OpenAI.Models
             {
                 foreach (var item in _serializedAdditionalRawData)
                 {
-                    // TODO: revisit for "dictionary approach"
-                    if (item.Value is BinaryData serializedValue)
+                    writer.WritePropertyName(item.Key);
+
+                    switch (item.Value)
                     {
-                        writer.WritePropertyName(item.Key);
+                        case SerializedModelData serializedValue:
 #if NET6_0_OR_GREATER
-                        writer.WriteRawValue(serializedValue);
+                            writer.WriteRawValue(serializedValue);
 #else
-                        using (JsonDocument document = JsonDocument.Parse(serializedValue))
-                        {
-                            JsonSerializer.Serialize(writer, document.RootElement);
-                        }
+                            using (JsonDocument document = JsonDocument.Parse(serializedValue))
+                            {
+                                JsonSerializer.Serialize(writer, document.RootElement);
+                            }
 #endif
-                    }
+                            break;
 
-                    // Note: we were holding strongly-typed values for added Azure properties
-                    // We have to serialize them separately here.
-                    // TODO: Does the format matter here?  It seems like we want to write them
-                    // in every case.
-                    else if (item.Value is IJsonModel<object> model)
-                    {
-                        writer.WritePropertyName(item.Key);
+                        // If it's not a SerializedModelData that one of our models
+                        // stored as additionalRawData, it's an un-serialized value.
+                        // Serialize it now.
+                        case IJsonModel<object> model:
+                            model.Write(writer, options);
+                            break;
 
-                        // Note: what if it's just a primitive, i.e. a string or int, what do we do?
-                        model.Write(writer, options);
+                        default:
+                            JsonSerializer.Serialize(writer, item.Value);
+                            break;
                     }
                 }
             }
