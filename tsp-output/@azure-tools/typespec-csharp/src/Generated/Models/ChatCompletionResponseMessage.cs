@@ -66,7 +66,7 @@ namespace OpenAI.Models
         }
 
         /// <summary> Initializes a new instance of <see cref="ChatCompletionResponseMessage"/> for deserialization. </summary>
-        internal ChatCompletionResponseMessage()
+        protected ChatCompletionResponseMessage()
         {
         }
 

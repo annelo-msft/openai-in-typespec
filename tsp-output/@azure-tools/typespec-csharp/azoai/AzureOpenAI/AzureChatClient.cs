@@ -1,4 +1,5 @@
-﻿using OpenAI;
+﻿using AzureOpenAI.Models;
+using OpenAI;
 using OpenAI.Models;
 using System.ClientModel;
 using System.ClientModel.Primitives;
@@ -20,14 +21,8 @@ internal class AzureChatClient : Chat
         Argument.AssertNotNull(createChatCompletionRequest, nameof(createChatCompletionRequest));
 
         using BinaryContent content = BinaryContent.Create(createChatCompletionRequest, new ModelReaderWriterOptions("W"));
-
         ClientResult result = await CreateChatCompletionAsync(createChatCompletionRequest.Model.ToString(), content, context: default).ConfigureAwait(false);
-
-        PipelineResponse response = result.GetRawResponse();
-
-        // TODO: handle null case
-        CreateChatCompletionResponse value = ModelReaderWriter.Read<CreateChatCompletionResponse>(response.Content)!;
-        return ClientResult.FromValue(value, response);
+        return ClientResult.FromValue(AzureCreateChatCompletionResponse.FromResponse(result.GetRawResponse()), result.GetRawResponse());
     }
 
     public override ClientResult<CreateChatCompletionResponse> CreateChatCompletion(CreateChatCompletionRequest createChatCompletionRequest, CancellationToken cancellationToken = default)
@@ -35,14 +30,8 @@ internal class AzureChatClient : Chat
         Argument.AssertNotNull(createChatCompletionRequest, nameof(createChatCompletionRequest));
 
         using BinaryContent content = BinaryContent.Create(createChatCompletionRequest, new ModelReaderWriterOptions("W"));
-
         ClientResult result = CreateChatCompletion(createChatCompletionRequest.Model.ToString(), content, context: default);
-
-        PipelineResponse response = result.GetRawResponse();
-
-        // TODO: handle null case
-        CreateChatCompletionResponse value = ModelReaderWriter.Read<CreateChatCompletionResponse>(response.Content)!;
-        return ClientResult.FromValue(value, response);
+        return ClientResult.FromValue(AzureCreateChatCompletionResponse.FromResponse(result.GetRawResponse()), result.GetRawResponse());
     }
 
     public override Task<ClientResult> CreateChatCompletionAsync(BinaryContent content, RequestOptions context = null)
