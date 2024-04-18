@@ -7,11 +7,11 @@ public static class ChatCompletionResponseMessageExtensions
     // Output property
     public static AzureChatExtensionsMessageContext? GetAzureExtensionsContext(this ChatCompletionResponseMessage message)
     {
-        // TODO: How to throw if used incorrectly?
+        if (message is not AzureChatCompletionResponseMessage azureMessage)
+        {
+            throw new NotSupportedException("Cannot get AzureExtensionsContext when not using the Azure OpeAI client.");
+        }
 
-        // TODO: retrieve from dictionary
-        //return azureMessage.AzureExtensionsContext;
-
-        throw new NotImplementedException();
+        return azureMessage.AzureExtensionsContext;
     }
 }
