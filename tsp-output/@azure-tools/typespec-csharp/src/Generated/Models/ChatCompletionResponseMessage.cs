@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 
 namespace OpenAI.Models
 {
@@ -40,7 +41,10 @@ namespace OpenAI.Models
         /// </list>
         /// </para>
         /// </summary>
-        private IDictionary<string, BinaryData> _serializedAdditionalRawData;
+        private IDictionary<string, object> _serializedAdditionalRawData;
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        // TODO: lazily instantiate; also, add it to all models.
+        public IDictionary<string, object> SerializedAdditionalRawData => _serializedAdditionalRawData ??= new Dictionary<string, object>();
 
         /// <summary> Initializes a new instance of <see cref="ChatCompletionResponseMessage"/>. </summary>
         /// <param name="content"> The contents of the message. </param>
