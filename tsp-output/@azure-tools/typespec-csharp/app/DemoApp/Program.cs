@@ -58,8 +58,13 @@ void CallAzureService()
     CreateChatCompletionRequest request = new(messages, CreateChatCompletionRequestModel.Gpt35Turbo);
 
     // <Azure>
+
     // Add Azure input property via extension methods
     request.GetDataSources().Add(GetAzureSearchDataSource());
+
+    // <Future: uses extension property instead of extension method>
+    // request.DataSources.Add(GetAzureSearchDataSource());
+    // </Future>
 
     // </Azure>
 
