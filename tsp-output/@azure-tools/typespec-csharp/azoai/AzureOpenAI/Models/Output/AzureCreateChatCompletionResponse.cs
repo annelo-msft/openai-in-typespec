@@ -1,7 +1,7 @@
-﻿using OpenAI.Models;
+﻿//using OpenAI.Models;
 
-namespace AzureOpenAI.Models;
+//namespace AzureOpenAI.Models;
 
-internal partial class AzureCreateChatCompletionResponse : CreateChatCompletionResponse
-{
-}
+//internal partial class AzureCreateChatCompletionResponse : CreateChatCompletionResponse
+//{
+//}

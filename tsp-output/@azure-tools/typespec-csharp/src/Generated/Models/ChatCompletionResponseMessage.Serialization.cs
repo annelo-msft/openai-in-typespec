@@ -52,14 +52,31 @@ namespace OpenAI.Models
                 foreach (var item in _serializedAdditionalRawData)
                 {
                     writer.WritePropertyName(item.Key);
-#if NET6_0_OR_GREATER
-				    writer.WriteRawValue(item.Value);
-#else
-                    using (JsonDocument document = JsonDocument.Parse(item.Value))
+
+                    switch (item.Value)
                     {
-                        JsonSerializer.Serialize(writer, document.RootElement);
-                    }
+                        case SerializedModelData serializedValue:
+#if NET6_0_OR_GREATER
+                            writer.WriteRawValue(serializedValue);
+#else
+                            using (JsonDocument document = JsonDocument.Parse(serializedValue))
+                            {
+                                JsonSerializer.Serialize(writer, document.RootElement);
+                            }
 #endif
+                            break;
+
+                        // If it's not a SerializedModelData that one of our models
+                        // stored as additionalRawData, it's an un-serialized value.
+                        // Serialize it now.
+                        case IJsonModel<object> model:
+                            model.Write(writer, options);
+                            break;
+
+                        default:
+                            JsonSerializer.Serialize(writer, item.Value);
+                            break;
+                    }
                 }
             }
             writer.WriteEndObject();
@@ -89,8 +106,8 @@ namespace OpenAI.Models
             IReadOnlyList<ChatCompletionMessageToolCall> toolCalls = default;
             ChatCompletionResponseMessageRole role = default;
             ChatCompletionResponseMessageFunctionCall functionCall = default;
-            IDictionary<string, BinaryData> serializedAdditionalRawData = default;
-            Dictionary<string, BinaryData> additionalPropertiesDictionary = new Dictionary<string, BinaryData>();
+            IDictionary<string, object> serializedAdditionalRawData = default;
+            Dictionary<string, object> additionalPropertiesDictionary = new Dictionary<string, object>();
             foreach (var property in element.EnumerateObject())
             {
                 if (property.NameEquals("content"u8))

@@ -173,7 +173,7 @@ AzureOpenAIClientOptions GetAzureClientOptions()
 
     AzureOpenAIClientOptions options = new()
     {
-        //Transport = mockTransport
+        Transport = mockTransport
     };
 
     return options;

@@ -1,5 +1,4 @@
-﻿using AzureOpenAI.Models;
-using OpenAI;
+﻿using OpenAI;
 using OpenAI.Models;
 using System.ClientModel;
 using System.ClientModel.Primitives;
@@ -9,6 +8,10 @@ namespace AzureOpenAI;
 internal class AzureChatClient : Chat
 {
     private readonly string _apiVersion;
+
+    // Needed to workaround the fact that generated models don't write 
+    // additional values when format is "W".
+    private readonly ModelReaderWriterOptions _modelOptions = new("AW");
 
     internal AzureChatClient(ClientPipeline pipeline, ApiKeyCredential credential, Uri endpoint, string apiVersion)
         : base(pipeline, credential, endpoint)
@@ -20,18 +23,20 @@ internal class AzureChatClient : Chat
     {
         Argument.AssertNotNull(createChatCompletionRequest, nameof(createChatCompletionRequest));
 
-        using BinaryContent content = BinaryContent.Create(createChatCompletionRequest, new ModelReaderWriterOptions("W"));
+        using BinaryContent content = BinaryContent.Create(createChatCompletionRequest, _modelOptions);
         ClientResult result = await CreateChatCompletionAsync(createChatCompletionRequest.Model.ToString(), content, context: default).ConfigureAwait(false);
-        return ClientResult.FromValue(AzureCreateChatCompletionResponse.FromResponse(result.GetRawResponse()), result.GetRawResponse());
+        var value = ModelReaderWriter.Read<CreateChatCompletionResponse>(result.GetRawResponse().Content)!;
+        return ClientResult.FromValue(value, result.GetRawResponse());
     }
 
     public override ClientResult<CreateChatCompletionResponse> CreateChatCompletion(CreateChatCompletionRequest createChatCompletionRequest, CancellationToken cancellationToken = default)
     {
         Argument.AssertNotNull(createChatCompletionRequest, nameof(createChatCompletionRequest));
 
-        using BinaryContent content = BinaryContent.Create(createChatCompletionRequest, new ModelReaderWriterOptions("W"));
+        using BinaryContent content = BinaryContent.Create(createChatCompletionRequest, _modelOptions);
         ClientResult result = CreateChatCompletion(createChatCompletionRequest.Model.ToString(), content, context: default);
-        return ClientResult.FromValue(AzureCreateChatCompletionResponse.FromResponse(result.GetRawResponse()), result.GetRawResponse());
+        var value = ModelReaderWriter.Read<CreateChatCompletionResponse>(result.GetRawResponse().Content)!;
+        return ClientResult.FromValue(value, result.GetRawResponse());
     }
 
     public override Task<ClientResult> CreateChatCompletionAsync(BinaryContent content, RequestOptions context = null)
