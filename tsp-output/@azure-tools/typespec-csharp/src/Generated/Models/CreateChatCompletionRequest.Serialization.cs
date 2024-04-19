@@ -257,35 +257,35 @@ namespace OpenAI.Models
             {
                 foreach (var item in _serializedAdditionalRawData)
                 {
-                    writer.WritePropertyName(item.Key);
-
-                    switch (item.Value)
+                    if (item.Value is SerializedModelData serializedValue)
                     {
-                        case SerializedModelData serializedValue:
+
+                        writer.WritePropertyName(item.Key);
 #if NET6_0_OR_GREATER
-                            writer.WriteRawValue(serializedValue);
+                        writer.WriteRawValue(serializedValue);
 #else
-                            using (JsonDocument document = JsonDocument.Parse(serializedValue))
-                            {
-                                JsonSerializer.Serialize(writer, document.RootElement);
-                            }
+                        using (JsonDocument document = JsonDocument.Parse(serializedValue))
+                        {
+                            JsonSerializer.Serialize(writer, document.RootElement);
+                        }
 #endif
-                            break;
-
-                        // If it's not a SerializedModelData that one of our models
-                        // stored as additionalRawData, it's an un-serialized value.
-                        // Serialize it now.
-                        case IJsonModel<object> model:
-                            model.Write(writer, options);
-                            break;
-
-                        default:
-                            JsonSerializer.Serialize(writer, item.Value);
-                            break;
                     }
                 }
             }
-
+            if (_serializedAdditionalRawData != null)
+            {
+                // If it's not a SerializedModelData that one of our models
+                // stored as additionalRawData, it's an un-serialized value.
+                // Serialize it now.
+                foreach (var item in _serializedAdditionalRawData)
+                {
+                    if (item.Value is not SerializedModelData)
+                    {
+                        writer.WritePropertyName(item.Key);
+                        writer.WriteObjectValue(item.Value);
+                    }
+                }
+            }
             writer.WriteEndObject();
         }
 
