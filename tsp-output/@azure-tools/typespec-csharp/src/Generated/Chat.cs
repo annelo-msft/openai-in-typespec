@@ -21,6 +21,8 @@ namespace OpenAI
         private readonly ClientPipeline _pipeline;
         private readonly Uri _endpoint;
 
+        protected Uri Endpoint => _endpoint;
+
         /// <summary> The HTTP pipeline for sending and receiving REST requests and responses. </summary>
         public virtual ClientPipeline Pipeline => _pipeline;
 
@@ -33,7 +35,7 @@ namespace OpenAI
         /// <param name="pipeline"> The HTTP pipeline for sending and receiving REST requests and responses. </param>
         /// <param name="keyCredential"> The key credential to copy. </param>
         /// <param name="endpoint"> OpenAI Endpoint. </param>
-        internal Chat(ClientPipeline pipeline, ApiKeyCredential keyCredential, Uri endpoint)
+        protected internal Chat(ClientPipeline pipeline, ApiKeyCredential keyCredential, Uri endpoint)
         {
             _pipeline = pipeline;
             _keyCredential = keyCredential;
@@ -124,7 +126,7 @@ namespace OpenAI
             return ClientResult.FromResponse(_pipeline.ProcessMessage(message, context));
         }
 
-        internal PipelineMessage CreateCreateChatCompletionRequest(BinaryContent content, RequestOptions context)
+        private PipelineMessage CreateCreateChatCompletionRequest(BinaryContent content, RequestOptions context)
         {
             var message = _pipeline.CreateMessage();
             if (context != null)

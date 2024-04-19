@@ -13,6 +13,9 @@ namespace OpenAI
     /// <summary> The OpenAI service client. </summary>
     public partial class OpenAIClient
     {
+        protected ApiKeyCredential KeyCredential => _keyCredential;
+        protected Uri Endpoint => _endpoint;
+
         private const string AuthorizationHeader = "Authorization";
         private readonly ApiKeyCredential _keyCredential;
         private const string AuthorizationApiKeyPrefix = "Bearer";
