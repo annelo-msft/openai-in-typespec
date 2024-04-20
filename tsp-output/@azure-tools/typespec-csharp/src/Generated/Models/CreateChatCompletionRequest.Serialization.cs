@@ -14,13 +14,17 @@ namespace OpenAI.Models
     {
         void IJsonModel<CreateChatCompletionRequest>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
         {
-            var format = options.Format == "W" ? ((IPersistableModel<CreateChatCompletionRequest>)this).GetFormatFromOptions(options) : options.Format;
-            if (format != "J")
+            var format = (options.Format == "W" || options.Format == "W*") ? ((IPersistableModel<CreateChatCompletionRequest>)this).GetFormatFromOptions(options) : options.Format;
+            if (format != "J" && format != "J*")
             {
                 throw new FormatException($"The model {nameof(CreateChatCompletionRequest)} does not support writing '{format}' format.");
             }
 
-            writer.WriteStartObject();
+            if (format == "J")
+            {
+                // don't write for "W*"
+                writer.WriteStartObject();
+            }
             writer.WritePropertyName("messages"u8);
             writer.WriteStartArray();
             foreach (var item in Messages)
@@ -286,7 +290,11 @@ namespace OpenAI.Models
                     }
                 }
             }
-            writer.WriteEndObject();
+            if (format == "J")
+            {
+                // don't write for "W*"
+                writer.WriteEndObject();
+            }
         }
 
         CreateChatCompletionRequest IJsonModel<CreateChatCompletionRequest>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
@@ -598,7 +606,14 @@ namespace OpenAI.Models
             }
         }
 
-        string IPersistableModel<CreateChatCompletionRequest>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
+        string IPersistableModel<CreateChatCompletionRequest>.GetFormatFromOptions(ModelReaderWriterOptions options)
+        {
+            return options.Format switch
+            {
+                "W*" => "J*",
+                _ => "J"
+            };
+        }
 
         /// <summary> Deserializes the model from a raw response. </summary>
         /// <param name="response"> The result to deserialize the model from. </param>

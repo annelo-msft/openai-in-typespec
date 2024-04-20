@@ -43,9 +43,9 @@ namespace OpenAI.Models
         /// </para>
         /// </summary>
         private IDictionary<string, object> _serializedAdditionalRawData;
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        //[EditorBrowsable(EditorBrowsableState.Never)]
         // TODO: merge with "additional properties" feature?
-        public IDictionary<string, object> SerializedAdditionalRawData => _serializedAdditionalRawData ??= new Dictionary<string, object>();
+        //public IDictionary<string, object> SerializedAdditionalRawData => _serializedAdditionalRawData ??= new Dictionary<string, object>();
 
         /// <summary> Initializes a new instance of <see cref="CreateChatCompletionRequest"/>. </summary>
         /// <param name="messages">

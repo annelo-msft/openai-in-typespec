@@ -1,4 +1,5 @@
-﻿using OpenAI;
+﻿using AzureOpenAI.Models;
+using OpenAI;
 using OpenAI.Models;
 using System.ClientModel;
 using System.ClientModel.Primitives;
@@ -19,7 +20,7 @@ internal class AzureChatClient : Chat
     {
         Argument.AssertNotNull(createChatCompletionRequest, nameof(createChatCompletionRequest));
 
-        using BinaryContent content = BinaryContent.Create(createChatCompletionRequest, new ModelReaderWriterOptions("W"));
+        using BinaryContent content = createChatCompletionRequest.ToBinaryContent();
         ClientResult result = await CreateChatCompletionAsync(createChatCompletionRequest.Model.ToString(), content, context: default).ConfigureAwait(false);
         var value = ModelReaderWriter.Read<CreateChatCompletionResponse>(result.GetRawResponse().Content)!;
         return ClientResult.FromValue(value, result.GetRawResponse());
@@ -29,7 +30,7 @@ internal class AzureChatClient : Chat
     {
         Argument.AssertNotNull(createChatCompletionRequest, nameof(createChatCompletionRequest));
 
-        using BinaryContent content = BinaryContent.Create(createChatCompletionRequest, new ModelReaderWriterOptions("W"));
+        using BinaryContent content = createChatCompletionRequest.ToBinaryContent();
         ClientResult result = CreateChatCompletion(createChatCompletionRequest.Model.ToString(), content, context: default);
         var value = ModelReaderWriter.Read<CreateChatCompletionResponse>(result.GetRawResponse().Content)!;
         return ClientResult.FromValue(value, result.GetRawResponse());

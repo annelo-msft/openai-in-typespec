@@ -40,7 +40,7 @@ void CallAzureService()
 {
     // <Azure>
     Uri endpoint = new("https://annelo-openai-01.openai.azure.com/");
-    string apiKey = Environment.GetEnvironmentVariable("AZURE_OPENAI_KEY")!;
+    string apiKey = "Fake"; // Environment.GetEnvironmentVariable("AZURE_OPENAI_KEY")!;
 
     AzureOpenAIClient client = new(endpoint, new ApiKeyCredential(apiKey), GetAzureClientOptions());
     // </Azure>
