@@ -8,34 +8,38 @@ namespace AzureOpenAI.Models;
 
 public static class CreateChatCompletionRequestExtensions
 {
-    private static readonly Dictionary<CreateChatCompletionRequest, JsonModelList<AzureChatExtensionConfiguration>> _dataSources = new();
-
     public static IList<AzureChatExtensionConfiguration> GetDataSources(this CreateChatCompletionRequest request)
     {
-        // Note: no need to validate in this scenario because base client won't serialize
-        // result.  It would be a courtesy, otherwise this will fail silently, but won't
-        // leak data to the wrong service.
+        // TODO: How can we validate that this is being called in the right context,
+        // e.g. user is using an Azure client instance and not a third-party one?
+        // Or does it matter?
+
+        if (request is not IJsonModel model)
+        {
+            throw new InvalidOperationException("TODO");
+        }
 
         JsonModelList<AzureChatExtensionConfiguration> dataSources;
 
-        if (_dataSources.TryGetValue(request, out JsonModelList<AzureChatExtensionConfiguration>? value))
+        if (model.AdditionalProperties.TryGetValue("data_sources", out object? value))
         {
-            Debug.Assert(value != null);
-            dataSources = value!;
+            Debug.Assert(value is JsonModelList<AzureChatExtensionConfiguration>);
+
+            dataSources = (value as JsonModelList<AzureChatExtensionConfiguration>)!;
         }
         else
         {
-            dataSources = new JsonModelList<AzureChatExtensionConfiguration>();
-            _dataSources[request] = dataSources;
+            dataSources = [];
+            model.AdditionalProperties.Add("data_sources", dataSources);
         }
 
         return dataSources;
     }
 
-    internal static BinaryContent ToBinaryContent(this CreateChatCompletionRequest request)
+    public static BinaryContent ToBinaryContent(this CreateChatCompletionRequest request)
     {
-        _dataSources.TryGetValue(request, out JsonModelList<AzureChatExtensionConfiguration>? dataSources);
-        return BinaryContent.Create(new AzureChatCompletionRequest(request, dataSources));
+        AzureChatCompletionRequest azureRequest = new(request);
+        return BinaryContent.Create(azureRequest, new ModelReaderWriterOptions("W"));
     }
 
     internal class AzureChatCompletionRequest : IJsonModel<AzureChatCompletionRequest>
@@ -43,20 +47,31 @@ public static class CreateChatCompletionRequestExtensions
         private readonly CreateChatCompletionRequest _request;
         private readonly JsonModelList<AzureChatExtensionConfiguration>? _dataSources;
 
-        public AzureChatCompletionRequest(CreateChatCompletionRequest request, JsonModelList<AzureChatExtensionConfiguration>? dataSources)
+        public AzureChatCompletionRequest(CreateChatCompletionRequest request)
         {
             _request = request;
-            _dataSources = dataSources;
+
+            if (request is not IJsonModel model)
+            {
+                throw new InvalidOperationException("TODO");
+            }
+
+            if (model.AdditionalProperties.TryGetValue("data_sources", out object? value))
+            {
+                Debug.Assert(value is JsonModelList<AzureChatExtensionConfiguration>);
+
+                _dataSources = (value as JsonModelList<AzureChatExtensionConfiguration>)!;
+            }
         }
 
         AzureChatCompletionRequest IJsonModel<AzureChatCompletionRequest>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException("Not supported for input types.");
         }
 
         AzureChatCompletionRequest IPersistableModel<AzureChatCompletionRequest>.Create(BinaryData data, ModelReaderWriterOptions options)
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException("Not supported for input types.");
         }
 
         string IPersistableModel<AzureChatCompletionRequest>.GetFormatFromOptions(ModelReaderWriterOptions options)
@@ -65,11 +80,16 @@ public static class CreateChatCompletionRequestExtensions
         void IJsonModel<AzureChatCompletionRequest>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
         {
             writer.WriteStartObject();
+
+            // Note that we write the base model differently in this context
             ((IJsonModel<object>)_request).Write(writer, new ModelReaderWriterOptions("W*"));
+
+            // Write the additional Azure properties
             if (_dataSources is not null)
             {
                 ((IJsonModel<object>)_dataSources).Write(writer, new ModelReaderWriterOptions("W"));
             }
+
             writer.WriteEndObject();
         }
 

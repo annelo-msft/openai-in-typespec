@@ -10,10 +10,12 @@ using System.Text.Json;
 
 namespace OpenAI.Models
 {
-    public partial class CreateChatCompletionRequest : IJsonModel<CreateChatCompletionRequest>
+    public partial class CreateChatCompletionRequest : JsonModel<CreateChatCompletionRequest>
     {
-        void IJsonModel<CreateChatCompletionRequest>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
+        protected override void WriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options)
         {
+            // Note: support format "W*" that doesn't write start/end object 
+            // to enable extending write routine.
             var format = (options.Format == "W" || options.Format == "W*") ? ((IPersistableModel<CreateChatCompletionRequest>)this).GetFormatFromOptions(options) : options.Format;
             if (format != "J" && format != "J*")
             {
@@ -25,6 +27,7 @@ namespace OpenAI.Models
                 // don't write for "W*"
                 writer.WriteStartObject();
             }
+
             writer.WritePropertyName("messages"u8);
             writer.WriteStartArray();
             foreach (var item in Messages)
@@ -261,33 +264,21 @@ namespace OpenAI.Models
             {
                 foreach (var item in _serializedAdditionalRawData)
                 {
-                    if (item.Value is SerializedModelData serializedValue)
+                    // Skip non-serialized items
+                    if (item.Value is not BinaryData serializedValue)
                     {
+                        continue;
+                    }
 
-                        writer.WritePropertyName(item.Key);
+                    writer.WritePropertyName(item.Key);
 #if NET6_0_OR_GREATER
                         writer.WriteRawValue(serializedValue);
 #else
-                        using (JsonDocument document = JsonDocument.Parse(serializedValue))
-                        {
-                            JsonSerializer.Serialize(writer, document.RootElement);
-                        }
-#endif
-                    }
-                }
-            }
-            if (_serializedAdditionalRawData != null)
-            {
-                // If it's not a SerializedModelData that one of our models
-                // stored as additionalRawData, it's an un-serialized value.
-                // Serialize it now.
-                foreach (var item in _serializedAdditionalRawData)
-                {
-                    if (item.Value is not SerializedModelData)
+                    using (JsonDocument document = JsonDocument.Parse(serializedValue))
                     {
-                        writer.WritePropertyName(item.Key);
-                        writer.WriteObjectValue(item.Value);
+                        JsonSerializer.Serialize(writer, document.RootElement);
                     }
+#endif
                 }
             }
             if (format == "J")
@@ -297,7 +288,7 @@ namespace OpenAI.Models
             }
         }
 
-        CreateChatCompletionRequest IJsonModel<CreateChatCompletionRequest>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
+        protected override CreateChatCompletionRequest CreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
         {
             var format = options.Format == "W" ? ((IPersistableModel<CreateChatCompletionRequest>)this).GetFormatFromOptions(options) : options.Format;
             if (format != "J")
@@ -549,7 +540,7 @@ namespace OpenAI.Models
                 }
                 if (options.Format != "W")
                 {
-                    additionalPropertiesDictionary.Add(property.Name, new SerializedModelData(property.Value.GetRawText()));
+                    additionalPropertiesDictionary.Add(property.Name, BinaryData.FromString(property.Value.GetRawText()));
                 }
             }
             serializedAdditionalRawData = additionalPropertiesDictionary;
@@ -577,36 +568,7 @@ namespace OpenAI.Models
                 serializedAdditionalRawData);
         }
 
-        BinaryData IPersistableModel<CreateChatCompletionRequest>.Write(ModelReaderWriterOptions options)
-        {
-            var format = options.Format == "W" ? ((IPersistableModel<CreateChatCompletionRequest>)this).GetFormatFromOptions(options) : options.Format;
-
-            switch (format)
-            {
-                case "J":
-                    return ModelReaderWriter.Write(this, options);
-                default:
-                    throw new FormatException($"The model {nameof(CreateChatCompletionRequest)} does not support writing '{options.Format}' format.");
-            }
-        }
-
-        CreateChatCompletionRequest IPersistableModel<CreateChatCompletionRequest>.Create(BinaryData data, ModelReaderWriterOptions options)
-        {
-            var format = options.Format == "W" ? ((IPersistableModel<CreateChatCompletionRequest>)this).GetFormatFromOptions(options) : options.Format;
-
-            switch (format)
-            {
-                case "J":
-                    {
-                        using JsonDocument document = JsonDocument.Parse(data);
-                        return DeserializeCreateChatCompletionRequest(document.RootElement, options);
-                    }
-                default:
-                    throw new FormatException($"The model {nameof(CreateChatCompletionRequest)} does not support reading '{options.Format}' format.");
-            }
-        }
-
-        string IPersistableModel<CreateChatCompletionRequest>.GetFormatFromOptions(ModelReaderWriterOptions options)
+        protected override string GetFormatFromOptionsCore(ModelReaderWriterOptions options)
         {
             return options.Format switch
             {

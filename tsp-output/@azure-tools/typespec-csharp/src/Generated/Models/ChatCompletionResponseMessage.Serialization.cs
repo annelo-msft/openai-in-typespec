@@ -51,35 +51,24 @@ namespace OpenAI.Models
             {
                 foreach (var item in _serializedAdditionalRawData)
                 {
-                    if (item.Value is SerializedModelData serializedValue)
+                    // Skip non-serialized items
+                    if (item.Value is not BinaryData serializedValue)
                     {
+                        continue;
+                    }
 
-                        writer.WritePropertyName(item.Key);
+                    writer.WritePropertyName(item.Key);
 #if NET6_0_OR_GREATER
                         writer.WriteRawValue(serializedValue);
 #else
-                        using (JsonDocument document = JsonDocument.Parse(serializedValue))
-                        {
-                            JsonSerializer.Serialize(writer, document.RootElement);
-                        }
-#endif
-                    }
-                }
-            }
-            if (_serializedAdditionalRawData != null)
-            {
-                // If it's not a SerializedModelData that one of our models
-                // stored as additionalRawData, it's an un-serialized value.
-                // Serialize it now.
-                foreach (var item in _serializedAdditionalRawData)
-                {
-                    if (item.Value is not SerializedModelData)
+                    using (JsonDocument document = JsonDocument.Parse(serializedValue))
                     {
-                        writer.WritePropertyName(item.Key);
-                        writer.WriteObjectValue(item.Value);
+                        JsonSerializer.Serialize(writer, document.RootElement);
                     }
+#endif
                 }
             }
+
             writer.WriteEndObject();
         }
 
@@ -151,7 +140,7 @@ namespace OpenAI.Models
                 }
                 if (options.Format != "W")
                 {
-                    additionalPropertiesDictionary.Add(property.Name, new SerializedModelData(property.Value.GetRawText()));
+                    additionalPropertiesDictionary.Add(property.Name, BinaryData.FromString(property.Value.GetRawText()));
                 }
             }
             serializedAdditionalRawData = additionalPropertiesDictionary;

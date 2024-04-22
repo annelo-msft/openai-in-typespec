@@ -4,7 +4,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
 
 namespace OpenAI.Models
@@ -43,10 +42,7 @@ namespace OpenAI.Models
         /// </para>
         /// </summary>
         private IDictionary<string, object> _serializedAdditionalRawData;
-        //[EditorBrowsable(EditorBrowsableState.Never)]
-        // TODO: merge with "additional properties" feature?
-        //public IDictionary<string, object> SerializedAdditionalRawData => _serializedAdditionalRawData ??= new Dictionary<string, object>();
-
+        
         /// <summary> Initializes a new instance of <see cref="CreateChatCompletionRequest"/>. </summary>
         /// <param name="messages">
         /// A list of messages comprising the conversation so far.

@@ -6,9 +6,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenAI", "src\OpenAI.csproj
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenAI.Tests", "tests\OpenAI.Tests.csproj", "{1F1CD1D4-9932-4B73-99D8-C252A67D4B46}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DemoApp", "app\DemoApp\DemoApp.csproj", "{79A5AD41-2A38-4771-93FE-0B3BCC6DB61A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DemoApp", "app\DemoApp\DemoApp.csproj", "{79A5AD41-2A38-4771-93FE-0B3BCC6DB61A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AzureOpenAI", "azoai\AzureOpenAI\AzureOpenAI.csproj", "{FB61EB83-7171-48F4-9423-E64B99BDAA5A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AzureOpenAI", "azoai\AzureOpenAI\AzureOpenAI.csproj", "{FB61EB83-7171-48F4-9423-E64B99BDAA5A}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "System.ClientModel", "..\..\..\..\azure-sdk-for-net\sdk\core\System.ClientModel\src\System.ClientModel.csproj", "{8364F37B-2B3D-4CAA-8F20-5B808E19C6CE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -32,6 +34,10 @@ Global
 		{FB61EB83-7171-48F4-9423-E64B99BDAA5A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FB61EB83-7171-48F4-9423-E64B99BDAA5A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FB61EB83-7171-48F4-9423-E64B99BDAA5A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8364F37B-2B3D-4CAA-8F20-5B808E19C6CE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8364F37B-2B3D-4CAA-8F20-5B808E19C6CE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8364F37B-2B3D-4CAA-8F20-5B808E19C6CE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8364F37B-2B3D-4CAA-8F20-5B808E19C6CE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
