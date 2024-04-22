@@ -69,6 +69,9 @@ void CallAzureService()
     // </Azure>
 
     ClientResult<CreateChatCompletionResponse> result = chatClient.CreateChatCompletion(request);
+
+    Console.WriteLine("**");
+
     CreateChatCompletionResponse completion = result.Value;
 
     // <Azure>
