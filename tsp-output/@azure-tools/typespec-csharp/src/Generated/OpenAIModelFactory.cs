@@ -580,8 +580,7 @@ namespace OpenAI.Models
                 model,
                 systemFingerprint,
                 @object,
-                usage,
-                serializedAdditionalRawData: null);
+                usage);
         }
 
         /// <summary> Initializes a new instance of <see cref="Models.CreateChatCompletionResponseChoice"/>. </summary>

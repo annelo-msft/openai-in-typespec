@@ -10,9 +10,9 @@ using System.Text.Json;
 
 namespace OpenAI.Models
 {
-    public partial class ChatCompletionResponseMessage : IJsonModel<ChatCompletionResponseMessage>
+    public partial class ChatCompletionResponseMessage : JsonModel<ChatCompletionResponseMessage>
     {
-        void IJsonModel<ChatCompletionResponseMessage>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
+        protected override void WriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options)
         {
             var format = options.Format == "W" ? ((IPersistableModel<ChatCompletionResponseMessage>)this).GetFormatFromOptions(options) : options.Format;
             if (format != "J")
@@ -47,31 +47,14 @@ namespace OpenAI.Models
                 writer.WritePropertyName("function_call"u8);
                 writer.WriteObjectValue<ChatCompletionResponseMessageFunctionCall>(FunctionCall, options);
             }
-            if (options.Format != "W" && _serializedAdditionalRawData != null)
+            if (options.Format != "W")
             {
-                foreach (var item in _serializedAdditionalRawData)
-                {
-                    // Skip non-serialized items
-                    if (item.Value is not BinaryData serializedValue)
-                    {
-                        continue;
-                    }
-
-                    writer.WritePropertyName(item.Key);
-#if NET6_0_OR_GREATER
-                        writer.WriteRawValue(serializedValue);
-#else
-                    using (JsonDocument document = JsonDocument.Parse(serializedValue))
-                    {
-                        JsonSerializer.Serialize(writer, document.RootElement);
-                    }
-#endif
-                }
+                WriteUnknownProperties(writer, options);
             }
             writer.WriteEndObject();
         }
 
-        ChatCompletionResponseMessage IJsonModel<ChatCompletionResponseMessage>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
+        protected override ChatCompletionResponseMessage CreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
         {
             var format = options.Format == "W" ? ((IPersistableModel<ChatCompletionResponseMessage>)this).GetFormatFromOptions(options) : options.Format;
             if (format != "J")
@@ -79,34 +62,25 @@ namespace OpenAI.Models
                 throw new FormatException($"The model {nameof(ChatCompletionResponseMessage)} does not support reading '{format}' format.");
             }
 
+            // TODO: use Reader APIs
             using JsonDocument document = JsonDocument.ParseValue(ref reader);
-            return DeserializeChatCompletionResponseMessage(document.RootElement, options);
-        }
-
-        internal static ChatCompletionResponseMessage DeserializeChatCompletionResponseMessage(JsonElement element, ModelReaderWriterOptions options = null)
-        {
+            JsonElement element = document.RootElement;
             options ??= new ModelReaderWriterOptions("W");
 
             if (element.ValueKind == JsonValueKind.Null)
             {
                 return null;
             }
-            string content = default;
-            IReadOnlyList<ChatCompletionMessageToolCall> toolCalls = default;
-            ChatCompletionResponseMessageRole role = default;
-            ChatCompletionResponseMessageFunctionCall functionCall = default;
-            IDictionary<string, object> serializedAdditionalRawData = default;
-            Dictionary<string, object> additionalPropertiesDictionary = new Dictionary<string, object>();
             foreach (var property in element.EnumerateObject())
             {
                 if (property.NameEquals("content"u8))
                 {
                     if (property.Value.ValueKind == JsonValueKind.Null)
                     {
-                        content = null;
+                        Content = null;
                         continue;
                     }
-                    content = property.Value.GetString();
+                    Content = property.Value.GetString();
                     continue;
                 }
                 if (property.NameEquals("tool_calls"u8))
@@ -120,12 +94,12 @@ namespace OpenAI.Models
                     {
                         array.Add(ChatCompletionMessageToolCall.DeserializeChatCompletionMessageToolCall(item, options));
                     }
-                    toolCalls = array;
+                    ToolCalls = array;
                     continue;
                 }
                 if (property.NameEquals("role"u8))
                 {
-                    role = new ChatCompletionResponseMessageRole(property.Value.GetString());
+                    Role = new ChatCompletionResponseMessageRole(property.Value.GetString());
                     continue;
                 }
                 if (property.NameEquals("function_call"u8))
@@ -134,55 +108,23 @@ namespace OpenAI.Models
                     {
                         continue;
                     }
-                    functionCall = ChatCompletionResponseMessageFunctionCall.DeserializeChatCompletionResponseMessageFunctionCall(property.Value, options);
+                    FunctionCall = ChatCompletionResponseMessageFunctionCall.DeserializeChatCompletionResponseMessageFunctionCall(property.Value, options);
                     continue;
                 }
                 if (options.Format != "W")
                 {
-                    additionalPropertiesDictionary.Add(property.Name, BinaryData.FromString(property.Value.GetRawText()));
+                    // TODO: use Reader APIs
+                    ((IJsonModel)this).AdditionalProperties.Add(property.Name, BinaryData.FromString(property.Value.GetRawText()));
                 }
             }
-            serializedAdditionalRawData = additionalPropertiesDictionary;
-            return new ChatCompletionResponseMessage(content, toolCalls ?? new ChangeTrackingList<ChatCompletionMessageToolCall>(), role, functionCall, serializedAdditionalRawData);
+            return this;
         }
-
-        BinaryData IPersistableModel<ChatCompletionResponseMessage>.Write(ModelReaderWriterOptions options)
-        {
-            var format = options.Format == "W" ? ((IPersistableModel<ChatCompletionResponseMessage>)this).GetFormatFromOptions(options) : options.Format;
-
-            switch (format)
-            {
-                case "J":
-                    return ModelReaderWriter.Write(this, options);
-                default:
-                    throw new FormatException($"The model {nameof(ChatCompletionResponseMessage)} does not support writing '{options.Format}' format.");
-            }
-        }
-
-        ChatCompletionResponseMessage IPersistableModel<ChatCompletionResponseMessage>.Create(BinaryData data, ModelReaderWriterOptions options)
-        {
-            var format = options.Format == "W" ? ((IPersistableModel<ChatCompletionResponseMessage>)this).GetFormatFromOptions(options) : options.Format;
-
-            switch (format)
-            {
-                case "J":
-                    {
-                        using JsonDocument document = JsonDocument.Parse(data);
-                        return DeserializeChatCompletionResponseMessage(document.RootElement, options);
-                    }
-                default:
-                    throw new FormatException($"The model {nameof(ChatCompletionResponseMessage)} does not support reading '{options.Format}' format.");
-            }
-        }
-
-        string IPersistableModel<ChatCompletionResponseMessage>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
 
         /// <summary> Deserializes the model from a raw response. </summary>
         /// <param name="response"> The result to deserialize the model from. </param>
         internal static ChatCompletionResponseMessage FromResponse(PipelineResponse response)
         {
-            using var document = JsonDocument.Parse(response.Content);
-            return DeserializeChatCompletionResponseMessage(document.RootElement);
+            return ModelReaderWriter.Read<ChatCompletionResponseMessage>(response.Content);
         }
 
         /// <summary> Convert into a Utf8JsonRequestBody. </summary>

@@ -260,26 +260,9 @@ namespace OpenAI.Models
                 }
                 writer.WriteEndArray();
             }
-            if (options.Format != "W" && _serializedAdditionalRawData != null)
+            if (options.Format != "W")
             {
-                foreach (var item in _serializedAdditionalRawData)
-                {
-                    // Skip non-serialized items
-                    if (item.Value is not BinaryData serializedValue)
-                    {
-                        continue;
-                    }
-
-                    writer.WritePropertyName(item.Key);
-#if NET6_0_OR_GREATER
-                        writer.WriteRawValue(serializedValue);
-#else
-                    using (JsonDocument document = JsonDocument.Parse(serializedValue))
-                    {
-                        JsonSerializer.Serialize(writer, document.RootElement);
-                    }
-#endif
-                }
+                WriteUnknownProperties(writer, options);
             }
             if (format == "J")
             {
