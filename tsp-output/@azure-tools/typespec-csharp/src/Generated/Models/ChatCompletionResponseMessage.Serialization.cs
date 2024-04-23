@@ -68,7 +68,6 @@ namespace OpenAI.Models
 #endif
                 }
             }
-
             writer.WriteEndObject();
         }
 

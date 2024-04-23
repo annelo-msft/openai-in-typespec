@@ -86,7 +86,7 @@ namespace OpenAI.Models
         }
 
         /// <summary> Initializes a new instance of <see cref="CreateChatCompletionResponseChoice"/> for deserialization. </summary>
-        public CreateChatCompletionResponseChoice()
+        internal CreateChatCompletionResponseChoice()
         {
         }
 

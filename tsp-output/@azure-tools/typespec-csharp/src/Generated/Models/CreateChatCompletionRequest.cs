@@ -42,7 +42,7 @@ namespace OpenAI.Models
         /// </para>
         /// </summary>
         private IDictionary<string, object> _serializedAdditionalRawData;
-        
+
         /// <summary> Initializes a new instance of <see cref="CreateChatCompletionRequest"/>. </summary>
         /// <param name="messages">
         /// A list of messages comprising the conversation so far.

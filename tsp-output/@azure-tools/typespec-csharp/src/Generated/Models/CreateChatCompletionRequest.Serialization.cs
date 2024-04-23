@@ -162,7 +162,7 @@ namespace OpenAI.Models
                 {
                     writer.WritePropertyName("stop"u8);
 #if NET6_0_OR_GREATER
-				    writer.WriteRawValue(Stop);
+                    writer.WriteRawValue(Stop);
 #else
                     using (JsonDocument document = JsonDocument.Parse(Stop))
                     {
@@ -225,7 +225,7 @@ namespace OpenAI.Models
             {
                 writer.WritePropertyName("tool_choice"u8);
 #if NET6_0_OR_GREATER
-				writer.WriteRawValue(ToolChoice);
+                writer.WriteRawValue(ToolChoice);
 #else
                 using (JsonDocument document = JsonDocument.Parse(ToolChoice))
                 {

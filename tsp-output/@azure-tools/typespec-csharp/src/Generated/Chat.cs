@@ -126,7 +126,7 @@ namespace OpenAI
             return ClientResult.FromResponse(_pipeline.ProcessMessage(message, context));
         }
 
-        private PipelineMessage CreateCreateChatCompletionRequest(BinaryContent content, RequestOptions context)
+        internal PipelineMessage CreateCreateChatCompletionRequest(BinaryContent content, RequestOptions context)
         {
             var message = _pipeline.CreateMessage();
             if (context != null)
