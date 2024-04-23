@@ -33,7 +33,7 @@ namespace OpenAI
         /// <param name="pipeline"> The HTTP pipeline for sending and receiving REST requests and responses. </param>
         /// <param name="keyCredential"> The key credential to copy. </param>
         /// <param name="endpoint"> OpenAI Endpoint. </param>
-        internal Chat(ClientPipeline pipeline, ApiKeyCredential keyCredential, Uri endpoint)
+        protected internal Chat(ClientPipeline pipeline, ApiKeyCredential keyCredential, Uri endpoint)
         {
             _pipeline = pipeline;
             _keyCredential = keyCredential;
