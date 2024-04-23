@@ -9,10 +9,6 @@ public static class CreateChatCompletionRequestExtensions
 {
     public static IList<AzureChatExtensionConfiguration> GetDataSources(this CreateChatCompletionRequest request)
     {
-        // TODO: How can we validate that this is being called in the right context,
-        // e.g. user is using an Azure client instance and not a third-party one?
-        // Or does it matter?
-
         if (request is not IJsonModel model)
         {
             throw new InvalidOperationException("TODO");
