@@ -21,8 +21,6 @@ namespace OpenAI
         private readonly ClientPipeline _pipeline;
         private readonly Uri _endpoint;
 
-        protected Uri Endpoint => _endpoint;
-
         /// <summary> The HTTP pipeline for sending and receiving REST requests and responses. </summary>
         public virtual ClientPipeline Pipeline => _pipeline;
 

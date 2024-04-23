@@ -9,11 +9,13 @@ namespace AzureOpenAI;
 internal class AzureChatClient : Chat
 {
     private readonly string _apiVersion;
+    private readonly Uri _endpoint;
 
     internal AzureChatClient(ClientPipeline pipeline, ApiKeyCredential credential, Uri endpoint, string apiVersion)
         : base(pipeline, credential, endpoint)
     {
         _apiVersion = apiVersion;
+        _endpoint = endpoint;
     }
 
     public override async Task<ClientResult<CreateChatCompletionResponse>> CreateChatCompletionAsync(CreateChatCompletionRequest createChatCompletionRequest, CancellationToken cancellationToken = default)
@@ -80,7 +82,7 @@ internal class AzureChatClient : Chat
         request.Method = "POST";
 
         var uri = new ClientUriBuilder();
-        uri.Reset(Endpoint);
+        uri.Reset(_endpoint);
         uri.AppendPath("/openai/deployments/", false);
         uri.AppendPath(model, false);
         uri.AppendPath("/chat/completions", false);
