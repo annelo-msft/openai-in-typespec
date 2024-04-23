@@ -8,7 +8,12 @@ public static class ChatCompletionResponseMessageExtensions
     // Output property
     public static AzureChatExtensionsMessageContext? GetAzureExtensionsContext(this ChatCompletionResponseMessage message)
     {
-        if (!message.SerializedAdditionalRawData.TryGetValue("context", out object? value))
+        if (message is not IJsonModel model)
+        {
+            throw new InvalidOperationException("TODO");
+        }
+
+        if (!model.AdditionalProperties.TryGetValue("context", out object? value))
         {
             return null;
         }
@@ -20,7 +25,7 @@ public static class ChatCompletionResponseMessageExtensions
         {
             // Qn: when can Read return null?
             var deserializedValue = ModelReaderWriter.Read<AzureChatExtensionsMessageContext>(serializedValue)!;
-            message.SerializedAdditionalRawData["context"] = deserializedValue;
+            model.AdditionalProperties["context"] = deserializedValue;
             return deserializedValue;
         }
 
