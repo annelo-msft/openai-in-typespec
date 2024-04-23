@@ -14,9 +14,8 @@ public static class ChatCompletionResponseMessageExtensions
         }
 
         // It's either deserialized already or not. Find out now.
-        // TODO: this works for OpenAI scenarios today, but we need to find a
-        // way to handle cases where BinaryData is a valid type for extended
-        // properties.
+        // This should work for all cases because we know the contract regarding
+        // BinaryData values.
         if (value is BinaryData serializedValue)
         {
             // Qn: when can Read return null?

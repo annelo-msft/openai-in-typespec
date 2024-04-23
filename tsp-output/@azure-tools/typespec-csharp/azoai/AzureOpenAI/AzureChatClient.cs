@@ -22,7 +22,12 @@ internal class AzureChatClient : Chat
 
         using BinaryContent content = createChatCompletionRequest.ToBinaryContent();
         ClientResult result = await CreateChatCompletionAsync(createChatCompletionRequest.Model.ToString(), content, context: default).ConfigureAwait(false);
+
         var value = ModelReaderWriter.Read<CreateChatCompletionResponse>(result.GetRawResponse().Content)!;
+
+        //// Note: need to pass special options to read additional properties
+        //var value = ModelReaderWriter.Read<CreateChatCompletionResponse>(result.GetRawResponse().Content, new ModelReaderWriterOptions("W*"))!;
+
         return ClientResult.FromValue(value, result.GetRawResponse());
     }
 
@@ -32,7 +37,12 @@ internal class AzureChatClient : Chat
 
         using BinaryContent content = createChatCompletionRequest.ToBinaryContent();
         ClientResult result = CreateChatCompletion(createChatCompletionRequest.Model.ToString(), content, context: default);
+
         var value = ModelReaderWriter.Read<CreateChatCompletionResponse>(result.GetRawResponse().Content)!;
+
+        //// Note: need to pass special options to read additional properties
+        //var value = ModelReaderWriter.Read<CreateChatCompletionResponse>(result.GetRawResponse().Content, new ModelReaderWriterOptions("W*"))!;
+
         return ClientResult.FromValue(value, result.GetRawResponse());
     }
 
