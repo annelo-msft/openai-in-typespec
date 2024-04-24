@@ -114,7 +114,8 @@ namespace OpenAI.Models
                 if (options.Format != "W")
                 {
                     // TODO: use Reader APIs
-                    ((IJsonModel)this).AdditionalProperties.Add(property.Name, BinaryData.FromString(property.Value.GetRawText()));
+                    //ReadUnknownProperty(reader, options);
+                    SetUnknownProperty(property.Name, BinaryData.FromString(property.Value.GetRawText()));
                 }
             }
             return this;

@@ -1,6 +1,5 @@
 ﻿using OpenAI.Models;
 using System.ClientModel.Primitives;
-using System.Diagnostics;
 using System.Text.Json;
 
 namespace AzureOpenAI.Models;
@@ -14,16 +13,14 @@ internal class AzureCreateChatCompletionRequest : IJsonModel<AzureCreateChatComp
     {
         _request = request;
 
-        if (request is not IJsonModel model)
+        if (request is not JsonModel<CreateChatCompletionRequest> model)
         {
             throw new InvalidOperationException("TODO");
         }
 
-        if (model.AdditionalProperties.TryGetValue("data_sources", out object? value))
+        if (model.TryGetUnknownProperty("data_sources", out JsonModelList<AzureChatExtensionConfiguration>? value))
         {
-            Debug.Assert(value is JsonModelList<AzureChatExtensionConfiguration>);
-
-            _dataSources = (value as JsonModelList<AzureChatExtensionConfiguration>)!;
+            _dataSources = value;
         }
     }
 
