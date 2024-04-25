@@ -64,7 +64,7 @@ namespace OpenAI
 
             RequestOptions context = FromCancellationToken(cancellationToken);
             using BinaryContent content = createChatCompletionRequest.ToBinaryBody();
-            ClientResult result = CreateChatCompletion(content, context);
+            ClientResult result = CreateChatCompletion(createChatCompletionRequest.V2Feature, content, context);
             return ClientResult.FromValue(CreateChatCompletionResponse.FromResponse(result.GetRawResponse()), result.GetRawResponse());
         }
 
@@ -92,7 +92,7 @@ namespace OpenAI
         {
             Argument.AssertNotNull(content, nameof(content));
 
-            using PipelineMessage message = CreateCreateChatCompletionRequest(content, context);
+            using PipelineMessage message = CreateCreateChatCompletionRequest(v2Feature: default, content, context);
             return ClientResult.FromResponse(await _pipeline.ProcessMessageAsync(message, context).ConfigureAwait(false));
         }
 
@@ -120,11 +120,20 @@ namespace OpenAI
         {
             Argument.AssertNotNull(content, nameof(content));
 
-            using PipelineMessage message = CreateCreateChatCompletionRequest(content, context);
+            using PipelineMessage message = CreateCreateChatCompletionRequest(v2Feature: default, content, context);
             return ClientResult.FromResponse(_pipeline.ProcessMessage(message, context));
         }
 
-        internal PipelineMessage CreateCreateChatCompletionRequest(BinaryContent content, RequestOptions context)
+        public virtual ClientResult CreateChatCompletion(string v2Feature, BinaryContent content, RequestOptions context = null)
+        {
+            Argument.AssertNotNull(content, nameof(content));
+
+            using PipelineMessage message = CreateCreateChatCompletionRequest(v2Feature, content, context);
+            return ClientResult.FromResponse(_pipeline.ProcessMessage(message, context));
+        }
+
+        // Question: is the v2feature property optional or required on the request creation helper method?
+        internal PipelineMessage CreateCreateChatCompletionRequest(string v2Feature, BinaryContent content, RequestOptions context)
         {
             var message = _pipeline.CreateMessage();
             if (context != null)
