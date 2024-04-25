@@ -476,5 +476,7 @@ namespace OpenAI.Models
         /// A list of functions the model may generate JSON inputs for.
         /// </summary>
         public IList<ChatCompletionFunctions> Functions { get; }
+
+        public string? V2Feature { get; set; }
     }
 }
