@@ -48,12 +48,12 @@ internal class JsonModelList<TModel> : List<TModel>, IJsonModel<JsonModelList<TM
         foreach (JsonElement item in element.EnumerateArray())
         {
             // TODO: Make efficient
-            TModel? value = ModelReaderWriter.Read<TModel>(BinaryData.FromString(item.ToString()), options) ?? 
+            TModel? value = ModelReaderWriter.Read<TModel>(BinaryData.FromString(item.ToString()), options) ??
                 throw new InvalidOperationException("Failed to deserialized array element.");
             list.Add(value);
         }
 
-        return list;        
+        return list;
     }
 
     public string GetFormatFromOptions(ModelReaderWriterOptions options) => "J";

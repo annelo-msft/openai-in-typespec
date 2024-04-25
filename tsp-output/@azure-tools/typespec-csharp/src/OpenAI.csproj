@@ -16,4 +16,8 @@
   <ItemGroup>
     <ProjectReference Include="..\..\..\..\..\azure-sdk-for-net\sdk\core\System.ClientModel\src\System.ClientModel.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Azure\Models\Output\" />
+  </ItemGroup>
 </Project>

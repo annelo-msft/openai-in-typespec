@@ -30,10 +30,4 @@ public static class CreateChatCompletionRequestExtensions
 
         return dataSources;
     }
-
-    public static BinaryContent ToBinaryContent(this CreateChatCompletionRequest request)
-    {
-        AzureCreateChatCompletionRequest azureRequest = new(request);
-        return BinaryContent.Create(azureRequest, new ModelReaderWriterOptions("W"));
-    }
 }
