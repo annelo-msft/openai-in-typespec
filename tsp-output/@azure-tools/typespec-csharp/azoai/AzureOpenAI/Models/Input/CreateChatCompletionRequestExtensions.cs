@@ -1,5 +1,4 @@
 ﻿using OpenAI.Models;
-using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Diagnostics;
 
