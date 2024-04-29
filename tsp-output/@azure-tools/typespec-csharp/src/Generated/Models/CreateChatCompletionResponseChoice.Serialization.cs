@@ -94,7 +94,8 @@ namespace OpenAI.Models
                 }
                 if (property.NameEquals("message"u8))
                 {
-                    message = ChatCompletionResponseMessage.DeserializeChatCompletionResponseMessage(property.Value, options);
+                    // TODO: use reader APIs instead of going through BinaryData
+                    message = ModelReaderWriter.Read<ChatCompletionResponseMessage>(BinaryData.FromString(property.Value.ToString()), options);
                     continue;
                 }
                 if (property.NameEquals("logprobs"u8))

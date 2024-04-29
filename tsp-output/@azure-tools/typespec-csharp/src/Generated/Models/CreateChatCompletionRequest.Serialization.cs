@@ -10,17 +10,24 @@ using System.Text.Json;
 
 namespace OpenAI.Models
 {
-    public partial class CreateChatCompletionRequest : IJsonModel<CreateChatCompletionRequest>
+    public partial class CreateChatCompletionRequest : JsonModel<CreateChatCompletionRequest>
     {
-        void IJsonModel<CreateChatCompletionRequest>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
+        protected override void WriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options)
         {
-            var format = options.Format == "W" ? ((IPersistableModel<CreateChatCompletionRequest>)this).GetFormatFromOptions(options) : options.Format;
-            if (format != "J")
+            // Note: support format "W*" that doesn't write start/end object 
+            // to enable extending write routine.
+            var format = (options.Format == "W" || options.Format == "W*") ? ((IPersistableModel<CreateChatCompletionRequest>)this).GetFormatFromOptions(options) : options.Format;
+            if (format != "J" && format != "J*")
             {
                 throw new FormatException($"The model {nameof(CreateChatCompletionRequest)} does not support writing '{format}' format.");
             }
 
-            writer.WriteStartObject();
+            if (format == "J")
+            {
+                // don't write for "W*"
+                writer.WriteStartObject();
+            }
+
             writer.WritePropertyName("messages"u8);
             writer.WriteStartArray();
             foreach (var item in Messages)
@@ -31,7 +38,7 @@ namespace OpenAI.Models
                     continue;
                 }
 #if NET6_0_OR_GREATER
-				writer.WriteRawValue(item);
+                writer.WriteRawValue(item);
 #else
                 using (JsonDocument document = JsonDocument.Parse(item))
                 {
@@ -155,7 +162,7 @@ namespace OpenAI.Models
                 {
                     writer.WritePropertyName("stop"u8);
 #if NET6_0_OR_GREATER
-				writer.WriteRawValue(Stop);
+                    writer.WriteRawValue(Stop);
 #else
                     using (JsonDocument document = JsonDocument.Parse(Stop))
                     {
@@ -218,7 +225,7 @@ namespace OpenAI.Models
             {
                 writer.WritePropertyName("tool_choice"u8);
 #if NET6_0_OR_GREATER
-				writer.WriteRawValue(ToolChoice);
+                writer.WriteRawValue(ToolChoice);
 #else
                 using (JsonDocument document = JsonDocument.Parse(ToolChoice))
                 {
@@ -235,7 +242,7 @@ namespace OpenAI.Models
             {
                 writer.WritePropertyName("function_call"u8);
 #if NET6_0_OR_GREATER
-				writer.WriteRawValue(FunctionCall);
+                writer.WriteRawValue(FunctionCall);
 #else
                 using (JsonDocument document = JsonDocument.Parse(FunctionCall))
                 {
@@ -253,25 +260,18 @@ namespace OpenAI.Models
                 }
                 writer.WriteEndArray();
             }
-            if (options.Format != "W" && _serializedAdditionalRawData != null)
+            if (options.Format != "W")
             {
-                foreach (var item in _serializedAdditionalRawData)
-                {
-                    writer.WritePropertyName(item.Key);
-#if NET6_0_OR_GREATER
-				writer.WriteRawValue(item.Value);
-#else
-                    using (JsonDocument document = JsonDocument.Parse(item.Value))
-                    {
-                        JsonSerializer.Serialize(writer, document.RootElement);
-                    }
-#endif
-                }
+                WriteUnknownProperties(writer, options);
             }
-            writer.WriteEndObject();
+            if (format == "J")
+            {
+                // don't write for "W*"
+                writer.WriteEndObject();
+            }
         }
 
-        CreateChatCompletionRequest IJsonModel<CreateChatCompletionRequest>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
+        protected override CreateChatCompletionRequest CreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
         {
             var format = options.Format == "W" ? ((IPersistableModel<CreateChatCompletionRequest>)this).GetFormatFromOptions(options) : options.Format;
             if (format != "J")
@@ -311,8 +311,8 @@ namespace OpenAI.Models
             string user = default;
             BinaryData functionCall = default;
             IList<ChatCompletionFunctions> functions = default;
-            IDictionary<string, BinaryData> serializedAdditionalRawData = default;
-            Dictionary<string, BinaryData> additionalPropertiesDictionary = new Dictionary<string, BinaryData>();
+            IDictionary<string, object> serializedAdditionalRawData = default;
+            Dictionary<string, object> additionalPropertiesDictionary = new Dictionary<string, object>();
             foreach (var property in element.EnumerateObject())
             {
                 if (property.NameEquals("messages"u8))
@@ -551,36 +551,14 @@ namespace OpenAI.Models
                 serializedAdditionalRawData);
         }
 
-        BinaryData IPersistableModel<CreateChatCompletionRequest>.Write(ModelReaderWriterOptions options)
+        protected override string GetFormatFromOptionsCore(ModelReaderWriterOptions options)
         {
-            var format = options.Format == "W" ? ((IPersistableModel<CreateChatCompletionRequest>)this).GetFormatFromOptions(options) : options.Format;
-
-            switch (format)
+            return options.Format switch
             {
-                case "J":
-                    return ModelReaderWriter.Write(this, options);
-                default:
-                    throw new FormatException($"The model {nameof(CreateChatCompletionRequest)} does not support writing '{options.Format}' format.");
-            }
+                "W*" => "J*",
+                _ => "J"
+            };
         }
-
-        CreateChatCompletionRequest IPersistableModel<CreateChatCompletionRequest>.Create(BinaryData data, ModelReaderWriterOptions options)
-        {
-            var format = options.Format == "W" ? ((IPersistableModel<CreateChatCompletionRequest>)this).GetFormatFromOptions(options) : options.Format;
-
-            switch (format)
-            {
-                case "J":
-                    {
-                        using JsonDocument document = JsonDocument.Parse(data);
-                        return DeserializeCreateChatCompletionRequest(document.RootElement, options);
-                    }
-                default:
-                    throw new FormatException($"The model {nameof(CreateChatCompletionRequest)} does not support reading '{options.Format}' format.");
-            }
-        }
-
-        string IPersistableModel<CreateChatCompletionRequest>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
 
         /// <summary> Deserializes the model from a raw response. </summary>
         /// <param name="response"> The result to deserialize the model from. </param>
