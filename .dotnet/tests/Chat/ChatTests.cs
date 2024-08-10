@@ -54,6 +54,19 @@ public partial class ChatTests : SyncAsyncTestBase
     }
 
     [Test]
+    public void Chat_ProtocolContentTest()
+    {
+        OpenAIClient client = GetTestClient<OpenAIClient>(TestScenario.TopLevel);
+        ChatClient chatClient = client.GetChatClient("gpt-4o-mini");
+
+        ChatMessage message = new UserChatMessage("Hello, world!");
+        BinaryContent content = message;
+        ClientResult result = chatClient.CompleteChat(content);
+
+        //Assert.That(result.Value.Content[0].Text.Length, Is.GreaterThan(0));
+    }
+
+    [Test]
     public async Task MultiMessageChat()
     {
         ChatClient client = GetTestClient<ChatClient>(TestScenario.Chat);

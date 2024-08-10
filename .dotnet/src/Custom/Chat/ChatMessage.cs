@@ -1,3 +1,5 @@
+using System.ClientModel;
+using System.ClientModel.Primitives;
 using System.Collections.Generic;
 
 namespace OpenAI.Chat;
@@ -95,4 +97,10 @@ public abstract partial class ChatMessage
     /// </summary>
     /// <param name="userMessage"></param>
     public static implicit operator ChatMessage(string userMessage) => new UserChatMessage(userMessage);
+
+    public static implicit operator BinaryContent(ChatMessage message)
+    {
+        BinaryContent<ChatMessage> content = new BinaryContent<ChatMessage>(message);
+        return content;
+    }
 }
