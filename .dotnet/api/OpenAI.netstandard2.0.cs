@@ -1161,8 +1161,8 @@ namespace OpenAI.Batch {
         public virtual Task<ClientResult> GetBatchAsync(RequestOptions? options);
         public static CreateBatchOperation Rehydrate(BatchClient client, ContinuationToken rehydrationToken, CancellationToken cancellationToken = default);
         public static Task<CreateBatchOperation> RehydrateAsync(BatchClient client, ContinuationToken rehydrationToken, CancellationToken cancellationToken = default);
-        public override void WaitForCompletion(CancellationToken cancellationToken = default);
-        public override Task WaitForCompletionAsync(CancellationToken cancellationToken = default);
+        public override ClientResult UpdateStatus(RequestOptions? options = null);
+        public override Task<ClientResult> UpdateStatusAsync(RequestOptions? options = null);
     }
 }
 namespace OpenAI.Chat {
@@ -1742,8 +1742,8 @@ namespace OpenAI.FineTuning {
         public virtual Task<ClientResult> GetJobEventsAsync(string after, int? limit, RequestOptions? options);
         public static CreateJobOperation Rehydrate(FineTuningClient client, ContinuationToken rehydrationToken, CancellationToken cancellationToken = default);
         public static Task<CreateJobOperation> RehydrateAsync(FineTuningClient client, ContinuationToken rehydrationToken, CancellationToken cancellationToken = default);
-        public override void WaitForCompletion(CancellationToken cancellationToken = default);
-        public override Task WaitForCompletionAsync(CancellationToken cancellationToken = default);
+        public override ClientResult UpdateStatus(RequestOptions? options = null);
+        public override Task<ClientResult> UpdateStatusAsync(RequestOptions? options = null);
     }
     public class FineTuningClient {
         protected FineTuningClient();
@@ -2020,8 +2020,8 @@ namespace OpenAI.VectorStores {
         public virtual Task<ClientResult<VectorStoreFileAssociation>> GetFileAssociationAsync(CancellationToken cancellationToken = default);
         public static AddFileToVectorStoreOperation Rehydrate(VectorStoreClient client, ContinuationToken rehydrationToken, CancellationToken cancellationToken = default);
         public static Task<AddFileToVectorStoreOperation> RehydrateAsync(VectorStoreClient client, ContinuationToken rehydrationToken, CancellationToken cancellationToken = default);
-        public override void WaitForCompletion(CancellationToken cancellationToken = default);
-        public override Task WaitForCompletionAsync(CancellationToken cancellationToken = default);
+        public override ClientResult UpdateStatus(RequestOptions? options = null);
+        public override Task<ClientResult> UpdateStatusAsync(RequestOptions? options = null);
     }
     public class CreateBatchFileJobOperation : OperationResult {
         public string BatchId { get; }
@@ -2052,8 +2052,8 @@ namespace OpenAI.VectorStores {
         public virtual IAsyncEnumerable<ClientResult> GetFilesInBatchAsync(int? limit, string? order, string? after, string? before, string? filter, RequestOptions? options);
         public static CreateBatchFileJobOperation Rehydrate(VectorStoreClient client, ContinuationToken rehydrationToken, CancellationToken cancellationToken = default);
         public static Task<CreateBatchFileJobOperation> RehydrateAsync(VectorStoreClient client, ContinuationToken rehydrationToken, CancellationToken cancellationToken = default);
-        public override void WaitForCompletion(CancellationToken cancellationToken = default);
-        public override Task WaitForCompletionAsync(CancellationToken cancellationToken = default);
+        public override ClientResult UpdateStatus(RequestOptions? options = null);
+        public override Task<ClientResult> UpdateStatusAsync(RequestOptions? options = null);
     }
     public class CreateVectorStoreOperation : OperationResult {
         public CreateVectorStoreOperation(ClientPipeline pipeline, Uri endpoint, ClientResult<VectorStore> result) : base(default!);
@@ -2070,8 +2070,8 @@ namespace OpenAI.VectorStores {
         public virtual Task<ClientResult<VectorStore>> GetVectorStoreAsync(CancellationToken cancellationToken = default);
         public static CreateVectorStoreOperation Rehydrate(VectorStoreClient client, ContinuationToken rehydrationToken, CancellationToken cancellationToken = default);
         public static Task<CreateVectorStoreOperation> RehydrateAsync(VectorStoreClient client, ContinuationToken rehydrationToken, CancellationToken cancellationToken = default);
-        public override void WaitForCompletion(CancellationToken cancellationToken = default);
-        public override Task WaitForCompletionAsync(CancellationToken cancellationToken = default);
+        public override ClientResult UpdateStatus(RequestOptions? options = null);
+        public override Task<ClientResult> UpdateStatusAsync(RequestOptions? options = null);
     }
     public abstract class FileChunkingStrategy : IJsonModel<FileChunkingStrategy>, IPersistableModel<FileChunkingStrategy> {
         public static FileChunkingStrategy Auto { get; }

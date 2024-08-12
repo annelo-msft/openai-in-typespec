@@ -15,8 +15,6 @@ public partial class CreateVectorStoreOperation : OperationResult
 
     private readonly string _vectorStoreId;
 
-    private PollingInterval? _pollingInterval;
-
     /// <inheritdoc/>
     public override ContinuationToken? RehydrationToken { get; protected set; }
 

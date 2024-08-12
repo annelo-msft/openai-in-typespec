@@ -16,8 +16,6 @@ public partial class AddFileToVectorStoreOperation : OperationResult
     private readonly string _vectorStoreId;
     private readonly string _fileId;
 
-    private PollingInterval? _pollingInterval;
-
     /// <inheritdoc/>
     public override ContinuationToken? RehydrationToken { get; protected set; }
 

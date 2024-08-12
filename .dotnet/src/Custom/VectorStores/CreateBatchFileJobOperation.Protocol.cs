@@ -20,8 +20,6 @@ public partial class CreateBatchFileJobOperation : OperationResult
     private readonly string _vectorStoreId;
     private readonly string _batchId;
     
-    private PollingInterval? _pollingInterval;
-
     /// <inheritdoc/>
     public override ContinuationToken? RehydrationToken { get; protected set; }
 

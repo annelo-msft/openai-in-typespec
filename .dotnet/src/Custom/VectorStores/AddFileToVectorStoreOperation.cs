@@ -102,36 +102,29 @@ public partial class AddFileToVectorStoreOperation : OperationResult
     }
 
     /// <inheritdoc/>
-    public override async Task WaitForCompletionAsync(CancellationToken cancellationToken = default)
+    public override async Task<ClientResult> UpdateStatusAsync(RequestOptions? options = null)
     {
-        _pollingInterval ??= new();
+        ClientResult result = await GetFileAssociationAsync(options).ConfigureAwait(false);
 
-        while (!IsCompleted)
-        {
-            PipelineResponse response = GetRawResponse();
+        PipelineResponse response = result.GetRawResponse();
+        VectorStoreFileAssociation value = VectorStoreFileAssociation.FromResponse(response);
 
-            await _pollingInterval.WaitAsync(response, cancellationToken);
+        ApplyUpdate(value);
 
-            ClientResult<VectorStoreFileAssociation> result = await GetFileAssociationAsync(cancellationToken).ConfigureAwait(false);
-
-            ApplyUpdate(result);
-        }
+        return result;
     }
 
-    public override void WaitForCompletion(CancellationToken cancellationToken = default)
+    /// <inheritdoc/>
+    public override ClientResult UpdateStatus(RequestOptions? options = null)
     {
-        _pollingInterval ??= new();
+        ClientResult result = GetFileAssociation(options);
 
-        while (!IsCompleted)
-        {
-            PipelineResponse response = GetRawResponse();
+        PipelineResponse response = result.GetRawResponse();
+        VectorStoreFileAssociation value = VectorStoreFileAssociation.FromResponse(response);
 
-            _pollingInterval.Wait(response, cancellationToken);
+        ApplyUpdate(value);
 
-            ClientResult<VectorStoreFileAssociation> result = GetFileAssociation(cancellationToken);
-
-            ApplyUpdate(result);
-        }
+        return result;
     }
 
     internal async Task<AddFileToVectorStoreOperation> WaitUntilAsync(bool waitUntilCompleted, RequestOptions? options)
@@ -148,13 +141,12 @@ public partial class AddFileToVectorStoreOperation : OperationResult
         return this;
     }
 
-    private void ApplyUpdate(ClientResult<VectorStoreFileAssociation> update)
+    private void ApplyUpdate(VectorStoreFileAssociation value)
     {
-        Value = update;
-        Status = Value.Status;
+        Value = value;
+        Status = value.Status;
 
-        IsCompleted = GetIsCompleted(Value.Status);
-        SetRawResponse(update.GetRawResponse());
+        IsCompleted = GetIsCompleted(value.Status);
     }
 
     private static bool GetIsCompleted(VectorStoreFileAssociationStatus status)

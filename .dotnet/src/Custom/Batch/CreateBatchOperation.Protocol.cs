@@ -20,8 +20,6 @@ public partial class CreateBatchOperation : OperationResult
 
     private readonly string _batchId;
 
-    private PollingInterval? _pollingInterval;
-
     internal CreateBatchOperation(
         ClientPipeline pipeline,
         Uri endpoint,
@@ -101,37 +99,23 @@ public partial class CreateBatchOperation : OperationResult
     }
 
     /// <inheritdoc/>
-    public override async Task WaitForCompletionAsync(CancellationToken cancellationToken = default)
+    public override async Task<ClientResult> UpdateStatusAsync(RequestOptions? options = null)
     {
-        _pollingInterval ??= new();
+        ClientResult result = await GetBatchAsync(options).ConfigureAwait(false);
 
-        while (!IsCompleted)
-        {
-            PipelineResponse response = GetRawResponse();
+        ApplyUpdate(result);
 
-            await _pollingInterval.WaitAsync(response, cancellationToken);
-
-            ClientResult result = await GetBatchAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-
-            ApplyUpdate(result);
-        }
+        return result;
     }
 
     /// <inheritdoc/>
-    public override void WaitForCompletion(CancellationToken cancellationToken = default)
+    public override ClientResult UpdateStatus(RequestOptions? options = null)
     {
-        _pollingInterval ??= new();
+        ClientResult result = GetBatch(options);
 
-        while (!IsCompleted)
-        {
-            PipelineResponse response = GetRawResponse();
+        ApplyUpdate(result);
 
-            _pollingInterval.Wait(response, cancellationToken);
-
-            ClientResult result = GetBatch(cancellationToken.ToRequestOptions());
-
-            ApplyUpdate(result);
-        }
+        return result;
     }
 
     internal async Task<CreateBatchOperation> WaitUntilAsync(bool waitUntilCompleted, RequestOptions? options)
@@ -156,7 +140,6 @@ public partial class CreateBatchOperation : OperationResult
         string? status = doc.RootElement.GetProperty("status"u8).GetString();
 
         IsCompleted = GetIsCompleted(status);
-        SetRawResponse(response);
     }
 
     private static bool GetIsCompleted(string? status)
