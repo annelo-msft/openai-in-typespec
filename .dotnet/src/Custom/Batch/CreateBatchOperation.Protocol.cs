@@ -32,7 +32,7 @@ public partial class CreateBatchOperation : OperationResult
         _endpoint = endpoint;
         _batchId = batchId;
 
-        IsCompleted = GetIsCompleted(status);
+        HasCompleted = GetHasCompleted(status);
         RehydrationToken = new CreateBatchOperationToken(batchId);
     }
 
@@ -40,9 +40,6 @@ public partial class CreateBatchOperation : OperationResult
 
     /// <inheritdoc/>
     public override ContinuationToken? RehydrationToken { get; protected set; }
-
-    /// <inheritdoc/>
-    public override bool IsCompleted { get; protected set; }
 
     /// <summary>
     /// Recreates a <see cref="CreateBatchOperation"/> from a rehydration token.
@@ -99,7 +96,7 @@ public partial class CreateBatchOperation : OperationResult
     }
 
     /// <inheritdoc/>
-    public override async Task<ClientResult> UpdateStatusAsync(RequestOptions? options = null)
+    public override async ValueTask<ClientResult> UpdateStatusAsync(RequestOptions? options = null)
     {
         ClientResult result = await GetBatchAsync(options).ConfigureAwait(false);
 
@@ -139,11 +136,11 @@ public partial class CreateBatchOperation : OperationResult
         using JsonDocument doc = JsonDocument.Parse(response.Content);
         string? status = doc.RootElement.GetProperty("status"u8).GetString();
 
-        IsCompleted = GetIsCompleted(status);
+        HasCompleted = GetHasCompleted(status);
         SetRawResponse(response);
     }
 
-    private static bool GetIsCompleted(string? status)
+    private static bool GetHasCompleted(string? status)
     {
         return status == InternalBatchStatus.Completed ||
             status == InternalBatchStatus.Cancelled ||

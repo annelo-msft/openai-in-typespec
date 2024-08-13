@@ -23,9 +23,6 @@ public partial class CreateBatchFileJobOperation : OperationResult
     /// <inheritdoc/>
     public override ContinuationToken? RehydrationToken { get; protected set; }
 
-    /// <inheritdoc/>
-    public override bool IsCompleted { get; protected set; }
-
     // Generated protocol methods
 
     /// <summary>

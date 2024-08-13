@@ -19,9 +19,6 @@ public partial class AddFileToVectorStoreOperation : OperationResult
     /// <inheritdoc/>
     public override ContinuationToken? RehydrationToken { get; protected set; }
 
-    /// <inheritdoc/>
-    public override bool IsCompleted { get; protected set; }
-
     /// <summary>
     /// [Protocol Method] Retrieves a vector store file.
     /// </summary>

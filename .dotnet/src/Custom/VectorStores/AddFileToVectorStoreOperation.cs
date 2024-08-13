@@ -27,7 +27,7 @@ public partial class AddFileToVectorStoreOperation : OperationResult
         _vectorStoreId = Value.VectorStoreId;
         _fileId = Value.FileId;
 
-        IsCompleted = GetIsCompleted(Value.Status);
+        HasCompleted = GetHasCompleted(Value.Status);
         RehydrationToken = new AddFileToVectorStoreOperationToken(VectorStoreId, FileId);
     }
 
@@ -102,7 +102,7 @@ public partial class AddFileToVectorStoreOperation : OperationResult
     }
 
     /// <inheritdoc/>
-    public override async Task<ClientResult> UpdateStatusAsync(RequestOptions? options = null)
+    public override async ValueTask<ClientResult> UpdateStatusAsync(RequestOptions? options = null)
     {
         ClientResult result = await GetFileAssociationAsync(options).ConfigureAwait(false);
 
@@ -146,11 +146,11 @@ public partial class AddFileToVectorStoreOperation : OperationResult
         Value = value;
         Status = value.Status;
 
-        IsCompleted = GetIsCompleted(value.Status);
+        HasCompleted = GetHasCompleted(value.Status);
         SetRawResponse(response);
     }
 
-    private static bool GetIsCompleted(VectorStoreFileAssociationStatus status)
+    private static bool GetHasCompleted(VectorStoreFileAssociationStatus status)
     {
         return status == VectorStoreFileAssociationStatus.Completed ||
             status == VectorStoreFileAssociationStatus.Cancelled ||

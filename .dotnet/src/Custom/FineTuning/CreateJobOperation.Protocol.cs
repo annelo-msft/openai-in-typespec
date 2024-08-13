@@ -30,7 +30,7 @@ public partial class CreateJobOperation : OperationResult
         _endpoint = endpoint;
         _jobId = jobId;
 
-        IsCompleted = GetIsCompleted(status);
+        HasCompleted = GetHasCompleted(status);
         RehydrationToken = new CreateJobOperationToken(jobId);
     }
 
@@ -38,9 +38,6 @@ public partial class CreateJobOperation : OperationResult
 
     /// <inheritdoc/>
     public override ContinuationToken? RehydrationToken { get; protected set; }
-
-    /// <inheritdoc/>
-    public override bool IsCompleted { get; protected set; }
 
     /// <summary>
     /// Recreates a <see cref="CreateJobOperation"/> from a rehydration token.
@@ -97,7 +94,7 @@ public partial class CreateJobOperation : OperationResult
     }
 
     /// <inheritdoc/>
-    public override async Task<ClientResult> UpdateStatusAsync(RequestOptions? options = null)
+    public override async ValueTask<ClientResult> UpdateStatusAsync(RequestOptions? options = null)
     {
         ClientResult result = await GetJobAsync(options).ConfigureAwait(false);
 
@@ -137,11 +134,11 @@ public partial class CreateJobOperation : OperationResult
         using JsonDocument doc = JsonDocument.Parse(response.Content);
         string? status = doc.RootElement.GetProperty("status"u8).GetString();
 
-        IsCompleted = GetIsCompleted(status);
+        HasCompleted = GetHasCompleted(status);
         SetRawResponse(response);
     }
 
-    private static bool GetIsCompleted(string? status)
+    private static bool GetHasCompleted(string? status)
     {
         return status == InternalFineTuningJobStatus.Succeeded ||
             status == InternalFineTuningJobStatus.Failed ||

@@ -26,7 +26,7 @@ public partial class CreateVectorStoreOperation : OperationResult
 
         _vectorStoreId = Value.Id;
 
-        IsCompleted = GetIsCompleted(Value.Status);
+        HasCompleted = GetHasCompleted(Value.Status);
         RehydrationToken = new CreateVectorStoreOperationToken(VectorStoreId);
     }
 
@@ -97,7 +97,7 @@ public partial class CreateVectorStoreOperation : OperationResult
     }
 
     /// <inheritdoc/>
-    public override async Task<ClientResult> UpdateStatusAsync(RequestOptions? options = null)
+    public override async ValueTask<ClientResult> UpdateStatusAsync(RequestOptions? options = null)
     {
         ClientResult result = await GetVectorStoreAsync(options).ConfigureAwait(false);
 
@@ -141,11 +141,11 @@ public partial class CreateVectorStoreOperation : OperationResult
         Value = value;
         Status = value.Status;
 
-        IsCompleted = GetIsCompleted(value.Status);
+        HasCompleted = GetHasCompleted(value.Status);
         SetRawResponse(response);
     }
 
-    private static bool GetIsCompleted(VectorStoreStatus status)
+    private static bool GetHasCompleted(VectorStoreStatus status)
     {
         return status == VectorStoreStatus.Completed ||
             status == VectorStoreStatus.Expired;

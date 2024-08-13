@@ -30,7 +30,7 @@ public partial class CreateBatchFileJobOperation : OperationResult
         _vectorStoreId = Value.VectorStoreId;
         _batchId = Value.BatchId;
 
-        IsCompleted = GetIsCompleted(Value.Status);
+        HasCompleted = GetHasCompleted(Value.Status);
         RehydrationToken = new CreateBatchFileJobOperationToken(VectorStoreId, BatchId);
     }
 
@@ -105,7 +105,7 @@ public partial class CreateBatchFileJobOperation : OperationResult
     }
 
     /// <inheritdoc/>
-    public override async Task<ClientResult> UpdateStatusAsync(RequestOptions? options = null)
+    public override async ValueTask<ClientResult> UpdateStatusAsync(RequestOptions? options = null)
     {
         ClientResult result = await GetFileBatchAsync(options).ConfigureAwait(false);
 
@@ -149,11 +149,11 @@ public partial class CreateBatchFileJobOperation : OperationResult
         Value = value;
         Status = value.Status;
 
-        IsCompleted = GetIsCompleted(value.Status);
+        HasCompleted = GetHasCompleted(value.Status);
         SetRawResponse(response);
     }
 
-    private static bool GetIsCompleted(VectorStoreBatchFileJobStatus status)
+    private static bool GetHasCompleted(VectorStoreBatchFileJobStatus status)
     {
         return status == VectorStoreBatchFileJobStatus.Completed ||
             status == VectorStoreBatchFileJobStatus.Cancelled ||
