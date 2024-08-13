@@ -12,7 +12,7 @@ namespace OpenAI.VectorStores;
 [Experimental("OPENAI001")]
 public partial class AddFileToVectorStoreOperation : OperationResult
 {
-    public AddFileToVectorStoreOperation(
+    internal AddFileToVectorStoreOperation(
         ClientPipeline pipeline,
         Uri endpoint,
         ClientResult<VectorStoreFileAssociation> result)

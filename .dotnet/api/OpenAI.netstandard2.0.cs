@@ -2005,7 +2005,6 @@ namespace OpenAI.Moderations {
 }
 namespace OpenAI.VectorStores {
     public class AddFileToVectorStoreOperation : OperationResult {
-        public AddFileToVectorStoreOperation(ClientPipeline pipeline, Uri endpoint, ClientResult<VectorStoreFileAssociation> result) : base(default!);
         public string FileId { get; }
         public override bool IsCompleted { get; protected set; }
         public override ContinuationToken? RehydrationToken { get; protected set; }
@@ -2056,7 +2055,6 @@ namespace OpenAI.VectorStores {
         public override Task<ClientResult> UpdateStatusAsync(RequestOptions? options = null);
     }
     public class CreateVectorStoreOperation : OperationResult {
-        public CreateVectorStoreOperation(ClientPipeline pipeline, Uri endpoint, ClientResult<VectorStore> result) : base(default!);
         public override bool IsCompleted { get; protected set; }
         public override ContinuationToken? RehydrationToken { get; protected set; }
         public VectorStoreStatus? Status { get; }
