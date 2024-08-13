@@ -112,7 +112,7 @@ public partial class CreateBatchFileJobOperation : OperationResult
         PipelineResponse response = result.GetRawResponse();
         VectorStoreBatchFileJob value = VectorStoreBatchFileJob.FromResponse(response);
 
-        ApplyUpdate(value);
+        ApplyUpdate(response, value);
 
         return result;
     }
@@ -125,7 +125,7 @@ public partial class CreateBatchFileJobOperation : OperationResult
         PipelineResponse response = result.GetRawResponse();
         VectorStoreBatchFileJob value = VectorStoreBatchFileJob.FromResponse(response);
 
-        ApplyUpdate(value);
+        ApplyUpdate(response, value);
 
         return result;
     }
@@ -144,12 +144,13 @@ public partial class CreateBatchFileJobOperation : OperationResult
         return this;
     }
 
-    private void ApplyUpdate(VectorStoreBatchFileJob value)
+    private void ApplyUpdate(PipelineResponse response, VectorStoreBatchFileJob value)
     {
         Value = value;
         Status = value.Status;
 
         IsCompleted = GetIsCompleted(value.Status);
+        SetRawResponse(response);
     }
 
     private static bool GetIsCompleted(VectorStoreBatchFileJobStatus status)

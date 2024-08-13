@@ -138,6 +138,7 @@ public partial class CreateJobOperation : OperationResult
         string? status = doc.RootElement.GetProperty("status"u8).GetString();
 
         IsCompleted = GetIsCompleted(status);
+        SetRawResponse(response);
     }
 
     private static bool GetIsCompleted(string? status)

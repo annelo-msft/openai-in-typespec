@@ -104,7 +104,7 @@ public partial class CreateVectorStoreOperation : OperationResult
         PipelineResponse response = result.GetRawResponse();
         VectorStore value = VectorStore.FromResponse(response);
 
-        ApplyUpdate(value);
+        ApplyUpdate(response, value);
 
         return result;
     }
@@ -117,7 +117,7 @@ public partial class CreateVectorStoreOperation : OperationResult
         PipelineResponse response = result.GetRawResponse();
         VectorStore value = VectorStore.FromResponse(response);
 
-        ApplyUpdate(value);
+        ApplyUpdate(response, value);
 
         return result;
     }
@@ -136,12 +136,13 @@ public partial class CreateVectorStoreOperation : OperationResult
         return this;
     }
 
-    private void ApplyUpdate(VectorStore value)
+    private void ApplyUpdate(PipelineResponse response, VectorStore value)
     {
         Value = value;
         Status = value.Status;
 
         IsCompleted = GetIsCompleted(value.Status);
+        SetRawResponse(response);
     }
 
     private static bool GetIsCompleted(VectorStoreStatus status)

@@ -109,7 +109,7 @@ public partial class AddFileToVectorStoreOperation : OperationResult
         PipelineResponse response = result.GetRawResponse();
         VectorStoreFileAssociation value = VectorStoreFileAssociation.FromResponse(response);
 
-        ApplyUpdate(value);
+        ApplyUpdate(response, value);
 
         return result;
     }
@@ -122,7 +122,7 @@ public partial class AddFileToVectorStoreOperation : OperationResult
         PipelineResponse response = result.GetRawResponse();
         VectorStoreFileAssociation value = VectorStoreFileAssociation.FromResponse(response);
 
-        ApplyUpdate(value);
+        ApplyUpdate(response, value);
 
         return result;
     }
@@ -141,12 +141,13 @@ public partial class AddFileToVectorStoreOperation : OperationResult
         return this;
     }
 
-    private void ApplyUpdate(VectorStoreFileAssociation value)
+    private void ApplyUpdate(PipelineResponse response, VectorStoreFileAssociation value)
     {
         Value = value;
         Status = value.Status;
 
         IsCompleted = GetIsCompleted(value.Status);
+        SetRawResponse(response);
     }
 
     private static bool GetIsCompleted(VectorStoreFileAssociationStatus status)
