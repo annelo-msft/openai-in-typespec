@@ -30,10 +30,10 @@ namespace OpenAI.Assistants
             message.ResponseClassifier = PipelineMessageClassifier200;
             var request = message.Request;
             request.Method = "POST";
-            var uri = new ClientUriBuilder();
-            uri.Reset(_endpoint);
-            uri.AppendPath("/threads", false);
-            request.Uri = uri.ToUri();
+            UriBuilder uriBuilder = new UriBuilder(_endpoint);
+            
+            uriBuilder.AppendPath("/threads", false);
+            request.Uri = uriBuilder.Uri;
             request.Headers.Set("Accept", "application/json");
             request.Headers.Set("Content-Type", "application/json");
             request.Content = content;
@@ -47,11 +47,11 @@ namespace OpenAI.Assistants
             message.ResponseClassifier = PipelineMessageClassifier200;
             var request = message.Request;
             request.Method = "GET";
-            var uri = new ClientUriBuilder();
-            uri.Reset(_endpoint);
-            uri.AppendPath("/threads/", false);
-            uri.AppendPath(threadId, true);
-            request.Uri = uri.ToUri();
+            UriBuilder uriBuilder = new UriBuilder(_endpoint);
+            
+            uriBuilder.AppendPath("/threads/", false);
+            uriBuilder.AppendPath(threadId, true);
+            request.Uri = uriBuilder.Uri;
             request.Headers.Set("Accept", "application/json");
             message.Apply(options);
             return message;
@@ -63,11 +63,11 @@ namespace OpenAI.Assistants
             message.ResponseClassifier = PipelineMessageClassifier200;
             var request = message.Request;
             request.Method = "POST";
-            var uri = new ClientUriBuilder();
-            uri.Reset(_endpoint);
-            uri.AppendPath("/threads/", false);
-            uri.AppendPath(threadId, true);
-            request.Uri = uri.ToUri();
+            UriBuilder uriBuilder = new UriBuilder(_endpoint);
+            
+            uriBuilder.AppendPath("/threads/", false);
+            uriBuilder.AppendPath(threadId, true);
+            request.Uri = uriBuilder.Uri;
             request.Headers.Set("Accept", "application/json");
             request.Headers.Set("Content-Type", "application/json");
             request.Content = content;
@@ -81,11 +81,11 @@ namespace OpenAI.Assistants
             message.ResponseClassifier = PipelineMessageClassifier200;
             var request = message.Request;
             request.Method = "DELETE";
-            var uri = new ClientUriBuilder();
-            uri.Reset(_endpoint);
-            uri.AppendPath("/threads/", false);
-            uri.AppendPath(threadId, true);
-            request.Uri = uri.ToUri();
+            UriBuilder uriBuilder = new UriBuilder(_endpoint);
+            
+            uriBuilder.AppendPath("/threads/", false);
+            uriBuilder.AppendPath(threadId, true);
+            request.Uri = uriBuilder.Uri;
             request.Headers.Set("Accept", "application/json");
             message.Apply(options);
             return message;

@@ -31,10 +31,10 @@ namespace OpenAI.Batch
             message.ResponseClassifier = PipelineMessageClassifier200;
             var request = message.Request;
             request.Method = "POST";
-            var uri = new ClientUriBuilder();
-            uri.Reset(_endpoint);
-            uri.AppendPath("/batches", false);
-            request.Uri = uri.ToUri();
+            UriBuilder uriBuilder = new UriBuilder(_endpoint);
+            
+            uriBuilder.AppendPath("/batches", false);
+            request.Uri = uriBuilder.Uri;
             request.Headers.Set("Accept", "application/json");
             request.Headers.Set("Content-Type", "application/json");
             request.Content = content;
@@ -48,18 +48,18 @@ namespace OpenAI.Batch
             message.ResponseClassifier = PipelineMessageClassifier200;
             var request = message.Request;
             request.Method = "GET";
-            var uri = new ClientUriBuilder();
-            uri.Reset(_endpoint);
-            uri.AppendPath("/batches", false);
+            UriBuilder uriBuilder = new UriBuilder(_endpoint);
+            
+            uriBuilder.AppendPath("/batches", false);
             if (after != null)
             {
-                uri.AppendQuery("after", after, true);
+                uriBuilder.AppendQuery("after", after, true);
             }
             if (limit != null)
             {
-                uri.AppendQuery("limit", limit.Value, true);
+                uriBuilder.AppendQuery("limit", limit.Value, true);
             }
-            request.Uri = uri.ToUri();
+            request.Uri = uriBuilder.Uri;
             request.Headers.Set("Accept", "application/json");
             message.Apply(options);
             return message;
@@ -71,11 +71,11 @@ namespace OpenAI.Batch
             message.ResponseClassifier = PipelineMessageClassifier200;
             var request = message.Request;
             request.Method = "GET";
-            var uri = new ClientUriBuilder();
-            uri.Reset(_endpoint);
-            uri.AppendPath("/batches/", false);
-            uri.AppendPath(batchId, true);
-            request.Uri = uri.ToUri();
+            UriBuilder uriBuilder = new UriBuilder(_endpoint);
+            
+            uriBuilder.AppendPath("/batches/", false);
+            uriBuilder.AppendPath(batchId, true);
+            request.Uri = uriBuilder.Uri;
             request.Headers.Set("Accept", "application/json");
             message.Apply(options);
             return message;
@@ -87,12 +87,12 @@ namespace OpenAI.Batch
             message.ResponseClassifier = PipelineMessageClassifier200;
             var request = message.Request;
             request.Method = "POST";
-            var uri = new ClientUriBuilder();
-            uri.Reset(_endpoint);
-            uri.AppendPath("/batches/", false);
-            uri.AppendPath(batchId, true);
-            uri.AppendPath("/cancel", false);
-            request.Uri = uri.ToUri();
+            UriBuilder uriBuilder = new UriBuilder(_endpoint);
+            
+            uriBuilder.AppendPath("/batches/", false);
+            uriBuilder.AppendPath(batchId, true);
+            uriBuilder.AppendPath("/cancel", false);
+            request.Uri = uriBuilder.Uri;
             request.Headers.Set("Accept", "application/json");
             message.Apply(options);
             return message;

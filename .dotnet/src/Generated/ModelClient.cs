@@ -30,10 +30,10 @@ namespace OpenAI.Models
             message.ResponseClassifier = PipelineMessageClassifier200;
             var request = message.Request;
             request.Method = "GET";
-            var uri = new ClientUriBuilder();
-            uri.Reset(_endpoint);
-            uri.AppendPath("/models", false);
-            request.Uri = uri.ToUri();
+            UriBuilder uriBuilder = new UriBuilder(_endpoint);
+            
+            uriBuilder.AppendPath("/models", false);
+            request.Uri = uriBuilder.Uri;
             request.Headers.Set("Accept", "application/json");
             message.Apply(options);
             return message;
@@ -45,11 +45,11 @@ namespace OpenAI.Models
             message.ResponseClassifier = PipelineMessageClassifier200;
             var request = message.Request;
             request.Method = "GET";
-            var uri = new ClientUriBuilder();
-            uri.Reset(_endpoint);
-            uri.AppendPath("/models/", false);
-            uri.AppendPath(model, true);
-            request.Uri = uri.ToUri();
+            UriBuilder uriBuilder = new UriBuilder(_endpoint);
+            
+            uriBuilder.AppendPath("/models/", false);
+            uriBuilder.AppendPath(model, true);
+            request.Uri = uriBuilder.Uri;
             request.Headers.Set("Accept", "application/json");
             message.Apply(options);
             return message;
@@ -61,11 +61,11 @@ namespace OpenAI.Models
             message.ResponseClassifier = PipelineMessageClassifier200;
             var request = message.Request;
             request.Method = "DELETE";
-            var uri = new ClientUriBuilder();
-            uri.Reset(_endpoint);
-            uri.AppendPath("/models/", false);
-            uri.AppendPath(model, true);
-            request.Uri = uri.ToUri();
+            UriBuilder uriBuilder = new UriBuilder(_endpoint);
+            
+            uriBuilder.AppendPath("/models/", false);
+            uriBuilder.AppendPath(model, true);
+            request.Uri = uriBuilder.Uri;
             request.Headers.Set("Accept", "application/json");
             message.Apply(options);
             return message;

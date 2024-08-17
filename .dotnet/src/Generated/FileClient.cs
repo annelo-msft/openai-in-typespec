@@ -30,10 +30,9 @@ namespace OpenAI.Files
             message.ResponseClassifier = PipelineMessageClassifier200;
             var request = message.Request;
             request.Method = "POST";
-            var uri = new ClientUriBuilder();
-            uri.Reset(_endpoint);
-            uri.AppendPath("/files", false);
-            request.Uri = uri.ToUri();
+            UriBuilder uriBuilder = new UriBuilder(_endpoint);
+            uriBuilder.AppendPath("/files", false);
+            request.Uri = uriBuilder.Uri;
             request.Headers.Set("Accept", "application/json");
             request.Headers.Set("Content-Type", contentType);
             request.Content = content;
@@ -47,14 +46,14 @@ namespace OpenAI.Files
             message.ResponseClassifier = PipelineMessageClassifier200;
             var request = message.Request;
             request.Method = "GET";
-            var uri = new ClientUriBuilder();
-            uri.Reset(_endpoint);
-            uri.AppendPath("/files", false);
+            UriBuilder uriBuilder = new UriBuilder(_endpoint);
+            
+            uriBuilder.AppendPath("/files", false);
             if (purpose != null)
             {
-                uri.AppendQuery("purpose", purpose, true);
+                uriBuilder.AppendQuery("purpose", purpose, true);
             }
-            request.Uri = uri.ToUri();
+            request.Uri = uriBuilder.Uri;
             request.Headers.Set("Accept", "application/json");
             message.Apply(options);
             return message;
@@ -66,11 +65,11 @@ namespace OpenAI.Files
             message.ResponseClassifier = PipelineMessageClassifier200;
             var request = message.Request;
             request.Method = "GET";
-            var uri = new ClientUriBuilder();
-            uri.Reset(_endpoint);
-            uri.AppendPath("/files/", false);
-            uri.AppendPath(fileId, true);
-            request.Uri = uri.ToUri();
+            UriBuilder uriBuilder = new UriBuilder(_endpoint);
+            
+            uriBuilder.AppendPath("/files/", false);
+            uriBuilder.AppendPath(fileId, true);
+            request.Uri = uriBuilder.Uri;
             request.Headers.Set("Accept", "application/json");
             message.Apply(options);
             return message;
@@ -82,11 +81,11 @@ namespace OpenAI.Files
             message.ResponseClassifier = PipelineMessageClassifier200;
             var request = message.Request;
             request.Method = "DELETE";
-            var uri = new ClientUriBuilder();
-            uri.Reset(_endpoint);
-            uri.AppendPath("/files/", false);
-            uri.AppendPath(fileId, true);
-            request.Uri = uri.ToUri();
+            UriBuilder uriBuilder = new UriBuilder(_endpoint);
+            
+            uriBuilder.AppendPath("/files/", false);
+            uriBuilder.AppendPath(fileId, true);
+            request.Uri = uriBuilder.Uri;
             request.Headers.Set("Accept", "application/json");
             message.Apply(options);
             return message;
@@ -98,12 +97,12 @@ namespace OpenAI.Files
             message.ResponseClassifier = PipelineMessageClassifier200;
             var request = message.Request;
             request.Method = "GET";
-            var uri = new ClientUriBuilder();
-            uri.Reset(_endpoint);
-            uri.AppendPath("/files/", false);
-            uri.AppendPath(fileId, true);
-            uri.AppendPath("/content", false);
-            request.Uri = uri.ToUri();
+            UriBuilder uriBuilder = new UriBuilder(_endpoint);
+            
+            uriBuilder.AppendPath("/files/", false);
+            uriBuilder.AppendPath(fileId, true);
+            uriBuilder.AppendPath("/content", false);
+            request.Uri = uriBuilder.Uri;
             request.Headers.Set("Accept", "application/json");
             message.Apply(options);
             return message;

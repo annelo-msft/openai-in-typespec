@@ -30,10 +30,10 @@ namespace OpenAI.Moderations
             message.ResponseClassifier = PipelineMessageClassifier200;
             var request = message.Request;
             request.Method = "POST";
-            var uri = new ClientUriBuilder();
-            uri.Reset(_endpoint);
-            uri.AppendPath("/moderations", false);
-            request.Uri = uri.ToUri();
+            UriBuilder uriBuilder = new UriBuilder(_endpoint);
+            
+            uriBuilder.AppendPath("/moderations", false);
+            request.Uri = uriBuilder.Uri;
             request.Headers.Set("Accept", "application/json");
             request.Headers.Set("Content-Type", "application/json");
             request.Content = content;

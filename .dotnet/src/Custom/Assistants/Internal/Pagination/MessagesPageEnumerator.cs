@@ -113,28 +113,28 @@ internal partial class MessagesPageEnumerator : PageEnumerator<ThreadMessage>
         message.ResponseClassifier = PipelineMessageClassifier200;
         var request = message.Request;
         request.Method = "GET";
-        var uri = new ClientUriBuilder();
-        uri.Reset(_endpoint);
-        uri.AppendPath("/threads/", false);
-        uri.AppendPath(threadId, true);
-        uri.AppendPath("/messages", false);
+        UriBuilder uriBuilder = new UriBuilder(_endpoint);
+        
+        uriBuilder.AppendPath("/threads/", false);
+        uriBuilder.AppendPath(threadId, true);
+        uriBuilder.AppendPath("/messages", false);
         if (limit != null)
         {
-            uri.AppendQuery("limit", limit.Value, true);
+            uriBuilder.AppendQuery("limit", limit.Value, true);
         }
         if (order != null)
         {
-            uri.AppendQuery("order", order, true);
+            uriBuilder.AppendQuery("order", order, true);
         }
         if (after != null)
         {
-            uri.AppendQuery("after", after, true);
+            uriBuilder.AppendQuery("after", after, true);
         }
         if (before != null)
         {
-            uri.AppendQuery("before", before, true);
+            uriBuilder.AppendQuery("before", before, true);
         }
-        request.Uri = uri.ToUri();
+        request.Uri = uriBuilder.Uri;
         request.Headers.Set("Accept", "application/json");
         message.Apply(options);
         return message;

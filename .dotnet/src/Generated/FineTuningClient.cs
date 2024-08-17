@@ -37,10 +37,10 @@ namespace OpenAI.FineTuning
             message.ResponseClassifier = PipelineMessageClassifier200;
             var request = message.Request;
             request.Method = "POST";
-            var uri = new ClientUriBuilder();
-            uri.Reset(_endpoint);
-            uri.AppendPath("/fine_tuning/jobs", false);
-            request.Uri = uri.ToUri();
+            UriBuilder uriBuilder = new UriBuilder(_endpoint);
+            
+            uriBuilder.AppendPath("/fine_tuning/jobs", false);
+            request.Uri = uriBuilder.Uri;
             request.Headers.Set("Accept", "application/json");
             request.Headers.Set("Content-Type", "application/json");
             request.Content = content;
@@ -54,18 +54,18 @@ namespace OpenAI.FineTuning
             message.ResponseClassifier = PipelineMessageClassifier200;
             var request = message.Request;
             request.Method = "GET";
-            var uri = new ClientUriBuilder();
-            uri.Reset(_endpoint);
-            uri.AppendPath("/fine_tuning/jobs", false);
+            UriBuilder uriBuilder = new UriBuilder(_endpoint);
+            
+            uriBuilder.AppendPath("/fine_tuning/jobs", false);
             if (after != null)
             {
-                uri.AppendQuery("after", after, true);
+                uriBuilder.AppendQuery("after", after, true);
             }
             if (limit != null)
             {
-                uri.AppendQuery("limit", limit.Value, true);
+                uriBuilder.AppendQuery("limit", limit.Value, true);
             }
-            request.Uri = uri.ToUri();
+            request.Uri = uriBuilder.Uri;
             request.Headers.Set("Accept", "application/json");
             message.Apply(options);
             return message;
@@ -77,11 +77,11 @@ namespace OpenAI.FineTuning
             message.ResponseClassifier = PipelineMessageClassifier200;
             var request = message.Request;
             request.Method = "GET";
-            var uri = new ClientUriBuilder();
-            uri.Reset(_endpoint);
-            uri.AppendPath("/fine_tuning/jobs/", false);
-            uri.AppendPath(fineTuningJobId, true);
-            request.Uri = uri.ToUri();
+            UriBuilder uriBuilder = new UriBuilder(_endpoint);
+            
+            uriBuilder.AppendPath("/fine_tuning/jobs/", false);
+            uriBuilder.AppendPath(fineTuningJobId, true);
+            request.Uri = uriBuilder.Uri;
             request.Headers.Set("Accept", "application/json");
             message.Apply(options);
             return message;
@@ -93,12 +93,12 @@ namespace OpenAI.FineTuning
             message.ResponseClassifier = PipelineMessageClassifier200;
             var request = message.Request;
             request.Method = "POST";
-            var uri = new ClientUriBuilder();
-            uri.Reset(_endpoint);
-            uri.AppendPath("/fine_tuning/jobs/", false);
-            uri.AppendPath(fineTuningJobId, true);
-            uri.AppendPath("/cancel", false);
-            request.Uri = uri.ToUri();
+            UriBuilder uriBuilder = new UriBuilder(_endpoint);
+            
+            uriBuilder.AppendPath("/fine_tuning/jobs/", false);
+            uriBuilder.AppendPath(fineTuningJobId, true);
+            uriBuilder.AppendPath("/cancel", false);
+            request.Uri = uriBuilder.Uri;
             request.Headers.Set("Accept", "application/json");
             message.Apply(options);
             return message;
@@ -110,20 +110,20 @@ namespace OpenAI.FineTuning
             message.ResponseClassifier = PipelineMessageClassifier200;
             var request = message.Request;
             request.Method = "GET";
-            var uri = new ClientUriBuilder();
-            uri.Reset(_endpoint);
-            uri.AppendPath("/fine_tuning/jobs/", false);
-            uri.AppendPath(fineTuningJobId, true);
-            uri.AppendPath("/checkpoints", false);
+            UriBuilder uriBuilder = new UriBuilder(_endpoint);
+            
+            uriBuilder.AppendPath("/fine_tuning/jobs/", false);
+            uriBuilder.AppendPath(fineTuningJobId, true);
+            uriBuilder.AppendPath("/checkpoints", false);
             if (after != null)
             {
-                uri.AppendQuery("after", after, true);
+                uriBuilder.AppendQuery("after", after, true);
             }
             if (limit != null)
             {
-                uri.AppendQuery("limit", limit.Value, true);
+                uriBuilder.AppendQuery("limit", limit.Value, true);
             }
-            request.Uri = uri.ToUri();
+            request.Uri = uriBuilder.Uri;
             request.Headers.Set("Accept", "application/json");
             message.Apply(options);
             return message;
@@ -135,20 +135,20 @@ namespace OpenAI.FineTuning
             message.ResponseClassifier = PipelineMessageClassifier200;
             var request = message.Request;
             request.Method = "GET";
-            var uri = new ClientUriBuilder();
-            uri.Reset(_endpoint);
-            uri.AppendPath("/fine_tuning/jobs/", false);
-            uri.AppendPath(fineTuningJobId, true);
-            uri.AppendPath("/events", false);
+            UriBuilder uriBuilder = new UriBuilder(_endpoint);
+            
+            uriBuilder.AppendPath("/fine_tuning/jobs/", false);
+            uriBuilder.AppendPath(fineTuningJobId, true);
+            uriBuilder.AppendPath("/events", false);
             if (after != null)
             {
-                uri.AppendQuery("after", after, true);
+                uriBuilder.AppendQuery("after", after, true);
             }
             if (limit != null)
             {
-                uri.AppendQuery("limit", limit.Value, true);
+                uriBuilder.AppendQuery("limit", limit.Value, true);
             }
-            request.Uri = uri.ToUri();
+            request.Uri = uriBuilder.Uri;
             request.Headers.Set("Accept", "application/json");
             message.Apply(options);
             return message;

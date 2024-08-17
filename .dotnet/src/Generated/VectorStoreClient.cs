@@ -37,26 +37,26 @@ namespace OpenAI.VectorStores
             message.ResponseClassifier = PipelineMessageClassifier200;
             var request = message.Request;
             request.Method = "GET";
-            var uri = new ClientUriBuilder();
-            uri.Reset(_endpoint);
-            uri.AppendPath("/vector_stores", false);
+            UriBuilder uriBuilder = new UriBuilder(_endpoint);
+            
+            uriBuilder.AppendPath("/vector_stores", false);
             if (limit != null)
             {
-                uri.AppendQuery("limit", limit.Value, true);
+                uriBuilder.AppendQuery("limit", limit.Value, true);
             }
             if (order != null)
             {
-                uri.AppendQuery("order", order, true);
+                uriBuilder.AppendQuery("order", order, true);
             }
             if (after != null)
             {
-                uri.AppendQuery("after", after, true);
+                uriBuilder.AppendQuery("after", after, true);
             }
             if (before != null)
             {
-                uri.AppendQuery("before", before, true);
+                uriBuilder.AppendQuery("before", before, true);
             }
-            request.Uri = uri.ToUri();
+            request.Uri = uriBuilder.Uri;
             request.Headers.Set("Accept", "application/json");
             message.Apply(options);
             return message;
@@ -68,10 +68,10 @@ namespace OpenAI.VectorStores
             message.ResponseClassifier = PipelineMessageClassifier200;
             var request = message.Request;
             request.Method = "POST";
-            var uri = new ClientUriBuilder();
-            uri.Reset(_endpoint);
-            uri.AppendPath("/vector_stores", false);
-            request.Uri = uri.ToUri();
+            UriBuilder uriBuilder = new UriBuilder(_endpoint);
+            
+            uriBuilder.AppendPath("/vector_stores", false);
+            request.Uri = uriBuilder.Uri;
             request.Headers.Set("Accept", "application/json");
             request.Headers.Set("Content-Type", "application/json");
             request.Content = content;
@@ -85,11 +85,11 @@ namespace OpenAI.VectorStores
             message.ResponseClassifier = PipelineMessageClassifier200;
             var request = message.Request;
             request.Method = "GET";
-            var uri = new ClientUriBuilder();
-            uri.Reset(_endpoint);
-            uri.AppendPath("/vector_stores/", false);
-            uri.AppendPath(vectorStoreId, true);
-            request.Uri = uri.ToUri();
+            UriBuilder uriBuilder = new UriBuilder(_endpoint);
+            
+            uriBuilder.AppendPath("/vector_stores/", false);
+            uriBuilder.AppendPath(vectorStoreId, true);
+            request.Uri = uriBuilder.Uri;
             request.Headers.Set("Accept", "application/json");
             message.Apply(options);
             return message;
@@ -101,11 +101,11 @@ namespace OpenAI.VectorStores
             message.ResponseClassifier = PipelineMessageClassifier200;
             var request = message.Request;
             request.Method = "POST";
-            var uri = new ClientUriBuilder();
-            uri.Reset(_endpoint);
-            uri.AppendPath("/vector_stores/", false);
-            uri.AppendPath(vectorStoreId, true);
-            request.Uri = uri.ToUri();
+            UriBuilder uriBuilder = new UriBuilder(_endpoint);
+            
+            uriBuilder.AppendPath("/vector_stores/", false);
+            uriBuilder.AppendPath(vectorStoreId, true);
+            request.Uri = uriBuilder.Uri;
             request.Headers.Set("Accept", "application/json");
             request.Headers.Set("Content-Type", "application/json");
             request.Content = content;
@@ -119,11 +119,11 @@ namespace OpenAI.VectorStores
             message.ResponseClassifier = PipelineMessageClassifier200;
             var request = message.Request;
             request.Method = "DELETE";
-            var uri = new ClientUriBuilder();
-            uri.Reset(_endpoint);
-            uri.AppendPath("/vector_stores/", false);
-            uri.AppendPath(vectorStoreId, true);
-            request.Uri = uri.ToUri();
+            UriBuilder uriBuilder = new UriBuilder(_endpoint);
+            
+            uriBuilder.AppendPath("/vector_stores/", false);
+            uriBuilder.AppendPath(vectorStoreId, true);
+            request.Uri = uriBuilder.Uri;
             request.Headers.Set("Accept", "application/json");
             message.Apply(options);
             return message;
@@ -135,32 +135,32 @@ namespace OpenAI.VectorStores
             message.ResponseClassifier = PipelineMessageClassifier200;
             var request = message.Request;
             request.Method = "GET";
-            var uri = new ClientUriBuilder();
-            uri.Reset(_endpoint);
-            uri.AppendPath("/vector_stores/", false);
-            uri.AppendPath(vectorStoreId, true);
-            uri.AppendPath("/files", false);
+            UriBuilder uriBuilder = new UriBuilder(_endpoint);
+            
+            uriBuilder.AppendPath("/vector_stores/", false);
+            uriBuilder.AppendPath(vectorStoreId, true);
+            uriBuilder.AppendPath("/files", false);
             if (limit != null)
             {
-                uri.AppendQuery("limit", limit.Value, true);
+                uriBuilder.AppendQuery("limit", limit.Value, true);
             }
             if (order != null)
             {
-                uri.AppendQuery("order", order, true);
+                uriBuilder.AppendQuery("order", order, true);
             }
             if (after != null)
             {
-                uri.AppendQuery("after", after, true);
+                uriBuilder.AppendQuery("after", after, true);
             }
             if (before != null)
             {
-                uri.AppendQuery("before", before, true);
+                uriBuilder.AppendQuery("before", before, true);
             }
             if (filter != null)
             {
-                uri.AppendQuery("filter", filter, true);
+                uriBuilder.AppendQuery("filter", filter, true);
             }
-            request.Uri = uri.ToUri();
+            request.Uri = uriBuilder.Uri;
             request.Headers.Set("Accept", "application/json");
             message.Apply(options);
             return message;
@@ -172,12 +172,12 @@ namespace OpenAI.VectorStores
             message.ResponseClassifier = PipelineMessageClassifier200;
             var request = message.Request;
             request.Method = "POST";
-            var uri = new ClientUriBuilder();
-            uri.Reset(_endpoint);
-            uri.AppendPath("/vector_stores/", false);
-            uri.AppendPath(vectorStoreId, true);
-            uri.AppendPath("/files", false);
-            request.Uri = uri.ToUri();
+            UriBuilder uriBuilder = new UriBuilder(_endpoint);
+            
+            uriBuilder.AppendPath("/vector_stores/", false);
+            uriBuilder.AppendPath(vectorStoreId, true);
+            uriBuilder.AppendPath("/files", false);
+            request.Uri = uriBuilder.Uri;
             request.Headers.Set("Accept", "application/json");
             request.Headers.Set("Content-Type", "application/json");
             request.Content = content;
@@ -191,13 +191,13 @@ namespace OpenAI.VectorStores
             message.ResponseClassifier = PipelineMessageClassifier200;
             var request = message.Request;
             request.Method = "GET";
-            var uri = new ClientUriBuilder();
-            uri.Reset(_endpoint);
-            uri.AppendPath("/vector_stores/", false);
-            uri.AppendPath(vectorStoreId, true);
-            uri.AppendPath("/files/", false);
-            uri.AppendPath(fileId, true);
-            request.Uri = uri.ToUri();
+            UriBuilder uriBuilder = new UriBuilder(_endpoint);
+            
+            uriBuilder.AppendPath("/vector_stores/", false);
+            uriBuilder.AppendPath(vectorStoreId, true);
+            uriBuilder.AppendPath("/files/", false);
+            uriBuilder.AppendPath(fileId, true);
+            request.Uri = uriBuilder.Uri;
             request.Headers.Set("Accept", "application/json");
             message.Apply(options);
             return message;
@@ -209,13 +209,13 @@ namespace OpenAI.VectorStores
             message.ResponseClassifier = PipelineMessageClassifier200;
             var request = message.Request;
             request.Method = "DELETE";
-            var uri = new ClientUriBuilder();
-            uri.Reset(_endpoint);
-            uri.AppendPath("/vector_stores/", false);
-            uri.AppendPath(vectorStoreId, true);
-            uri.AppendPath("/files/", false);
-            uri.AppendPath(fileId, true);
-            request.Uri = uri.ToUri();
+            UriBuilder uriBuilder = new UriBuilder(_endpoint);
+            
+            uriBuilder.AppendPath("/vector_stores/", false);
+            uriBuilder.AppendPath(vectorStoreId, true);
+            uriBuilder.AppendPath("/files/", false);
+            uriBuilder.AppendPath(fileId, true);
+            request.Uri = uriBuilder.Uri;
             request.Headers.Set("Accept", "application/json");
             message.Apply(options);
             return message;
@@ -227,12 +227,12 @@ namespace OpenAI.VectorStores
             message.ResponseClassifier = PipelineMessageClassifier200;
             var request = message.Request;
             request.Method = "POST";
-            var uri = new ClientUriBuilder();
-            uri.Reset(_endpoint);
-            uri.AppendPath("/vector_stores/", false);
-            uri.AppendPath(vectorStoreId, true);
-            uri.AppendPath("/file_batches", false);
-            request.Uri = uri.ToUri();
+            UriBuilder uriBuilder = new UriBuilder(_endpoint);
+            
+            uriBuilder.AppendPath("/vector_stores/", false);
+            uriBuilder.AppendPath(vectorStoreId, true);
+            uriBuilder.AppendPath("/file_batches", false);
+            request.Uri = uriBuilder.Uri;
             request.Headers.Set("Accept", "application/json");
             request.Headers.Set("Content-Type", "application/json");
             request.Content = content;
@@ -246,13 +246,13 @@ namespace OpenAI.VectorStores
             message.ResponseClassifier = PipelineMessageClassifier200;
             var request = message.Request;
             request.Method = "GET";
-            var uri = new ClientUriBuilder();
-            uri.Reset(_endpoint);
-            uri.AppendPath("/vector_stores/", false);
-            uri.AppendPath(vectorStoreId, true);
-            uri.AppendPath("/file_batches/", false);
-            uri.AppendPath(batchId, true);
-            request.Uri = uri.ToUri();
+            UriBuilder uriBuilder = new UriBuilder(_endpoint);
+            
+            uriBuilder.AppendPath("/vector_stores/", false);
+            uriBuilder.AppendPath(vectorStoreId, true);
+            uriBuilder.AppendPath("/file_batches/", false);
+            uriBuilder.AppendPath(batchId, true);
+            request.Uri = uriBuilder.Uri;
             request.Headers.Set("Accept", "application/json");
             message.Apply(options);
             return message;
@@ -264,14 +264,14 @@ namespace OpenAI.VectorStores
             message.ResponseClassifier = PipelineMessageClassifier200;
             var request = message.Request;
             request.Method = "POST";
-            var uri = new ClientUriBuilder();
-            uri.Reset(_endpoint);
-            uri.AppendPath("/vector_stores/", false);
-            uri.AppendPath(vectorStoreId, true);
-            uri.AppendPath("/file_batches/", false);
-            uri.AppendPath(batchId, true);
-            uri.AppendPath("/cancel", false);
-            request.Uri = uri.ToUri();
+            UriBuilder uriBuilder = new UriBuilder(_endpoint);
+            
+            uriBuilder.AppendPath("/vector_stores/", false);
+            uriBuilder.AppendPath(vectorStoreId, true);
+            uriBuilder.AppendPath("/file_batches/", false);
+            uriBuilder.AppendPath(batchId, true);
+            uriBuilder.AppendPath("/cancel", false);
+            request.Uri = uriBuilder.Uri;
             request.Headers.Set("Accept", "application/json");
             message.Apply(options);
             return message;
@@ -283,34 +283,34 @@ namespace OpenAI.VectorStores
             message.ResponseClassifier = PipelineMessageClassifier200;
             var request = message.Request;
             request.Method = "GET";
-            var uri = new ClientUriBuilder();
-            uri.Reset(_endpoint);
-            uri.AppendPath("/vector_stores/", false);
-            uri.AppendPath(vectorStoreId, true);
-            uri.AppendPath("/file_batches/", false);
-            uri.AppendPath(batchId, true);
-            uri.AppendPath("/files", false);
+            UriBuilder uriBuilder = new UriBuilder(_endpoint);
+            
+            uriBuilder.AppendPath("/vector_stores/", false);
+            uriBuilder.AppendPath(vectorStoreId, true);
+            uriBuilder.AppendPath("/file_batches/", false);
+            uriBuilder.AppendPath(batchId, true);
+            uriBuilder.AppendPath("/files", false);
             if (limit != null)
             {
-                uri.AppendQuery("limit", limit.Value, true);
+                uriBuilder.AppendQuery("limit", limit.Value, true);
             }
             if (order != null)
             {
-                uri.AppendQuery("order", order, true);
+                uriBuilder.AppendQuery("order", order, true);
             }
             if (after != null)
             {
-                uri.AppendQuery("after", after, true);
+                uriBuilder.AppendQuery("after", after, true);
             }
             if (before != null)
             {
-                uri.AppendQuery("before", before, true);
+                uriBuilder.AppendQuery("before", before, true);
             }
             if (filter != null)
             {
-                uri.AppendQuery("filter", filter, true);
+                uriBuilder.AppendQuery("filter", filter, true);
             }
-            request.Uri = uri.ToUri();
+            request.Uri = uriBuilder.Uri;
             request.Headers.Set("Accept", "application/json");
             message.Apply(options);
             return message;

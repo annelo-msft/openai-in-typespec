@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace OpenAI.Private;
+namespace OpenAI;
 
 internal class ClientUriBuilder
 {
@@ -50,56 +50,6 @@ internal class ClientUriBuilder
         UriBuilder.Path = PathBuilder.ToString();
     }
 
-    public void AppendPath(bool value, bool escape = false)
-    {
-        AppendPath(ModelSerializationExtensions.TypeFormatters.ConvertToString(value), escape);
-    }
-
-    public void AppendPath(float value, bool escape = true)
-    {
-        AppendPath(ModelSerializationExtensions.TypeFormatters.ConvertToString(value), escape);
-    }
-
-    public void AppendPath(double value, bool escape = true)
-    {
-        AppendPath(ModelSerializationExtensions.TypeFormatters.ConvertToString(value), escape);
-    }
-
-    public void AppendPath(int value, bool escape = true)
-    {
-        AppendPath(ModelSerializationExtensions.TypeFormatters.ConvertToString(value), escape);
-    }
-
-    public void AppendPath(byte[] value, string format, bool escape = true)
-    {
-        AppendPath(ModelSerializationExtensions.TypeFormatters.ConvertToString(value, format), escape);
-    }
-
-    public void AppendPath(IEnumerable<string> value, bool escape = true)
-    {
-        AppendPath(ModelSerializationExtensions.TypeFormatters.ConvertToString(value), escape);
-    }
-
-    public void AppendPath(DateTimeOffset value, string format, bool escape = true)
-    {
-        AppendPath(ModelSerializationExtensions.TypeFormatters.ConvertToString(value, format), escape);
-    }
-
-    public void AppendPath(TimeSpan value, string format, bool escape = true)
-    {
-        AppendPath(ModelSerializationExtensions.TypeFormatters.ConvertToString(value, format), escape);
-    }
-
-    public void AppendPath(Guid value, bool escape = true)
-    {
-        AppendPath(ModelSerializationExtensions.TypeFormatters.ConvertToString(value), escape);
-    }
-
-    public void AppendPath(long value, bool escape = true)
-    {
-        AppendPath(ModelSerializationExtensions.TypeFormatters.ConvertToString(value), escape);
-    }
-
     public void AppendQuery(string name, string value, bool escape)
     {
         Argument.AssertNotNullOrWhiteSpace(name, nameof(name));
@@ -120,71 +70,9 @@ internal class ClientUriBuilder
         QueryBuilder.Append(value);
     }
 
-    public void AppendQuery(string name, bool value, bool escape = false)
-    {
-        AppendQuery(name, ModelSerializationExtensions.TypeFormatters.ConvertToString(value), escape);
-    }
-
-    public void AppendQuery(string name, float value, bool escape = true)
-    {
-        AppendQuery(name, ModelSerializationExtensions.TypeFormatters.ConvertToString(value), escape);
-    }
-
-    public void AppendQuery(string name, DateTimeOffset value, string format, bool escape = true)
-    {
-        AppendQuery(name, ModelSerializationExtensions.TypeFormatters.ConvertToString(value, format), escape);
-    }
-
-    public void AppendQuery(string name, TimeSpan value, string format, bool escape = true)
-    {
-        AppendQuery(name, ModelSerializationExtensions.TypeFormatters.ConvertToString(value, format), escape);
-    }
-
-    public void AppendQuery(string name, double value, bool escape = true)
-    {
-        AppendQuery(name, ModelSerializationExtensions.TypeFormatters.ConvertToString(value), escape);
-    }
-
-    public void AppendQuery(string name, decimal value, bool escape = true)
-    {
-        AppendQuery(name, ModelSerializationExtensions.TypeFormatters.ConvertToString(value), escape);
-    }
-
     public void AppendQuery(string name, int value, bool escape = true)
     {
         AppendQuery(name, ModelSerializationExtensions.TypeFormatters.ConvertToString(value), escape);
-    }
-
-    public void AppendQuery(string name, long value, bool escape = true)
-    {
-        AppendQuery(name, ModelSerializationExtensions.TypeFormatters.ConvertToString(value), escape);
-    }
-
-    public void AppendQuery(string name, TimeSpan value, bool escape = true)
-    {
-        AppendQuery(name, ModelSerializationExtensions.TypeFormatters.ConvertToString(value), escape);
-    }
-
-    public void AppendQuery(string name, byte[] value, string format, bool escape = true)
-    {
-        AppendQuery(name, ModelSerializationExtensions.TypeFormatters.ConvertToString(value, format), escape);
-    }
-
-    public void AppendQuery(string name, Guid value, bool escape = true)
-    {
-        AppendQuery(name, ModelSerializationExtensions.TypeFormatters.ConvertToString(value), escape);
-    }
-
-    public void AppendQueryDelimited<T>(string name, IEnumerable<T> value, string delimiter, bool escape = true)
-    {
-        var stringValues = value.Select(v => ModelSerializationExtensions.TypeFormatters.ConvertToString(v));
-        AppendQuery(name, string.Join(delimiter, stringValues), escape);
-    }
-
-    public void AppendQueryDelimited<T>(string name, IEnumerable<T> value, string delimiter, string format, bool escape = true)
-    {
-        var stringValues = value.Select(v => ModelSerializationExtensions.TypeFormatters.ConvertToString(v, format));
-        AppendQuery(name, string.Join(delimiter, stringValues), escape);
     }
 
     public Uri ToUri()
