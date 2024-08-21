@@ -259,8 +259,8 @@ public partial class AssistantClient
     {
         Argument.AssertNotNullOrEmpty(threadId, nameof(threadId));
 
-        MessagesPageEnumerator enumerator = new(_pipeline, _endpoint, threadId, limit, order, after, before, options);
-        return PageCollectionHelpers.CreateAsync(enumerator);
+        MessagesPageResult pageResult = new(_pipeline, _endpoint, threadId, limit, order, after, before, options);
+        return pageResult.ToAsyncEnumerable();
     }
 
     /// <summary>
@@ -295,8 +295,8 @@ public partial class AssistantClient
     {
         Argument.AssertNotNullOrEmpty(threadId, nameof(threadId));
 
-        MessagesPageEnumerator enumerator = new(_pipeline, _endpoint, threadId, limit, order, after, before, options);
-        return PageCollectionHelpers.Create(enumerator);
+        MessagesPageResult pageResult = new(_pipeline, _endpoint, threadId, limit, order, after, before, options);
+        return pageResult.ToEnumerable();
     }
 
     /// <inheritdoc cref="InternalAssistantMessageClient.GetMessageAsync"/>

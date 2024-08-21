@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace OpenAI.Assistants;
 
-internal partial class MessagesPageEnumerator : PageEnumerator<ThreadMessage>
+internal partial class MessagesPageResult : PageableResult
 {
     private readonly ClientPipeline _pipeline;
     private readonly Uri _endpoint;
@@ -24,7 +24,7 @@ internal partial class MessagesPageEnumerator : PageEnumerator<ThreadMessage>
 
     public virtual ClientPipeline Pipeline => _pipeline;
 
-    public MessagesPageEnumerator(
+    public MessagesPageResult(
         ClientPipeline pipeline,
         Uri endpoint,
         string threadId, 
@@ -43,30 +43,28 @@ internal partial class MessagesPageEnumerator : PageEnumerator<ThreadMessage>
         _options = options;
     }
 
-    public override async Task<ClientResult> GetFirstAsync()
-        => await GetMessagesAsync(_threadId, _limit, _order, _after, _before, _options).ConfigureAwait(false);
-
-    public override ClientResult GetFirst()
-        => GetMessages(_threadId, _limit, _order, _after, _before, _options);
-
-    public override async Task<ClientResult> GetNextAsync(ClientResult result)
+    public override ClientResult GetNextPage(ClientResult? result, RequestOptions options)
     {
-        PipelineResponse response = result.GetRawResponse();
-
-        using JsonDocument doc = JsonDocument.Parse(response.Content);
-        _after = doc.RootElement.GetProperty("last_id"u8).GetString()!;
-
-        return await GetMessagesAsync(_threadId, _limit, _order, _after, _before, _options).ConfigureAwait(false);
+        if (result is null)
+        {
+            return GetFirst(options);
+        }
+        else
+        {
+            return GetNext(result, options);
+        }
     }
 
-    public override ClientResult GetNext(ClientResult result)
+    public override Task<ClientResult> GetNextPageAsync(ClientResult? result, RequestOptions options)
     {
-        PipelineResponse response = result.GetRawResponse();
-
-        using JsonDocument doc = JsonDocument.Parse(response.Content);
-        _after = doc.RootElement.GetProperty("last_id"u8).GetString()!;
-
-        return GetMessages(_threadId, _limit, _order, _after, _before, _options);
+        if (result is null)
+        {
+            return GetFirstAsync(options);
+        }
+        else
+        {
+            return GetNextAsync(result, options);
+        }
     }
 
     public override bool HasNext(ClientResult result)
@@ -79,17 +77,43 @@ internal partial class MessagesPageEnumerator : PageEnumerator<ThreadMessage>
         return hasMore;
     }
 
-    public override PageResult<ThreadMessage> GetPageFromResult(ClientResult result)
+    private async Task<ClientResult> GetFirstAsync(RequestOptions options)
+        => await GetMessagesAsync(_threadId, _limit, _order, _after, _before, options).ConfigureAwait(false);
+
+    private ClientResult GetFirst(RequestOptions options)
+        => GetMessages(_threadId, _limit, _order, _after, _before, options);
+
+    private async Task<ClientResult> GetNextAsync(ClientResult result, RequestOptions options)
     {
         PipelineResponse response = result.GetRawResponse();
 
-        InternalListMessagesResponse list = ModelReaderWriter.Read<InternalListMessagesResponse>(response.Content)!;
+        using JsonDocument doc = JsonDocument.Parse(response.Content);
+        _after = doc.RootElement.GetProperty("last_id"u8).GetString()!;
 
-        MessagesPageToken pageToken = MessagesPageToken.FromOptions(_threadId, _limit, _order, _after, _before);
-        MessagesPageToken? nextPageToken = pageToken.GetNextPageToken(list.HasMore, list.LastId);
-
-        return PageResult<ThreadMessage>.Create(list.Data, pageToken, nextPageToken, response);
+        return await GetMessagesAsync(_threadId, _limit, _order, _after, _before, options).ConfigureAwait(false);
     }
+
+    private ClientResult GetNext(ClientResult result, RequestOptions options)
+    {
+        PipelineResponse response = result.GetRawResponse();
+
+        using JsonDocument doc = JsonDocument.Parse(response.Content);
+        _after = doc.RootElement.GetProperty("last_id"u8).GetString()!;
+
+        return GetMessages(_threadId, _limit, _order, _after, _before, options);
+    }
+
+    //public override PageResult<ThreadMessage> GetPageFromResult(ClientResult result)
+    //{
+    //    PipelineResponse response = result.GetRawResponse();
+
+    //    InternalListMessagesResponse list = ModelReaderWriter.Read<InternalListMessagesResponse>(response.Content)!;
+
+    //    MessagesPageToken pageToken = MessagesPageToken.FromOptions(_threadId, _limit, _order, _after, _before);
+    //    MessagesPageToken? nextPageToken = pageToken.GetNextPageToken(list.HasMore, list.LastId);
+
+    //    return PageResult<ThreadMessage>.Create(list.Data, pageToken, nextPageToken, response);
+    //}
 
     internal virtual async Task<ClientResult> GetMessagesAsync(string threadId, int? limit, string order, string after, string before, RequestOptions options)
     {
