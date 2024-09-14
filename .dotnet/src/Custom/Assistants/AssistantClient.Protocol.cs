@@ -258,8 +258,7 @@ public partial class AssistantClient
     {
         Argument.AssertNotNullOrEmpty(threadId, nameof(threadId));
 
-        MessagesPageRequestManager pageManager = new(_pipeline, _endpoint, threadId, limit, order, after, before, options);
-        return CollectionResultHelpers.CreateAsync(pageManager);
+        return new AsyncMessagesCollectionResult(_pipeline, _endpoint, options, threadId, limit, order, after, before);
     }
 
     /// <summary>
