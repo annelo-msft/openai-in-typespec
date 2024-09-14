@@ -35,7 +35,7 @@ internal class InternalStreamingChatCompletionUpdateCollection : CollectionResul
         yield return _sendRequest();
     }
 
-    protected override IEnumerable<StreamingChatCompletionUpdate> GetValues(ClientResult page)
+    protected override IEnumerable<StreamingChatCompletionUpdate> GetValuesFromPage(ClientResult page)
     {
         IEnumerator<StreamingChatCompletionUpdate> enumerator = new StreamingChatUpdateEnumerator(page);
         while (enumerator.MoveNext())

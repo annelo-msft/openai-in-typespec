@@ -2,7 +2,6 @@ using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Net.ServerSentEvents;
 using System.Threading;
@@ -17,17 +16,17 @@ namespace OpenAI.Assistants;
 /// </summary>
 internal class AsyncStreamingUpdateCollection : AsyncCollectionResult<StreamingUpdate>
 {
-    private readonly Func<Task<ClientResult>> _sendRequestAsync;
+    private readonly Func<CancellationToken, Task<ClientResult>> _sendRequestAsync;
+    private readonly CancellationToken _cancellationToken;
 
-    public AsyncStreamingUpdateCollection(Func<Task<ClientResult>> sendRequestAsync) : base()
+    public AsyncStreamingUpdateCollection(Func<CancellationToken, Task<ClientResult>> sendRequestAsync,
+        CancellationToken cancellationToken) : base()
     {
         Argument.AssertNotNull(sendRequestAsync, nameof(sendRequestAsync));
 
         _sendRequestAsync = sendRequestAsync;
+        _cancellationToken = cancellationToken;
     }
-
-    public override IAsyncEnumerator<StreamingUpdate> GetAsyncEnumerator(CancellationToken cancellationToken = default)
-        => new AsyncStreamingUpdateEnumerator(_sendRequestAsync, cancellationToken);
 
     public override ContinuationToken? GetContinuationToken(ClientResult page)
         // Continuation is not supported for SSE streams.
@@ -37,19 +36,24 @@ internal class AsyncStreamingUpdateCollection : AsyncCollectionResult<StreamingU
     {
         // We don't currently support resuming a dropped connection from the
         // last received event, so the response collection has a single element.
-        yield return await _sendRequestAsync();
+        yield return await _sendRequestAsync(_cancellationToken);
+    }
+
+    protected async override IAsyncEnumerable<StreamingUpdate> GetValuesFromPageAsync(ClientResult page)
+    {
+        IAsyncEnumerator<StreamingUpdate> enumerator = new AsyncStreamingUpdateEnumerator(page, _cancellationToken);
+        while (await enumerator.MoveNextAsync().ConfigureAwait(false))
+        {
+            yield return enumerator.Current;
+        }
     }
 
     private sealed class AsyncStreamingUpdateEnumerator : IAsyncEnumerator<StreamingUpdate>
     {
         private static ReadOnlySpan<byte> TerminalData => "[DONE]"u8;
 
-        private readonly Func<Task<ClientResult>> _sendRequestAsync;
         private readonly CancellationToken _cancellationToken;
-
-        // We keep a reference to the response we get from _sendRequest so we
-        // can ensure it's diposed properly.
-        private PipelineResponse? _response;
+        private readonly PipelineResponse _response;
 
         // These enumerators represent what is effectively a doubly-nested
         // loop over the outer event collection and the inner update collection,
@@ -64,12 +68,11 @@ internal class AsyncStreamingUpdateCollection : AsyncCollectionResult<StreamingU
         private StreamingUpdate? _current;
         private bool _started;
 
-        public AsyncStreamingUpdateEnumerator(Func<Task<ClientResult>> sendRequestAsync,
-            CancellationToken cancellationToken)
+        public AsyncStreamingUpdateEnumerator(ClientResult page, CancellationToken cancellationToken)
         {
-            Debug.Assert(sendRequestAsync is not null);
+            Argument.AssertNotNull(page, nameof(page));
 
-            _sendRequestAsync = sendRequestAsync!;
+            _response = page.GetRawResponse();
             _cancellationToken = cancellationToken;
         }
 
@@ -84,7 +87,7 @@ internal class AsyncStreamingUpdateCollection : AsyncCollectionResult<StreamingU
             }
 
             _cancellationToken.ThrowIfCancellationRequested();
-            _events ??= await CreateEventEnumeratorAsync().ConfigureAwait(false);
+            _events ??= CreateEventEnumeratorAsync();
             _started = true;
 
             if (_updates is not null && _updates.MoveNext())
@@ -115,11 +118,8 @@ internal class AsyncStreamingUpdateCollection : AsyncCollectionResult<StreamingU
             return false;
         }
 
-        private async Task<IAsyncEnumerator<SseItem<byte[]>>> CreateEventEnumeratorAsync()
+        private IAsyncEnumerator<SseItem<byte[]>> CreateEventEnumeratorAsync()
         {
-            ClientResult result = await _sendRequestAsync().ConfigureAwait(false);
-            _response = result.GetRawResponse();
-            
             if (_response.ContentStream is null)
             {
                 throw new InvalidOperationException("Unable to create result from response with null ContentStream");

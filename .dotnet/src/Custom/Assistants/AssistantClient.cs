@@ -708,11 +708,11 @@ public partial class AssistantClient
         options.AssistantId = assistantId;
         options.Stream = true;
 
-        async Task<ClientResult> sendRequestAsync() =>
+        async Task<ClientResult> sendRequestAsync(CancellationToken cancellationToken) =>
             await CreateRunAsync(threadId, options.ToBinaryContent(), cancellationToken.ToRequestOptions(streaming: true))
             .ConfigureAwait(false);
 
-        return new AsyncStreamingUpdateCollection(sendRequestAsync);
+        return new AsyncStreamingUpdateCollection(sendRequestAsync, cancellationToken);
     }
 
     /// <summary>
@@ -802,11 +802,11 @@ public partial class AssistantClient
         runOptions.Stream = true;
         BinaryContent protocolContent = CreateThreadAndRunProtocolContent(assistantId, threadOptions, runOptions);
 
-        async Task<ClientResult> sendRequestAsync() =>
+        async Task<ClientResult> sendRequestAsync(CancellationToken cancellationToken) =>
             await CreateThreadAndRunAsync(protocolContent, cancellationToken.ToRequestOptions(streaming: true))
             .ConfigureAwait(false);
 
-        return new AsyncStreamingUpdateCollection(sendRequestAsync);
+        return new AsyncStreamingUpdateCollection(sendRequestAsync, cancellationToken);
     }
 
     /// <summary>
@@ -1017,11 +1017,11 @@ public partial class AssistantClient
         BinaryContent content = new InternalSubmitToolOutputsRunRequest(toolOutputs.ToList(), stream: true, null)
             .ToBinaryContent();
 
-        async Task<ClientResult> sendRequestAsync() =>
+        async Task<ClientResult> sendRequestAsync(CancellationToken cancellationToken) =>
             await SubmitToolOutputsToRunAsync(threadId, runId, content, cancellationToken.ToRequestOptions(streaming: true))
             .ConfigureAwait(false);
 
-        return new AsyncStreamingUpdateCollection(sendRequestAsync);
+        return new AsyncStreamingUpdateCollection(sendRequestAsync, cancellationToken);
     }
 
     /// <summary>
