@@ -736,9 +736,9 @@ public partial class AssistantClient
         options.AssistantId = assistantId;
         options.Stream = true;
 
-        ClientResult getResult() => CreateRun(threadId, options.ToBinaryContent(), cancellationToken.ToRequestOptions(streaming: true));
+        ClientResult sendRequest() => CreateRun(threadId, options.ToBinaryContent(), cancellationToken.ToRequestOptions(streaming: true));
 
-        return new StreamingUpdateCollection(getResult);
+        return new StreamingUpdateCollection(sendRequest);
     }
 
     /// <summary>

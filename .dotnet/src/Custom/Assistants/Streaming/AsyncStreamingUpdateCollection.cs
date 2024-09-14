@@ -27,14 +27,10 @@ internal class AsyncStreamingUpdateCollection : AsyncCollectionResult<StreamingU
     }
 
     public override IAsyncEnumerator<StreamingUpdate> GetAsyncEnumerator(CancellationToken cancellationToken = default)
-    {
-        return new AsyncStreamingUpdateEnumerator(_getResultAsync, this, cancellationToken);
-    }
+        => new AsyncStreamingUpdateEnumerator(_getResultAsync, this, cancellationToken);
 
     public override ContinuationToken? GetContinuationToken(ClientResult page)
-    {
-        throw new NotImplementedException();
-    }
+        => null;
 
     public override IAsyncEnumerable<ClientResult> GetRawPagesAsync()
     {

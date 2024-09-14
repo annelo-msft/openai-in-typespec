@@ -15,36 +15,38 @@ namespace OpenAI.Assistants;
 /// </summary>
 internal class StreamingUpdateCollection : CollectionResult<StreamingUpdate>
 {
-    private readonly Func<ClientResult> _getResult;
+    private readonly Func<ClientResult> _sendRequest;
 
-    public StreamingUpdateCollection(Func<ClientResult> getResult) : base()
+    public StreamingUpdateCollection(Func<ClientResult> sendRequest) : base()
     {
-        Argument.AssertNotNull(getResult, nameof(getResult));
+        Argument.AssertNotNull(sendRequest, nameof(sendRequest));
 
-        _getResult = getResult;
+        _sendRequest = sendRequest;
     }
 
     public override ContinuationToken? GetContinuationToken(ClientResult page)
-    {
-        throw new NotImplementedException();
-    }
+        // Continuation is not supported for SSE streams.
+        => null;
 
     public override IEnumerator<StreamingUpdate> GetEnumerator()
-    {
-        return new StreamingUpdateEnumerator(_getResult, this);
-    }
+        => new StreamingUpdateEnumerator(_sendRequest);
 
     public override IEnumerable<ClientResult> GetRawPages()
     {
-        throw new NotImplementedException();
+        // We don't currently support resuming a dropped connection from the
+        // last received event, so the response collection has a single element.
+        yield return _sendRequest();
     }
 
     private sealed class StreamingUpdateEnumerator : IEnumerator<StreamingUpdate>
     {
         private static ReadOnlySpan<byte> TerminalData => "[DONE]"u8;
 
-        private readonly Func<ClientResult> _getResult;
-        private readonly StreamingUpdateCollection _enumerable;
+        private readonly Func<ClientResult> _sendRequest;
+
+        // We keep a reference to the response we get from _sendRequest so we
+        // can ensure it's diposed properly.
+        private PipelineResponse? _response;
 
         // These enumerators represent what is effectively a doubly-nested
         // loop over the outer event collection and the inner update collection,
@@ -59,14 +61,11 @@ internal class StreamingUpdateCollection : CollectionResult<StreamingUpdate>
         private StreamingUpdate? _current;
         private bool _started;
 
-        public StreamingUpdateEnumerator(Func<ClientResult> getResult,
-            StreamingUpdateCollection enumerable)
+        public StreamingUpdateEnumerator(Func<ClientResult> sendRequest)
         {
-            Debug.Assert(getResult is not null);
-            Debug.Assert(enumerable is not null);
+            Debug.Assert(sendRequest is not null);
 
-            _getResult = getResult!;
-            _enumerable = enumerable!;
+            _sendRequest = sendRequest!;
         }
 
         StreamingUpdate IEnumerator<StreamingUpdate>.Current
@@ -114,16 +113,15 @@ internal class StreamingUpdateCollection : CollectionResult<StreamingUpdate>
 
         private IEnumerator<SseItem<byte[]>> CreateEventEnumerator()
         {
-            ClientResult result = _getResult();
-            PipelineResponse response = result.GetRawResponse();
-            //_enumerable.SetRawResponse(response);
-
-            if (response.ContentStream is null)
+            ClientResult result = _sendRequest();
+            _response = result.GetRawResponse();
+            
+            if (_response.ContentStream is null)
             {
                 throw new InvalidOperationException("Unable to create result from response with null ContentStream");
             }
 
-            IEnumerable<SseItem<byte[]>> enumerable = SseParser.Create(response.ContentStream, (_, bytes) => bytes.ToArray()).Enumerate();
+            IEnumerable<SseItem<byte[]>> enumerable = SseParser.Create(_response.ContentStream, (_, bytes) => bytes.ToArray()).Enumerate();
             return enumerable.GetEnumerator();
         }
 
@@ -147,10 +145,7 @@ internal class StreamingUpdateCollection : CollectionResult<StreamingUpdate>
 
                 // Dispose the response so we don't leave the unbuffered
                 // network stream open.
-
-                // Restore
-                //PipelineResponse response = _enumerable.GetRawResponse();
-                //response.Dispose();
+                _response?.Dispose();
             }
         }
     }

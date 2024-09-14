@@ -26,9 +26,7 @@ internal class InternalStreamingChatCompletionUpdateCollection : CollectionResul
     }
 
     public override ContinuationToken? GetContinuationToken(ClientResult page)
-    {
-        throw new NotImplementedException();
-    }
+        => null;
 
     public override IEnumerator<StreamingChatCompletionUpdate> GetEnumerator()
     {

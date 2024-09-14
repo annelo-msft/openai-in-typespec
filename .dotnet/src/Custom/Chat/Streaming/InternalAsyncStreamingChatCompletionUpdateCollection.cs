@@ -32,9 +32,7 @@ internal class InternalAsyncStreamingChatCompletionUpdateCollection : AsyncColle
     }
 
     public override ContinuationToken? GetContinuationToken(ClientResult page)
-    {
-        throw new NotImplementedException();
-    }
+        => null;
 
     public override IAsyncEnumerable<ClientResult> GetRawPagesAsync()
     {
