@@ -93,9 +93,30 @@ internal class MessagesCollectionResult : CollectionResult<ThreadMessage>
     public bool HasNext(ClientResult result)
     {
         PipelineResponse response = result.GetRawResponse();
+        Utf8JsonReader reader = new Utf8JsonReader(response.Content);
 
-        using JsonDocument doc = JsonDocument.Parse(response.Content);
-        bool hasMore = doc.RootElement.GetProperty("has_more"u8).GetBoolean();
+        bool hasMore = default;
+        bool foundValue = false;
+
+        while (reader.Read())
+        {
+            if (reader.TokenType == JsonTokenType.PropertyName)
+            {
+                // TODO: can we do it in UTF8 bytes?
+                string? propertyName = reader.GetString();
+                if (propertyName == "has_more")
+                {
+                    reader.Read();
+                    hasMore = reader.GetBoolean();
+                    foundValue = true;
+                }
+            }
+        }
+
+        if (!foundValue)
+        {
+            throw new JsonException("'has_more' value was not present in response.");
+        }
 
         return hasMore;
     }
