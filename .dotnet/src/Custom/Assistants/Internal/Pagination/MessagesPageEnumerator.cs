@@ -1,7 +1,6 @@
 using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
-using System.Collections.Generic;
 using System.Text.Json;
 using System.Threading.Tasks;
 
@@ -9,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace OpenAI.Assistants;
 
-internal partial class MessagesPageEnumerator : PageEnumerator<ThreadMessage>
+internal partial class MessagesPageEnumerator : PageEnumerator
 {
     // Machinery for sending requests
     private readonly ClientPipeline _pipeline;
@@ -48,16 +47,16 @@ internal partial class MessagesPageEnumerator : PageEnumerator<ThreadMessage>
     public override PageEnumerator CreateEnumerator()
         => new MessagesPageEnumerator(_pipeline, _endpoint, _options, _threadId, _limit, _order, _after, _before);
 
-    public override ContinuationToken? GetNextPageToken(ClientResult result)
-    {
-        PipelineResponse response = result.GetRawResponse();
-        using JsonDocument doc = JsonDocument.Parse(response.Content);
-        string lastId = doc.RootElement.GetProperty("last_id"u8).GetString()!;
-        bool hasMore = doc.RootElement.GetProperty("has_more"u8).GetBoolean();
+    //public override ContinuationToken? GetNextPageToken(ClientResult result)
+    //{
+    //    PipelineResponse response = result.GetRawResponse();
+    //    using JsonDocument doc = JsonDocument.Parse(response.Content);
+    //    string lastId = doc.RootElement.GetProperty("last_id"u8).GetString()!;
+    //    bool hasMore = doc.RootElement.GetProperty("has_more"u8).GetBoolean();
 
-        MessagesPageToken pageToken = MessagesPageToken.FromOptions(_threadId, _limit, _order, _after, _before);
-        return pageToken.GetNextPageToken(hasMore, lastId);
-    }
+    //    MessagesPageToken pageToken = MessagesPageToken.FromOptions(_threadId, _limit, _order, _after, _before);
+    //    return pageToken.GetNextPageToken(hasMore, lastId);
+    //}
 
     public override async Task<ClientResult> GetFirstAsync()
         => await GetMessagesAsync(_threadId, _limit, _order, _lastSeenItem, _before, _options).ConfigureAwait(false);
@@ -95,12 +94,6 @@ internal partial class MessagesPageEnumerator : PageEnumerator<ThreadMessage>
         return hasMore;
     }
 
-    public override IEnumerable<ThreadMessage> GetValuesFromPage(ClientResult result)
-    {
-        PipelineResponse response = result.GetRawResponse();
-        InternalListMessagesResponse list = ModelReaderWriter.Read<InternalListMessagesResponse>(response.Content)!;
-        return list.Data;
-    }
     internal virtual async Task<ClientResult> GetMessagesAsync(string threadId, int? limit, string? order, string? after, string? before, RequestOptions? options)
     {
         Argument.AssertNotNullOrEmpty(threadId, nameof(threadId));

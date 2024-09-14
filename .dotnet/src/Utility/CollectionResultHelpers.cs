@@ -2,6 +2,7 @@
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Threading;
+using System.Threading.Tasks;
 
 #nullable enable
 
@@ -11,7 +12,7 @@ internal class CollectionResultHelpers
     public static AsyncCollectionResult<T> CreateAsync<T>(PageEnumerator<T> enumerator)
         => new AsyncPaginatedCollectionResult<T>(enumerator);
 
-    public static CollectionResult<T> Create<T>(PageEnumerator<T> enumerator)
+    public static CollectionResult<T> Create<T>(PageRequestManager enumerator)
         => new PaginatedCollectionResult<T>(enumerator);
 
     public static AsyncCollectionResult CreateAsync(PageEnumerator enumerator)

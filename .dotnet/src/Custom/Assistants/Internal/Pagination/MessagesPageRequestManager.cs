@@ -55,4 +55,21 @@ internal class MessagesPageRequestManager : PageRequestManager
 
         return MessagesPageToken.FromOptions(_threadId, _limit, _order, lastId, _before);
     }
+
+    public override IEnumerable<T> ReadValues<T>(ClientResult page)
+    {
+        if (typeof(T) != typeof(ThreadMessage))
+        {
+            throw new InvalidOperationException();
+        }
+
+        PipelineResponse response = page.GetRawResponse();
+        InternalListMessagesResponse list = ModelReaderWriter.Read<InternalListMessagesResponse>(response.Content)!;
+        return list.Data;
+    }
+
+    public override IAsyncEnumerable<T> ReadValuesAsync<T>(ClientResult page)
+    {
+        throw new NotImplementedException();
+    }
 }

@@ -43,11 +43,11 @@ internal abstract class PageEnumerator : IAsyncEnumerator<ClientResult>,
 
     public abstract bool HasNext(ClientResult result);
 
-    /// <summary>
-    /// Gets the continuation token that a client method can use to obtain the
-    /// page after <paramref name="result"/>, or null if there is no next page.
-    /// </summary>
-    public abstract ContinuationToken? GetNextPageToken(ClientResult result);
+    ///// <summary>
+    ///// Gets the continuation token that a client method can use to obtain the
+    ///// page after <paramref name="result"/>, or null if there is no next page.
+    ///// </summary>
+    //public abstract ContinuationToken? GetNextPageToken(ClientResult result);
 
     object IEnumerator.Current => ((IEnumerator<ClientResult>)this).Current;
 

@@ -7,6 +7,8 @@ namespace OpenAI;
 
 internal abstract class PageRequestManager
 {
+    public abstract IAsyncEnumerable<T> ReadValuesAsync<T>(ClientResult page);
+
     // This will throw of convenience layer isn't implemented or the wrong
     // type of T is requested.
     public abstract IEnumerable<T> ReadValues<T>(ClientResult page);
