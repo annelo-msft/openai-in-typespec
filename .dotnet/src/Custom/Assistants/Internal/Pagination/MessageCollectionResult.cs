@@ -8,9 +8,8 @@ using System.Text.Json;
 namespace OpenAI.Assistants;
 
 // Internal subclient that handles paginated requests
-internal class MessagesCollectionResult : CollectionResult<ThreadMessage>
+internal class MessageCollectionResult : CollectionResult<ThreadMessage>
 {
-    // Machinery for sending requests
     private readonly InternalAssistantMessageClient _messageClient;
     private readonly RequestOptions _options;
 
@@ -21,7 +20,7 @@ internal class MessagesCollectionResult : CollectionResult<ThreadMessage>
     private readonly string? _after;
     private readonly string? _before;
 
-    public MessagesCollectionResult(InternalAssistantMessageClient messageClient,
+    public MessageCollectionResult(InternalAssistantMessageClient messageClient,
         RequestOptions options,
         string threadId, int? limit, string? order, string? after, string? before)
     {
@@ -55,7 +54,7 @@ internal class MessagesCollectionResult : CollectionResult<ThreadMessage>
     }
 
     public override ContinuationToken? GetContinuationToken(ClientResult page)
-        => MessagesPageToken.FromResponse(page, _threadId, _limit, _order, _before);
+        => MessageCollectionPageToken.FromResponse(page, _threadId, _limit, _order, _before);
 
     public ClientResult GetFirstPage()
         => _messageClient.GetMessages(_threadId, _limit, _order, _after, _before, _options);

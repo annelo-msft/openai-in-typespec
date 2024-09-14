@@ -8,9 +8,9 @@ using System.Threading.Tasks;
 
 namespace OpenAI.Assistants;
 
-internal class AsyncMessagesCollectionResult : AsyncCollectionResult<ThreadMessage>
+// Internal subclient that handles paginated requests
+internal class AsyncMessageCollectionResult : AsyncCollectionResult<ThreadMessage>
 {
-    // Machinery for sending requests
     private readonly InternalAssistantMessageClient _messageClient;
     private readonly RequestOptions _options;
 
@@ -21,7 +21,7 @@ internal class AsyncMessagesCollectionResult : AsyncCollectionResult<ThreadMessa
     private readonly string? _after;
     private readonly string? _before;
 
-    public AsyncMessagesCollectionResult(InternalAssistantMessageClient messageClient,
+    public AsyncMessageCollectionResult(InternalAssistantMessageClient messageClient,
         RequestOptions options,
         string threadId, int? limit, string? order, string? after, string? before)
     {
@@ -60,7 +60,7 @@ internal class AsyncMessagesCollectionResult : AsyncCollectionResult<ThreadMessa
     }
 
     public override ContinuationToken? GetContinuationToken(ClientResult page)
-        => MessagesPageToken.FromResponse(page, _threadId, _limit, _order, _before);
+        => MessageCollectionPageToken.FromResponse(page, _threadId, _limit, _order, _before);
 
     public async Task<ClientResult> GetFirstPageAsync()
         => await _messageClient.GetMessagesAsync(_threadId, _limit, _order, _after, _before, _options).ConfigureAwait(false);
@@ -76,5 +76,5 @@ internal class AsyncMessagesCollectionResult : AsyncCollectionResult<ThreadMessa
     }
 
     public static bool HasNextPage(ClientResult result)
-        => MessagesCollectionResult.HasNextPage(result);
+        => MessageCollectionResult.HasNextPage(result);
 }

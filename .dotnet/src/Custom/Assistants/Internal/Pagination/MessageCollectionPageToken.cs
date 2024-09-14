@@ -9,9 +9,9 @@ using System.Text.Json;
 
 namespace OpenAI.Assistants;
 
-internal class MessagesPageToken : ContinuationToken
+internal class MessageCollectionPageToken : ContinuationToken
 {
-    protected MessagesPageToken(string threadId, int? limit, string? order, string? after, string? before)
+    protected MessageCollectionPageToken(string threadId, int? limit, string? order, string? after, string? before)
     {
         ThreadId = threadId;
 
@@ -67,9 +67,9 @@ internal class MessagesPageToken : ContinuationToken
         return BinaryData.FromStream(stream);
     }
 
-    public static MessagesPageToken FromToken(ContinuationToken pageToken)
+    public static MessageCollectionPageToken FromToken(ContinuationToken pageToken)
     {
-        if (pageToken is MessagesPageToken token)
+        if (pageToken is MessageCollectionPageToken token)
         {
             return token;
         }
@@ -144,10 +144,10 @@ internal class MessagesPageToken : ContinuationToken
         return new(threadId, limit, order, after, before);
     }
 
-    public static MessagesPageToken FromOptions(string threadId, int? limit, string? order, string? after, string? before)
+    public static MessageCollectionPageToken FromOptions(string threadId, int? limit, string? order, string? after, string? before)
         => new(threadId, limit, order, after, before);
 
-    public static MessagesPageToken? FromResponse(ClientResult result, string threadId, int? limit, string? order, string? before)
+    public static MessageCollectionPageToken? FromResponse(ClientResult result, string threadId, int? limit, string? order, string? before)
     {
         PipelineResponse response = result.GetRawResponse();
         using JsonDocument doc = JsonDocument.Parse(response.Content);

@@ -494,7 +494,7 @@ public partial class AssistantClient
     {
         Argument.AssertNotNull(firstPageToken, nameof(firstPageToken));
 
-        MessagesPageToken pageToken = MessagesPageToken.FromToken(firstPageToken);
+        MessageCollectionPageToken pageToken = MessageCollectionPageToken.FromToken(firstPageToken);
         return GetMessagesAsync(pageToken?.ThreadId, pageToken?.Limit, pageToken?.Order, pageToken?.After, pageToken?.Before, cancellationToken.ToRequestOptions())
             as AsyncCollectionResult<ThreadMessage>;
     }
@@ -535,7 +535,7 @@ public partial class AssistantClient
     {
         Argument.AssertNotNull(firstPageToken, nameof(firstPageToken));
 
-        MessagesPageToken pageToken = MessagesPageToken.FromToken(firstPageToken);
+        MessageCollectionPageToken pageToken = MessageCollectionPageToken.FromToken(firstPageToken);
         return GetMessages(pageToken?.ThreadId, pageToken?.Limit, pageToken?.Order, pageToken?.After, pageToken?.Before, cancellationToken.ToRequestOptions())
             as CollectionResult<ThreadMessage>;
 
