@@ -1,5 +1,4 @@
-﻿using System;
-using System.ClientModel;
+﻿using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Text.Json;
@@ -12,8 +11,7 @@ namespace OpenAI.Assistants;
 internal class AsyncMessagesCollectionResult : AsyncCollectionResult<ThreadMessage>
 {
     // Machinery for sending requests
-    private readonly ClientPipeline _pipeline;
-    private readonly Uri _endpoint;
+    private readonly InternalAssistantMessageClient _messageClient;
     private readonly RequestOptions _options;
 
     // Initial values
@@ -23,17 +21,11 @@ internal class AsyncMessagesCollectionResult : AsyncCollectionResult<ThreadMessa
     private readonly string? _after;
     private readonly string? _before;
 
-    // Pagination cursor
-    private string? _lastSeenItem;
-
-    public virtual ClientPipeline Pipeline => _pipeline;
-
-    public AsyncMessagesCollectionResult(ClientPipeline pipeline, Uri endpoint,
+    public AsyncMessagesCollectionResult(InternalAssistantMessageClient messageClient,
         RequestOptions options,
         string threadId, int? limit, string? order, string? after, string? before)
     {
-        _pipeline = pipeline;
-        _endpoint = endpoint;
+        _messageClient = messageClient;
         _options = options;
 
         _threadId = threadId;
@@ -45,12 +37,12 @@ internal class AsyncMessagesCollectionResult : AsyncCollectionResult<ThreadMessa
 
     public async override IAsyncEnumerable<ClientResult> GetRawPagesAsync()
     {
-        ClientResult page = await GetFirstAsync().ConfigureAwait(false);
+        ClientResult page = await GetFirstPageAsync().ConfigureAwait(false);
         yield return page;
 
-        while (HasNext(page))
+        while (HasNextPage(page))
         {
-            ClientResult nextPage = await GetNextAsync(page);
+            ClientResult nextPage = await GetNextPageAsync(page);
             yield return nextPage;
         }
     }
@@ -61,82 +53,28 @@ internal class AsyncMessagesCollectionResult : AsyncCollectionResult<ThreadMessa
         InternalListMessagesResponse list = ModelReaderWriter.Read<InternalListMessagesResponse>(response.Content)!;
         foreach (ThreadMessage message in list.Data)
         {
-            // TODO: Address this somehow.
+            // TODO: Address this.
             await Task.Delay(0);
             yield return message;
         }
     }
 
     public override ContinuationToken? GetContinuationToken(ClientResult page)
-    {
-        throw new NotImplementedException();
-    }
+        => MessagesPageToken.FromResponse(page, _threadId, _limit, _order, _before);
 
-    public async Task<ClientResult> GetFirstAsync()
-        => await GetMessagesAsync(_threadId, _limit, _order, _lastSeenItem, _before, _options).ConfigureAwait(false);
+    public async Task<ClientResult> GetFirstPageAsync()
+        => await _messageClient.GetMessagesAsync(_threadId, _limit, _order, _after, _before, _options).ConfigureAwait(false);
 
-    public async Task<ClientResult> GetNextAsync(ClientResult result)
+    public async Task<ClientResult> GetNextPageAsync(ClientResult result)
     {
         PipelineResponse response = result.GetRawResponse();
 
         using JsonDocument doc = JsonDocument.Parse(response.Content);
-        _lastSeenItem = doc.RootElement.GetProperty("last_id"u8).GetString()!;
+        string lastId = doc.RootElement.GetProperty("last_id"u8).GetString()!;
 
-        return await GetMessagesAsync(_threadId, _limit, _order, _lastSeenItem, _before, _options).ConfigureAwait(false);
+        return await _messageClient.GetMessagesAsync(_threadId, _limit, _order, lastId, _before, _options).ConfigureAwait(false);
     }
 
-    public bool HasNext(ClientResult result)
-    {
-        PipelineResponse response = result.GetRawResponse();
-
-        using JsonDocument doc = JsonDocument.Parse(response.Content);
-        bool hasMore = doc.RootElement.GetProperty("has_more"u8).GetBoolean();
-
-        return hasMore;
-    }
-
-    internal virtual async Task<ClientResult> GetMessagesAsync(string threadId, int? limit, string? order, string? after, string? before, RequestOptions? options)
-    {
-        Argument.AssertNotNullOrEmpty(threadId, nameof(threadId));
-
-        using PipelineMessage message = CreateGetMessagesRequest(threadId, limit, order, after, before, options);
-        return ClientResult.FromResponse(await _pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
-    }
-
-    private PipelineMessage CreateGetMessagesRequest(string threadId, int? limit, string? order, string? after, string? before, RequestOptions? options)
-    {
-        var message = _pipeline.CreateMessage();
-        message.ResponseClassifier = PipelineMessageClassifier200;
-        var request = message.Request;
-        request.Method = "GET";
-        var uri = new ClientUriBuilder();
-        uri.Reset(_endpoint);
-        uri.AppendPath("/threads/", false);
-        uri.AppendPath(threadId, true);
-        uri.AppendPath("/messages", false);
-        if (limit != null)
-        {
-            uri.AppendQuery("limit", limit.Value, true);
-        }
-        if (order != null)
-        {
-            uri.AppendQuery("order", order, true);
-        }
-        if (after != null)
-        {
-            uri.AppendQuery("after", after, true);
-        }
-        if (before != null)
-        {
-            uri.AppendQuery("before", before, true);
-        }
-        request.Uri = uri.ToUri();
-        request.Headers.Set("Accept", "application/json");
-        message.Apply(options);
-        return message;
-    }
-
-    private static PipelineMessageClassifier? _pipelineMessageClassifier200;
-    private static PipelineMessageClassifier PipelineMessageClassifier200 => _pipelineMessageClassifier200 ??= PipelineMessageClassifier.Create(stackalloc ushort[] { 200 });
-
+    public static bool HasNextPage(ClientResult result)
+        => MessagesCollectionResult.HasNextPage(result);
 }

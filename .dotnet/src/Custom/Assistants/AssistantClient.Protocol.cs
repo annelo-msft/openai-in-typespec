@@ -258,7 +258,7 @@ public partial class AssistantClient
     {
         Argument.AssertNotNullOrEmpty(threadId, nameof(threadId));
 
-        return new AsyncMessagesCollectionResult(_pipeline, _endpoint, options, threadId, limit, order, after, before);
+        return new AsyncMessagesCollectionResult(_messageSubClient, options, threadId, limit, order, after, before);
     }
 
     /// <summary>
@@ -293,7 +293,7 @@ public partial class AssistantClient
     {
         Argument.AssertNotNullOrEmpty(threadId, nameof(threadId));
 
-        return new MessagesCollectionResult(_pipeline, _endpoint, options, threadId, limit, order, after, before);
+        return new MessagesCollectionResult(_messageSubClient, options, threadId, limit, order, after, before);
     }
 
     /// <inheritdoc cref="InternalAssistantMessageClient.GetMessageAsync"/>

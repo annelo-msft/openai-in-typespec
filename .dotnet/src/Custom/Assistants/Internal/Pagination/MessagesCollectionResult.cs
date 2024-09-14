@@ -1,5 +1,4 @@
-﻿using System;
-using System.ClientModel;
+﻿using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Text.Json;
@@ -12,8 +11,7 @@ namespace OpenAI.Assistants;
 internal class MessagesCollectionResult : CollectionResult<ThreadMessage>
 {
     // Machinery for sending requests
-    private readonly ClientPipeline _pipeline;
-    private readonly Uri _endpoint;
+    private readonly InternalAssistantMessageClient _messageClient;
     private readonly RequestOptions _options;
 
     // Initial values
@@ -23,17 +21,11 @@ internal class MessagesCollectionResult : CollectionResult<ThreadMessage>
     private readonly string? _after;
     private readonly string? _before;
 
-    // Pagination cursor
-    private string? _lastSeenItem;
-
-    public virtual ClientPipeline Pipeline => _pipeline;
-
-    public MessagesCollectionResult(ClientPipeline pipeline, Uri endpoint,
+    public MessagesCollectionResult(InternalAssistantMessageClient messageClient,
         RequestOptions options,
         string threadId, int? limit, string? order, string? after, string? before)
     {
-        _pipeline = pipeline;
-        _endpoint = endpoint;
+        _messageClient = messageClient;
         _options = options;
 
         _threadId = threadId;
@@ -45,12 +37,12 @@ internal class MessagesCollectionResult : CollectionResult<ThreadMessage>
 
     public override IEnumerable<ClientResult> GetRawPages()
     {
-        ClientResult page = GetFirst();
+        ClientResult page = GetFirstPage();
         yield return page;
 
-        while (HasNext(page))
+        while (HasNextPage(page))
         {
-            ClientResult nextPage = GetNext(page);
+            ClientResult nextPage = GetNextPage(page);
             yield return nextPage;
         }
     }
@@ -63,34 +55,25 @@ internal class MessagesCollectionResult : CollectionResult<ThreadMessage>
     }
 
     public override ContinuationToken? GetContinuationToken(ClientResult page)
-    {
-        PipelineResponse response = page.GetRawResponse();
-        using JsonDocument doc = JsonDocument.Parse(response.Content);
-        string lastId = doc.RootElement.GetProperty("last_id"u8).GetString()!;
-        bool hasMore = doc.RootElement.GetProperty("has_more"u8).GetBoolean();
+        => MessagesPageToken.FromResponse(page, _threadId, _limit, _order, _before);
 
-        if (!hasMore || lastId is null)
-        {
-            return null;
-        }
+    public ClientResult GetFirstPage()
+        => _messageClient.GetMessages(_threadId, _limit, _order, _after, _before, _options);
 
-        return MessagesPageToken.FromOptions(_threadId, _limit, _order, lastId, _before);
-    }
-
-    public ClientResult GetFirst()
-        => GetMessages(_threadId, _limit, _order, _lastSeenItem, _before, _options);
-
-    public ClientResult GetNext(ClientResult result)
+    public ClientResult GetNextPage(ClientResult result)
     {
         PipelineResponse response = result.GetRawResponse();
 
         using JsonDocument doc = JsonDocument.Parse(response.Content);
-        _lastSeenItem = doc.RootElement.GetProperty("last_id"u8).GetString()!;
+        string lastId = doc.RootElement.GetProperty("last_id"u8).GetString()!;
 
-        return GetMessages(_threadId, _limit, _order, _lastSeenItem, _before, _options);
+        return _messageClient.GetMessages(_threadId, _limit, _order, lastId, _before, _options);
     }
 
-    public bool HasNext(ClientResult result)
+    // Note: we could remove this in favor of calling GetContinuationToken and
+    // checking it for null, but this way avoids allocating a ContinuationToken
+    // if no one has asked for it.
+    public static bool HasNextPage(ClientResult result)
     {
         PipelineResponse response = result.GetRawResponse();
         Utf8JsonReader reader = new Utf8JsonReader(response.Content);
@@ -120,49 +103,4 @@ internal class MessagesCollectionResult : CollectionResult<ThreadMessage>
 
         return hasMore;
     }
-
-    internal virtual ClientResult GetMessages(string threadId, int? limit, string? order, string? after, string? before, RequestOptions? options)
-    {
-        Argument.AssertNotNullOrEmpty(threadId, nameof(threadId));
-
-        using PipelineMessage message = CreateGetMessagesRequest(threadId, limit, order, after, before, options);
-        return ClientResult.FromResponse(_pipeline.ProcessMessage(message, options));
-    }
-
-    private PipelineMessage CreateGetMessagesRequest(string threadId, int? limit, string? order, string? after, string? before, RequestOptions? options)
-    {
-        var message = _pipeline.CreateMessage();
-        message.ResponseClassifier = PipelineMessageClassifier200;
-        var request = message.Request;
-        request.Method = "GET";
-        var uri = new ClientUriBuilder();
-        uri.Reset(_endpoint);
-        uri.AppendPath("/threads/", false);
-        uri.AppendPath(threadId, true);
-        uri.AppendPath("/messages", false);
-        if (limit != null)
-        {
-            uri.AppendQuery("limit", limit.Value, true);
-        }
-        if (order != null)
-        {
-            uri.AppendQuery("order", order, true);
-        }
-        if (after != null)
-        {
-            uri.AppendQuery("after", after, true);
-        }
-        if (before != null)
-        {
-            uri.AppendQuery("before", before, true);
-        }
-        request.Uri = uri.ToUri();
-        request.Headers.Set("Accept", "application/json");
-        message.Apply(options);
-        return message;
-    }
-
-    private static PipelineMessageClassifier? _pipelineMessageClassifier200;
-    private static PipelineMessageClassifier PipelineMessageClassifier200 => _pipelineMessageClassifier200 ??= PipelineMessageClassifier.Create(stackalloc ushort[] { 200 });
-
 }

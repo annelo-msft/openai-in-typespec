@@ -1,5 +1,6 @@
 using System;
 using System.ClientModel;
+using System.ClientModel.Primitives;
 using System.Diagnostics;
 using System.IO;
 using System.Text.Json;
@@ -145,4 +146,19 @@ internal class MessagesPageToken : ContinuationToken
 
     public static MessagesPageToken FromOptions(string threadId, int? limit, string? order, string? after, string? before)
         => new(threadId, limit, order, after, before);
+
+    public static MessagesPageToken? FromResponse(ClientResult result, string threadId, int? limit, string? order, string? before)
+    {
+        PipelineResponse response = result.GetRawResponse();
+        using JsonDocument doc = JsonDocument.Parse(response.Content);
+        string lastId = doc.RootElement.GetProperty("last_id"u8).GetString()!;
+        bool hasMore = doc.RootElement.GetProperty("has_more"u8).GetBoolean();
+
+        if (!hasMore || lastId is null)
+        {
+            return null;
+        }
+
+        return new(threadId, limit, order, lastId, before);
+    }
 }
