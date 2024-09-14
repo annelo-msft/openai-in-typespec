@@ -17,33 +17,39 @@ namespace OpenAI.Assistants;
 /// </summary>
 internal class AsyncStreamingUpdateCollection : AsyncCollectionResult<StreamingUpdate>
 {
-    private readonly Func<Task<ClientResult>> _getResultAsync;
+    private readonly Func<Task<ClientResult>> _sendRequestAsync;
 
-    public AsyncStreamingUpdateCollection(Func<Task<ClientResult>> getResultAsync) : base()
+    public AsyncStreamingUpdateCollection(Func<Task<ClientResult>> sendRequestAsync) : base()
     {
-        Argument.AssertNotNull(getResultAsync, nameof(getResultAsync));
+        Argument.AssertNotNull(sendRequestAsync, nameof(sendRequestAsync));
 
-        _getResultAsync = getResultAsync;
+        _sendRequestAsync = sendRequestAsync;
     }
 
     public override IAsyncEnumerator<StreamingUpdate> GetAsyncEnumerator(CancellationToken cancellationToken = default)
-        => new AsyncStreamingUpdateEnumerator(_getResultAsync, this, cancellationToken);
+        => new AsyncStreamingUpdateEnumerator(_sendRequestAsync, cancellationToken);
 
     public override ContinuationToken? GetContinuationToken(ClientResult page)
+        // Continuation is not supported for SSE streams.
         => null;
 
-    public override IAsyncEnumerable<ClientResult> GetRawPagesAsync()
+    public async override IAsyncEnumerable<ClientResult> GetRawPagesAsync()
     {
-        throw new NotImplementedException();
+        // We don't currently support resuming a dropped connection from the
+        // last received event, so the response collection has a single element.
+        yield return await _sendRequestAsync();
     }
 
     private sealed class AsyncStreamingUpdateEnumerator : IAsyncEnumerator<StreamingUpdate>
     {
         private static ReadOnlySpan<byte> TerminalData => "[DONE]"u8;
 
-        private readonly Func<Task<ClientResult>> _getResultAsync;
-        private readonly AsyncStreamingUpdateCollection _enumerable;
+        private readonly Func<Task<ClientResult>> _sendRequestAsync;
         private readonly CancellationToken _cancellationToken;
+
+        // We keep a reference to the response we get from _sendRequest so we
+        // can ensure it's diposed properly.
+        private PipelineResponse? _response;
 
         // These enumerators represent what is effectively a doubly-nested
         // loop over the outer event collection and the inner update collection,
@@ -58,15 +64,12 @@ internal class AsyncStreamingUpdateCollection : AsyncCollectionResult<StreamingU
         private StreamingUpdate? _current;
         private bool _started;
 
-        public AsyncStreamingUpdateEnumerator(Func<Task<ClientResult>> getResultAsync,
-            AsyncStreamingUpdateCollection enumerable,
+        public AsyncStreamingUpdateEnumerator(Func<Task<ClientResult>> sendRequestAsync,
             CancellationToken cancellationToken)
         {
-            Debug.Assert(getResultAsync is not null);
-            Debug.Assert(enumerable is not null);
+            Debug.Assert(sendRequestAsync is not null);
 
-            _getResultAsync = getResultAsync!;
-            _enumerable = enumerable!;
+            _sendRequestAsync = sendRequestAsync!;
             _cancellationToken = cancellationToken;
         }
 
@@ -114,16 +117,15 @@ internal class AsyncStreamingUpdateCollection : AsyncCollectionResult<StreamingU
 
         private async Task<IAsyncEnumerator<SseItem<byte[]>>> CreateEventEnumeratorAsync()
         {
-            ClientResult result = await _getResultAsync().ConfigureAwait(false);
-            PipelineResponse response = result.GetRawResponse();
-            //_enumerable.SetRawResponse(response);
-
-            if (response.ContentStream is null)
+            ClientResult result = await _sendRequestAsync().ConfigureAwait(false);
+            _response = result.GetRawResponse();
+            
+            if (_response.ContentStream is null)
             {
                 throw new InvalidOperationException("Unable to create result from response with null ContentStream");
             }
 
-            IAsyncEnumerable<SseItem<byte[]>> enumerable = SseParser.Create(response.ContentStream, (_, bytes) => bytes.ToArray()).EnumerateAsync();
+            IAsyncEnumerable<SseItem<byte[]>> enumerable = SseParser.Create(_response.ContentStream, (_, bytes) => bytes.ToArray()).EnumerateAsync();
             return enumerable.GetAsyncEnumerator(_cancellationToken);
         }
 
@@ -141,12 +143,8 @@ internal class AsyncStreamingUpdateCollection : AsyncCollectionResult<StreamingU
                 await _events.DisposeAsync().ConfigureAwait(false);
                 _events = null;
 
-                // Dispose the response so we don't leave the unbuffered
-                // network stream open.
-
-                // TODO: restore this functionality
-                //PipelineResponse response = _enumerable.GetRawResponse();
-                //response.Dispose();
+                // Dispose the response so we don't leave the network connection open.
+                _response?.Dispose();
             }
         }
     }

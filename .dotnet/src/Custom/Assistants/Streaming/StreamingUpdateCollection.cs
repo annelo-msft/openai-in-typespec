@@ -71,7 +71,7 @@ internal class StreamingUpdateCollection : CollectionResult<StreamingUpdate>
         StreamingUpdate IEnumerator<StreamingUpdate>.Current
             => _current!;
 
-        object IEnumerator.Current => throw new NotImplementedException();
+        object IEnumerator.Current => _current!;
 
         public bool MoveNext()
         {
@@ -143,8 +143,7 @@ internal class StreamingUpdateCollection : CollectionResult<StreamingUpdate>
                 _events.Dispose();
                 _events = null;
 
-                // Dispose the response so we don't leave the unbuffered
-                // network stream open.
+                // Dispose the response so we don't leave the network connection open.
                 _response?.Dispose();
             }
         }
