@@ -7,11 +7,9 @@ namespace OpenAI;
 
 internal abstract class PageRequestManager
 {
-    //// This will throw of convenience layer isn't implemented.
-    //public abstract PageEnumerator<T> CreatePageEnumerator<T>();
-
-    // This will throw of convenience layer isn't implemented.
-    public abstract IEnumerable<T> GetValuesFromPage<T>(ClientResult pageResult);
+    // This will throw of convenience layer isn't implemented or the wrong
+    // type of T is requested.
+    public abstract IEnumerable<T> ReadValues<T>(ClientResult page);
 
     public abstract PageEnumerator CreatePageEnumerator();
 

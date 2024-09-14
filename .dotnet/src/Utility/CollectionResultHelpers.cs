@@ -71,7 +71,7 @@ internal class CollectionResultHelpers
         {
             foreach(ClientResult page in GetRawPages())
             {
-                foreach (T value in _requestManager.GetValuesFromPage<T>(page))
+                foreach (T value in _requestManager.ReadValues<T>(page))
                 {
                     yield return value;
                 }
