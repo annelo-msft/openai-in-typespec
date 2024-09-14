@@ -150,7 +150,7 @@ public partial class AssistantClient
     {
         Argument.AssertNotNull(firstPageToken, nameof(firstPageToken));
 
-        AssistantsPageToken pageToken = AssistantsPageToken.FromToken(firstPageToken);
+        AssistantCollectionPageToken pageToken = AssistantCollectionPageToken.FromToken(firstPageToken);
         return GetAssistantsAsync(pageToken?.Limit, pageToken?.Order, pageToken?.After, pageToken.Before, cancellationToken.ToRequestOptions())
             as AsyncCollectionResult<Assistant>;
     }
@@ -187,7 +187,7 @@ public partial class AssistantClient
     {
         Argument.AssertNotNull(firstPageToken, nameof(firstPageToken));
 
-        AssistantsPageToken pageToken = AssistantsPageToken.FromToken(firstPageToken);
+        AssistantCollectionPageToken pageToken = AssistantCollectionPageToken.FromToken(firstPageToken);
         return GetAssistants(pageToken?.Limit, pageToken?.Order, pageToken?.After, pageToken.Before, cancellationToken.ToRequestOptions())
             as CollectionResult<Assistant>;
     }
