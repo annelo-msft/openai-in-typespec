@@ -17,8 +17,8 @@ internal class CollectionResultHelpers
     public static AsyncCollectionResult CreateAsync(PageEnumerator enumerator)
         => new AsyncPaginatedCollectionResult(enumerator);
 
-    public static CollectionResult Create(PageEnumerator enumerator)
-        => new PaginatedCollectionResult(enumerator);
+    public static CollectionResult Create(PageRequestManager requestManager)
+        => new PaginatedCollectionResult(requestManager);
 
     private class AsyncPaginatedCollectionResult<T> : AsyncCollectionResult<T>
     {
@@ -57,22 +57,21 @@ internal class CollectionResultHelpers
 
     private class PaginatedCollectionResult<T> : CollectionResult<T>
     {
-        private readonly PageEnumerator<T> _pageEnumerator;
+        private readonly PageRequestManager _requestManager;
 
-        public PaginatedCollectionResult(PageEnumerator<T> pageEnumerator)
+        public PaginatedCollectionResult(PageRequestManager requestManager)
         {
-            _pageEnumerator = pageEnumerator;
+            _requestManager = requestManager;
         }
 
         public override ContinuationToken? GetContinuationToken(ClientResult page)
-            => _pageEnumerator.GetNextPageToken(page);
+            => _requestManager.GetNextPageToken(page);
 
         public override IEnumerator<T> GetEnumerator()
         {
-            while (_pageEnumerator.MoveNext())
+            foreach(ClientResult page in GetRawPages())
             {
-                IEnumerable<T> page = _pageEnumerator.GetCurrentPage();
-                foreach (T value in page)
+                foreach (T value in _requestManager.GetValuesFromPage<T>(page))
                 {
                     yield return value;
                 }
@@ -81,10 +80,10 @@ internal class CollectionResultHelpers
 
         public override IEnumerable<ClientResult> GetRawPages()
         {
-            // TODO: this must use a different enumerator each time it's called.
-            while (_pageEnumerator.MoveNext())
+            IEnumerator<ClientResult> pages = _requestManager.CreatePageEnumerator();
+            while (pages.MoveNext())
             {
-                yield return _pageEnumerator.Current;
+                yield return pages.Current;
             }
         }
     }
@@ -103,30 +102,32 @@ internal class CollectionResultHelpers
 
         public async override IAsyncEnumerable<ClientResult> GetRawPagesAsync()
         {
-            while (await _pageEnumerator.MoveNextAsync())
+            IAsyncEnumerator<ClientResult> enumerator = _pageEnumerator.CreateEnumerator();
+            while (await enumerator.MoveNextAsync())
             {
-                yield return _pageEnumerator.Current;
+                yield return enumerator.Current;
             }
         }
     }
 
     private class PaginatedCollectionResult : CollectionResult
     {
-        private readonly PageEnumerator _pageEnumerator;
+        private readonly PageRequestManager _requestManager;
 
-        public PaginatedCollectionResult(PageEnumerator pageEnumerator)
+        public PaginatedCollectionResult(PageRequestManager requestManager)
         {
-            _pageEnumerator = pageEnumerator;
+            _requestManager = requestManager;
         }
 
         public override ContinuationToken? GetContinuationToken(ClientResult page)
-            => _pageEnumerator.GetNextPageToken(page);
+            => _requestManager.GetNextPageToken(page);
 
         public override IEnumerable<ClientResult> GetRawPages()
         {
-            while (_pageEnumerator.MoveNext())
+            IEnumerator<ClientResult> pages = _requestManager.CreatePageEnumerator();
+            while (pages.MoveNext())
             {
-                yield return _pageEnumerator.Current;
+                yield return pages.Current;
             }
         }
     }

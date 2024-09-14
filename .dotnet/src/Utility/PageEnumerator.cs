@@ -22,6 +22,17 @@ internal abstract class PageEnumerator : IAsyncEnumerator<ClientResult>,
 
     public ClientResult Current => _current!;
 
+    /// <summary>
+    /// Creates a new enumerator instance that can send the same sequence of
+    /// requests as the current instance.  This is needed so that the 
+    /// CollectionResult's GetRawPages method can return a collection with an
+    /// enumerator that is independent from the one returned from its 
+    /// GetEnumerator method.  i.e. if a user of CollectionResult<T> enumerates
+    /// the values (the T's) and also calls GetRawPages, the two collections
+    /// can be advanced independently without interfering with each other.
+    /// </summary>
+    public abstract PageEnumerator CreateEnumerator();
+
     public abstract Task<ClientResult> GetFirstAsync();
 
     public abstract ClientResult GetFirst();
@@ -34,12 +45,9 @@ internal abstract class PageEnumerator : IAsyncEnumerator<ClientResult>,
 
     /// <summary>
     /// Gets the continuation token that a client method can use to obtain the
-    /// page after <paramref name="currentPageResult"/>, or null if there is no
-    /// next page.
+    /// page after <paramref name="result"/>, or null if there is no next page.
     /// </summary>
-    /// <param name="currentPageResult"></param>
-    /// <returns></returns>
-    public abstract ContinuationToken? GetNextPageToken(ClientResult currentPageResult);
+    public abstract ContinuationToken? GetNextPageToken(ClientResult result);
 
     object IEnumerator.Current => ((IEnumerator<ClientResult>)this).Current;
 
