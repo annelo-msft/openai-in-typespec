@@ -67,20 +67,13 @@ internal class CollectionResultHelpers
         public override ContinuationToken? GetContinuationToken(ClientResult page)
             => _requestManager.GetNextPageToken(page);
 
-        public override IEnumerator<T> GetEnumerator()
-        {
-            foreach(ClientResult page in GetRawPages())
-            {
-                foreach (T value in _requestManager.ReadValues<T>(page))
-                {
-                    yield return value;
-                }
-            }
-        }
+        protected override IEnumerable<T> GetValues(ClientResult page)
+            => _requestManager.ReadValues<T>(page);
 
         public override IEnumerable<ClientResult> GetRawPages()
         {
             IEnumerator<ClientResult> pages = _requestManager.CreatePageEnumerator();
+
             while (pages.MoveNext())
             {
                 yield return pages.Current;

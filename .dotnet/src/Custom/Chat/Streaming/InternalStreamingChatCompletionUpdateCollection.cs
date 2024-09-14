@@ -3,7 +3,6 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Net.ServerSentEvents;
 using System.Text.Json;
 
@@ -29,9 +28,6 @@ internal class InternalStreamingChatCompletionUpdateCollection : CollectionResul
         // Continuation is not supported for SSE streams.
         => null;
 
-    public override IEnumerator<StreamingChatCompletionUpdate> GetEnumerator()
-        => new StreamingChatUpdateEnumerator(_sendRequest);
-
     public override IEnumerable<ClientResult> GetRawPages()
     {
         // We don't currently support resuming a dropped connection from the
@@ -39,15 +35,22 @@ internal class InternalStreamingChatCompletionUpdateCollection : CollectionResul
         yield return _sendRequest();
     }
 
+    protected override IEnumerable<StreamingChatCompletionUpdate> GetValues(ClientResult page)
+    {
+        IEnumerator<StreamingChatCompletionUpdate> enumerator = new StreamingChatUpdateEnumerator(page);
+        while (enumerator.MoveNext())
+        {
+            yield return enumerator.Current;
+        }
+    }
+
     private sealed class StreamingChatUpdateEnumerator : IEnumerator<StreamingChatCompletionUpdate>
     {
         private static ReadOnlySpan<byte> TerminalData => "[DONE]"u8;
 
-        private readonly Func<ClientResult> _sendRequest;
-
-        // We keep a reference to the response we get from _sendRequest so we
-        // can ensure it's diposed properly.
-        private PipelineResponse? _response;
+        // We keep a reference to the response we get from the page result so we
+        // can ensure it's disposed properly.
+        private readonly PipelineResponse _response;
 
         // These enumerators represent what is effectively a doubly-nested
         // loop over the outer event collection and the inner update collection,
@@ -62,11 +65,11 @@ internal class InternalStreamingChatCompletionUpdateCollection : CollectionResul
         private StreamingChatCompletionUpdate? _current;
         private bool _started;
 
-        public StreamingChatUpdateEnumerator(Func<ClientResult> sendRequest)
+        public StreamingChatUpdateEnumerator(ClientResult page)
         {
-            Debug.Assert(sendRequest is not null);
+            Argument.AssertNotNull(page, nameof(page));
 
-            _sendRequest = sendRequest!;
+            _response = page.GetRawResponse();
         }
 
         StreamingChatCompletionUpdate IEnumerator<StreamingChatCompletionUpdate>.Current
@@ -115,9 +118,6 @@ internal class InternalStreamingChatCompletionUpdateCollection : CollectionResul
 
         private IEnumerator<SseItem<byte[]>> CreateEventEnumerator()
         {
-            ClientResult result = _sendRequest();
-            _response = result.GetRawResponse();
-
             if (_response.ContentStream is null)
             {
                 throw new InvalidOperationException("Unable to create result from response with null ContentStream");
