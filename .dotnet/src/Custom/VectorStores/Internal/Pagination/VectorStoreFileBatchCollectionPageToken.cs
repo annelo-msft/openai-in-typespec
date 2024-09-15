@@ -1,4 +1,3 @@
-using OpenAI.Assistants;
 using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
