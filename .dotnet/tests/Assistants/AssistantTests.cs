@@ -233,9 +233,9 @@ public partial class AssistantTests : SyncAsyncTestBase
             : client.ModifyMessage(message, modificationOptions);
         Assert.That(message.Metadata.TryGetValue("messageMetadata", out metadataValue) && metadataValue == "newValue");
 
-        List<ThreadMessage> messages = IsAsync ?
-            await client.GetMessagesAsync(thread).ToListAsync() :
-            client.GetMessages(thread).ToList();
+        List<ThreadMessage> messages = IsAsync
+            ? await client.GetMessagesAsync(thread).ToListAsync()
+            : [.. client.GetMessages(thread)];
 
         Assert.That(messages.Count, Is.EqualTo(1));
         Assert.That(messages[0].Id, Is.EqualTo(message.Id));
@@ -270,9 +270,9 @@ public partial class AssistantTests : SyncAsyncTestBase
             : client.CreateThread(options);
         Validate(thread);
         MessageCollectionOptions collectionOptions = new MessageCollectionOptions() { Order = MessageCollectionOrder.Ascending };
-        List<ThreadMessage> messages = IsAsync ?
-            await client.GetMessagesAsync(thread, collectionOptions).ToListAsync() :
-            client.GetMessages(thread, collectionOptions).ToList();
+        List<ThreadMessage> messages = IsAsync
+            ? await client.GetMessagesAsync(thread, collectionOptions).ToListAsync()
+            : client.GetMessages(thread, collectionOptions).ToList();
         Assert.That(messages.Count, Is.EqualTo(2));
         Assert.That(messages[0].Role, Is.EqualTo(MessageRole.User));
         Assert.That(messages[0].Content?.Count, Is.EqualTo(1));
