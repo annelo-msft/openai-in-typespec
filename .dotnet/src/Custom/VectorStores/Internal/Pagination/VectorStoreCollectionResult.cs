@@ -2,6 +2,7 @@
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Text.Json;
+using System.Threading;
 
 #nullable enable
 
@@ -11,7 +12,7 @@ internal class VectorStoreCollectionResult : CollectionResult<VectorStore>
 {
     private readonly VectorStoreClient _vectorStoreClient;
     private readonly ClientPipeline _pipeline;
-    private readonly RequestOptions _options;
+    private readonly RequestOptions? _options;
 
     // Initial values
     private readonly int? _limit;
@@ -20,8 +21,9 @@ internal class VectorStoreCollectionResult : CollectionResult<VectorStore>
     private readonly string? _before;
 
     public VectorStoreCollectionResult(VectorStoreClient vectorStoreClient,
-        ClientPipeline pipeline, RequestOptions options,
+        ClientPipeline pipeline, RequestOptions? options,
         int? limit, string? order, string? after, string? before)
+        : base(options?.CancellationToken ?? CancellationToken.None)
     {
         _vectorStoreClient = vectorStoreClient;
         _pipeline = pipeline;
@@ -88,7 +90,7 @@ internal class VectorStoreCollectionResult : CollectionResult<VectorStore>
         return hasMore;
     }
 
-    internal virtual ClientResult GetVectorStores(int? limit, string? order, string? after, string? before, RequestOptions options)
+    internal virtual ClientResult GetVectorStores(int? limit, string? order, string? after, string? before, RequestOptions? options)
     {
         using PipelineMessage message = _vectorStoreClient.CreateGetVectorStoresRequest(limit, order, after, before, options);
         return ClientResult.FromResponse(_pipeline.ProcessMessage(message, options));

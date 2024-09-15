@@ -2,6 +2,7 @@
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Text.Json;
+using System.Threading;
 
 #nullable enable
 
@@ -11,7 +12,7 @@ namespace OpenAI.Assistants;
 internal class MessageCollectionResult : CollectionResult<ThreadMessage>
 {
     private readonly InternalAssistantMessageClient _messageClient;
-    private readonly RequestOptions _options;
+    private readonly RequestOptions? _options;
 
     // Initial values
     private readonly string _threadId;
@@ -21,8 +22,9 @@ internal class MessageCollectionResult : CollectionResult<ThreadMessage>
     private readonly string? _before;
 
     public MessageCollectionResult(InternalAssistantMessageClient messageClient,
-        RequestOptions options,
+        RequestOptions? options,
         string threadId, int? limit, string? order, string? after, string? before)
+        : base(options?.CancellationToken ?? CancellationToken.None)
     {
         _messageClient = messageClient;
         _options = options;

@@ -5,6 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Net.ServerSentEvents;
 using System.Text.Json;
+using System.Threading;
 
 #nullable enable
 
@@ -15,9 +16,12 @@ namespace OpenAI.Chat;
 /// </summary>
 internal class InternalStreamingChatCompletionUpdateCollection : CollectionResult<StreamingChatCompletionUpdate>
 {
-    private readonly Func<ClientResult> _sendRequest;
+    private readonly Func<CancellationToken, ClientResult> _sendRequest;
 
-    public InternalStreamingChatCompletionUpdateCollection(Func<ClientResult> sendRequest) : base()
+    public InternalStreamingChatCompletionUpdateCollection(
+        Func<CancellationToken, ClientResult> sendRequest,
+        CancellationToken cancellationToken)
+        : base(cancellationToken)
     {
         Argument.AssertNotNull(sendRequest, nameof(sendRequest));
 
@@ -32,12 +36,12 @@ internal class InternalStreamingChatCompletionUpdateCollection : CollectionResul
     {
         // We don't currently support resuming a dropped connection from the
         // last received event, so the response collection has a single element.
-        yield return _sendRequest();
+        yield return _sendRequest(CancellationToken);
     }
 
     protected override IEnumerable<StreamingChatCompletionUpdate> GetValuesFromPage(ClientResult page)
     {
-        using IEnumerator<StreamingChatCompletionUpdate> enumerator = new StreamingChatUpdateEnumerator(page);
+        using IEnumerator<StreamingChatCompletionUpdate> enumerator = new StreamingChatUpdateEnumerator(page, CancellationToken);
         while (enumerator.MoveNext())
         {
             yield return enumerator.Current;
@@ -48,6 +52,7 @@ internal class InternalStreamingChatCompletionUpdateCollection : CollectionResul
     {
         private static ReadOnlySpan<byte> TerminalData => "[DONE]"u8;
 
+        private readonly CancellationToken _cancellationToken;
         private readonly PipelineResponse _response;
 
         // These enumerators represent what is effectively a doubly-nested
@@ -63,11 +68,12 @@ internal class InternalStreamingChatCompletionUpdateCollection : CollectionResul
         private StreamingChatCompletionUpdate? _current;
         private bool _started;
 
-        public StreamingChatUpdateEnumerator(ClientResult page)
+        public StreamingChatUpdateEnumerator(ClientResult page, CancellationToken cancellationToken)
         {
             Argument.AssertNotNull(page, nameof(page));
 
             _response = page.GetRawResponse();
+            _cancellationToken = cancellationToken;
         }
 
         StreamingChatCompletionUpdate IEnumerator<StreamingChatCompletionUpdate>.Current
@@ -82,6 +88,7 @@ internal class InternalStreamingChatCompletionUpdateCollection : CollectionResul
                 throw new ObjectDisposedException(nameof(StreamingChatUpdateEnumerator));
             }
 
+            _cancellationToken.ThrowIfCancellationRequested();
             _events ??= CreateEventEnumerator();
             _started = true;
 

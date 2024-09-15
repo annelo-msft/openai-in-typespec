@@ -3,6 +3,7 @@ using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
+using System.Threading;
 
 #nullable enable
 
@@ -12,7 +13,7 @@ internal class FineTuningJobEventCollectionResult : CollectionResult
 {
     private readonly FineTuningClient _fineTuningClient;
     private readonly ClientPipeline _pipeline;
-    private readonly RequestOptions _options;
+    private readonly RequestOptions? _options;
 
     // Initial values
     private readonly string _jobId;
@@ -20,8 +21,9 @@ internal class FineTuningJobEventCollectionResult : CollectionResult
     private readonly string _after;
 
     public FineTuningJobEventCollectionResult(FineTuningClient fineTuningClient,
-        ClientPipeline pipeline, RequestOptions options,
+        ClientPipeline pipeline, RequestOptions? options,
         string jobId, int? limit, string after)
+        : base(options?.CancellationToken ?? CancellationToken.None)
     {
         _fineTuningClient = fineTuningClient;
         _pipeline = pipeline;
@@ -82,7 +84,7 @@ internal class FineTuningJobEventCollectionResult : CollectionResult
         return hasMore;
     }
 
-    internal virtual ClientResult GetJobEvents(string jobId, string? after, int? limit, RequestOptions options)
+    internal virtual ClientResult GetJobEvents(string jobId, string? after, int? limit, RequestOptions? options)
     {
         Argument.AssertNotNullOrEmpty(jobId, nameof(jobId));
 

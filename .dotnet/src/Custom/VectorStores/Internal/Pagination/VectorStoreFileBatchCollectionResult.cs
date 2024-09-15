@@ -2,6 +2,7 @@
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Text.Json;
+using System.Threading;
 
 #nullable enable
 
@@ -11,7 +12,7 @@ internal class VectorStoreFileBatchCollectionResult : CollectionResult<VectorSto
 {
     private readonly VectorStoreClient _vectorStoreClient;
     private readonly ClientPipeline _pipeline;
-    private readonly RequestOptions _options;
+    private readonly RequestOptions? _options;
 
     // Initial values
     private readonly string _vectorStoreId;
@@ -23,8 +24,10 @@ internal class VectorStoreFileBatchCollectionResult : CollectionResult<VectorSto
     private readonly string? _filter;
 
     public VectorStoreFileBatchCollectionResult(VectorStoreClient messageClient,
-    ClientPipeline pipeline, RequestOptions options,
-    string vectorStoreId, string batchId, int? limit, string? order, string? after, string? before, string? filter)
+        ClientPipeline pipeline, RequestOptions? options,
+        string vectorStoreId, string batchId,
+        int? limit, string? order, string? after, string? before, string? filter)
+        : base(options?.CancellationToken ?? CancellationToken.None)
     {
         _vectorStoreClient = messageClient;
         _pipeline = pipeline;
@@ -94,7 +97,7 @@ internal class VectorStoreFileBatchCollectionResult : CollectionResult<VectorSto
         return hasMore;
     }
 
-    internal virtual ClientResult GetFileAssociations(string vectorStoreId, string batchId, int? limit, string? order, string? after, string? before, string? filter, RequestOptions options)
+    internal virtual ClientResult GetFileAssociations(string vectorStoreId, string batchId, int? limit, string? order, string? after, string? before, string? filter, RequestOptions? options)
     {
         Argument.AssertNotNullOrEmpty(vectorStoreId, nameof(vectorStoreId));
         Argument.AssertNotNullOrEmpty(batchId, nameof(batchId));

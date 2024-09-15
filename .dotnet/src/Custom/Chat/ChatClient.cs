@@ -213,8 +213,8 @@ public partial class ChatClient
         CreateChatCompletionOptions(messages, ref options, stream: true);
 
         using BinaryContent content = options.ToBinaryContent();
-        ClientResult sendRequest() => CompleteChat(content, cancellationToken.ToRequestOptions(streaming: true));
-        return new InternalStreamingChatCompletionUpdateCollection(sendRequest);
+        ClientResult sendRequest(CancellationToken cancellationToken) => CompleteChat(content, cancellationToken.ToRequestOptions(streaming: true));
+        return new InternalStreamingChatCompletionUpdateCollection(sendRequest, cancellationToken);
     }
 
     /// <summary>

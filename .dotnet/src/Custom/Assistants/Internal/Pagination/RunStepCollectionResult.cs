@@ -2,6 +2,7 @@
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Text.Json;
+using System.Threading;
 
 #nullable enable
 
@@ -10,7 +11,7 @@ namespace OpenAI.Assistants;
 internal class RunStepCollectionResult : CollectionResult<RunStep>
 {
     private readonly InternalAssistantRunClient _runClient;
-    private readonly RequestOptions _options;
+    private readonly RequestOptions? _options;
 
     // Initial values
     private readonly string _threadId;
@@ -21,8 +22,10 @@ internal class RunStepCollectionResult : CollectionResult<RunStep>
     private readonly string? _before;
 
     public RunStepCollectionResult(InternalAssistantRunClient runClient,
-        RequestOptions options,
-        string threadId, string runId, int? limit, string? order, string? after, string? before)
+        RequestOptions? options,
+        string threadId, string runId, 
+        int? limit, string? order, string? after, string? before)
+        : base(options?.CancellationToken ?? CancellationToken.None)
     {
         _runClient = runClient;
         _options = options;

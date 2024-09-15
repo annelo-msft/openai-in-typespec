@@ -736,9 +736,8 @@ public partial class AssistantClient
         options.AssistantId = assistantId;
         options.Stream = true;
 
-        ClientResult sendRequest() => CreateRun(threadId, options.ToBinaryContent(), cancellationToken.ToRequestOptions(streaming: true));
-
-        return new StreamingUpdateCollection(sendRequest);
+        ClientResult sendRequest(CancellationToken cancellationToken) => CreateRun(threadId, options.ToBinaryContent(), cancellationToken.ToRequestOptions(streaming: true));
+        return new StreamingUpdateCollection(sendRequest, cancellationToken);
     }
 
     /// <summary>
@@ -828,9 +827,8 @@ public partial class AssistantClient
         runOptions.Stream = true;
         BinaryContent protocolContent = CreateThreadAndRunProtocolContent(assistantId, threadOptions, runOptions);
 
-        ClientResult sendRequest() => CreateThreadAndRun(protocolContent, cancellationToken.ToRequestOptions(streaming: true));
-
-        return new StreamingUpdateCollection(sendRequest);
+        ClientResult sendRequest(CancellationToken cancellationToken) => CreateThreadAndRun(protocolContent, cancellationToken.ToRequestOptions(streaming: true));
+        return new StreamingUpdateCollection(sendRequest, cancellationToken);
     }
 
     /// <summary>
@@ -1045,9 +1043,8 @@ public partial class AssistantClient
         BinaryContent content = new InternalSubmitToolOutputsRunRequest(toolOutputs.ToList(), stream: true, null)
             .ToBinaryContent();
 
-        ClientResult sendRequest() => SubmitToolOutputsToRun(threadId, runId, content, cancellationToken.ToRequestOptions(streaming: true));
-
-        return new StreamingUpdateCollection(sendRequest);
+        ClientResult sendRequest(CancellationToken cancellationToken) => SubmitToolOutputsToRun(threadId, runId, content, cancellationToken.ToRequestOptions(streaming: true));
+        return new StreamingUpdateCollection(sendRequest, cancellationToken);
     }
 
     /// <summary>

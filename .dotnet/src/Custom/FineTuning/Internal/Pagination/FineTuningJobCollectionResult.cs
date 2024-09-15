@@ -3,6 +3,7 @@ using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
+using System.Threading;
 
 #nullable enable
 
@@ -12,15 +13,16 @@ internal class FineTuningJobCollectionResult : CollectionResult
 {
     private readonly FineTuningClient _fineTuningClient;
     private readonly ClientPipeline _pipeline;
-    private readonly RequestOptions _options;
+    private readonly RequestOptions? _options;
 
     // Initial values
     private readonly int? _limit;
     private readonly string _after;
 
     public FineTuningJobCollectionResult(FineTuningClient fineTuningClient,
-        ClientPipeline pipeline, RequestOptions options,
+        ClientPipeline pipeline, RequestOptions? options,
         int? limit, string after)
+        : base(options?.CancellationToken ?? CancellationToken.None)
     {
         _fineTuningClient = fineTuningClient;
         _pipeline = pipeline;
@@ -80,7 +82,7 @@ internal class FineTuningJobCollectionResult : CollectionResult
         return hasMore;
     }
 
-    internal virtual ClientResult GetJobs(string? after, int? limit, RequestOptions options)
+    internal virtual ClientResult GetJobs(string? after, int? limit, RequestOptions? options)
     {
         using PipelineMessage message = _fineTuningClient.CreateGetPaginatedFineTuningJobsRequest(after, limit, options);
         return ClientResult.FromResponse(_pipeline.ProcessMessage(message, options));

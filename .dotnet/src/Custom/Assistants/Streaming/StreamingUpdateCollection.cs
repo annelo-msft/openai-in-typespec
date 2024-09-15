@@ -4,6 +4,7 @@ using System.ClientModel.Primitives;
 using System.Collections;
 using System.Collections.Generic;
 using System.Net.ServerSentEvents;
+using System.Threading;
 
 #nullable enable
 
@@ -14,9 +15,12 @@ namespace OpenAI.Assistants;
 /// </summary>
 internal class StreamingUpdateCollection : CollectionResult<StreamingUpdate>
 {
-    private readonly Func<ClientResult> _sendRequest;
+    private readonly Func<CancellationToken, ClientResult> _sendRequest;
 
-    public StreamingUpdateCollection(Func<ClientResult> sendRequest) : base()
+    public StreamingUpdateCollection(
+        Func<CancellationToken, ClientResult> sendRequest,
+        CancellationToken cancellationToken)
+        : base(cancellationToken)
     {
         Argument.AssertNotNull(sendRequest, nameof(sendRequest));
 
@@ -31,11 +35,11 @@ internal class StreamingUpdateCollection : CollectionResult<StreamingUpdate>
     {
         // We don't currently support resuming a dropped connection from the
         // last received event, so the response collection has a single element.
-        yield return _sendRequest();
+        yield return _sendRequest(CancellationToken);
     }
     protected override IEnumerable<StreamingUpdate> GetValuesFromPage(ClientResult page)
     {
-        using IEnumerator<StreamingUpdate> enumerator = new StreamingUpdateEnumerator(page);
+        using IEnumerator<StreamingUpdate> enumerator = new StreamingUpdateEnumerator(page, CancellationToken);
         while (enumerator.MoveNext())
         {
             yield return enumerator.Current;
@@ -46,6 +50,7 @@ internal class StreamingUpdateCollection : CollectionResult<StreamingUpdate>
     {
         private static ReadOnlySpan<byte> TerminalData => "[DONE]"u8;
 
+        private readonly CancellationToken _cancellationToken;
         private readonly PipelineResponse _response;
 
         // These enumerators represent what is effectively a doubly-nested
@@ -61,11 +66,12 @@ internal class StreamingUpdateCollection : CollectionResult<StreamingUpdate>
         private StreamingUpdate? _current;
         private bool _started;
 
-        public StreamingUpdateEnumerator(ClientResult page)
+        public StreamingUpdateEnumerator(ClientResult page, CancellationToken cancellationToken)
         {
             Argument.AssertNotNull(page, nameof(page));
 
             _response = page.GetRawResponse();
+            _cancellationToken = cancellationToken;
         }
 
         StreamingUpdate IEnumerator<StreamingUpdate>.Current
@@ -80,6 +86,8 @@ internal class StreamingUpdateCollection : CollectionResult<StreamingUpdate>
                 throw new ObjectDisposedException(nameof(StreamingUpdateEnumerator));
             }
 
+
+            _cancellationToken.ThrowIfCancellationRequested();
             _events ??= CreateEventEnumerator();
             _started = true;
 

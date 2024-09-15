@@ -2,6 +2,7 @@
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Text.Json;
+using System.Threading;
 
 #nullable enable
 
@@ -11,7 +12,7 @@ internal class AssistantCollectionResult : CollectionResult<Assistant>
 {
     private readonly AssistantClient _assistantClient;
     private readonly ClientPipeline _pipeline;
-    private readonly RequestOptions _options;
+    private readonly RequestOptions? _options;
 
     // Initial values
     private readonly int? _limit;
@@ -20,8 +21,9 @@ internal class AssistantCollectionResult : CollectionResult<Assistant>
     private readonly string? _before;
 
     public AssistantCollectionResult(AssistantClient assistantClient,
-        ClientPipeline pipeline, RequestOptions options,
+        ClientPipeline pipeline, RequestOptions? options,
         int? limit, string? order, string? after, string? before)
+        : base(options?.CancellationToken ?? CancellationToken.None)
     {
         _assistantClient = assistantClient;
         _pipeline = pipeline;
