@@ -1,5 +1,6 @@
 using System;
 using System.ClientModel;
+using System.ClientModel.Primitives;
 using System.Diagnostics;
 using System.IO;
 using System.Text.Json;
@@ -8,9 +9,9 @@ using System.Text.Json;
 
 namespace OpenAI.Assistants;
 
-internal class RunsPageToken : ContinuationToken
+internal class RunCollectionPageToken : ContinuationToken
 {
-    protected RunsPageToken(string threadId, int? limit, string? order, string? after, string? before)
+    protected RunCollectionPageToken(string threadId, int? limit, string? order, string? after, string? before)
     {
         ThreadId = threadId;
 
@@ -66,19 +67,9 @@ internal class RunsPageToken : ContinuationToken
         return BinaryData.FromStream(stream);
     }
 
-    public RunsPageToken? GetNextPageToken(bool hasMore, string? lastId)
+    public static RunCollectionPageToken FromToken(ContinuationToken pageToken)
     {
-        if (!hasMore || lastId is null)
-        {
-            return null;
-        }
-
-        return new RunsPageToken(ThreadId, Limit, Order, After, Before);
-    }
-
-    public static RunsPageToken FromToken(ContinuationToken pageToken)
-    {
-        if (pageToken is RunsPageToken token)
+        if (pageToken is RunCollectionPageToken token)
         {
             return token;
         }
@@ -87,7 +78,7 @@ internal class RunsPageToken : ContinuationToken
 
         if (data.ToMemory().Length == 0)
         {
-            throw new ArgumentException("Failed to create RunsPageToken from provided pageToken.", nameof(pageToken));
+            throw new ArgumentException("Failed to create RunCollectionPageToken from provided pageToken.", nameof(pageToken));
         }
 
         Utf8JsonReader reader = new(data);
@@ -147,12 +138,27 @@ internal class RunsPageToken : ContinuationToken
 
         if (threadId is null)
         {
-            throw new ArgumentException("Failed to create RunsPageToken from provided pageToken.", nameof(pageToken));
+            throw new ArgumentException("Failed to create RunCollectionPageToken from provided pageToken.", nameof(pageToken));
         }
 
         return new(threadId, limit, order, after, before);
     }
 
-    public static RunsPageToken FromOptions(string threadId, int? limit, string? order, string? after, string? before)
-        => new RunsPageToken(threadId, limit, order, after, before);
+    public static RunCollectionPageToken FromOptions(string threadId, int? limit, string? order, string? after, string? before)
+        => new(threadId, limit, order, after, before);
+
+    public static RunCollectionPageToken? FromResponse(ClientResult result, string threadId, int? limit, string? order, string? before)
+    {
+        PipelineResponse response = result.GetRawResponse();
+        using JsonDocument doc = JsonDocument.Parse(response.Content);
+        string lastId = doc.RootElement.GetProperty("last_id"u8).GetString()!;
+        bool hasMore = doc.RootElement.GetProperty("has_more"u8).GetBoolean();
+
+        if (!hasMore || lastId is null)
+        {
+            return null;
+        }
+
+        return new(threadId, limit, order, lastId, before);
+    }
 }
