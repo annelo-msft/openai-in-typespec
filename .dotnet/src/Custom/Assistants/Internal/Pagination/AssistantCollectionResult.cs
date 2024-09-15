@@ -47,19 +47,27 @@ internal class AssistantCollectionResult : CollectionResult<Assistant>
 
     protected override IEnumerable<Assistant> GetValuesFromPage(ClientResult page)
     {
+        Argument.AssertNotNull(page, nameof(page));
+
         PipelineResponse response = page.GetRawResponse();
         InternalListAssistantsResponse list = ModelReaderWriter.Read<InternalListAssistantsResponse>(response.Content)!;
         return list.Data;
     }
 
     public override ContinuationToken? GetContinuationToken(ClientResult page)
-        => AssistantCollectionPageToken.FromResponse(page, _limit, _order, _before);
+    {
+        Argument.AssertNotNull(page, nameof(page));
+
+        return AssistantCollectionPageToken.FromResponse(page, _limit, _order, _before);
+    }
 
     public ClientResult GetFirstPage()
         => GetAssistants(_limit, _order, _after, _before, _options);
 
     public ClientResult GetNextPage(ClientResult result)
     {
+        Argument.AssertNotNull(result, nameof(result));
+
         PipelineResponse response = result.GetRawResponse();
 
         using JsonDocument doc = JsonDocument.Parse(response.Content);
@@ -70,6 +78,8 @@ internal class AssistantCollectionResult : CollectionResult<Assistant>
 
     public static bool HasNextPage(ClientResult result)
     {
+        Argument.AssertNotNull(result, nameof(result));
+
         PipelineResponse response = result.GetRawResponse();
 
         using JsonDocument doc = JsonDocument.Parse(response.Content);

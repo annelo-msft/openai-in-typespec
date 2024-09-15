@@ -75,7 +75,7 @@ internal class AsyncVectorStoreFileCollectionResult : AsyncCollectionResult<Vect
         using JsonDocument doc = JsonDocument.Parse(response.Content);
         string lastId = doc.RootElement.GetProperty("last_id"u8).GetString()!;
 
-        return await GetFileAssociationsAsync(_vectorStoreId, _limit, _order, _after, _before, _filter, _options).ConfigureAwait(false);
+        return await GetFileAssociationsAsync(_vectorStoreId, _limit, _order, lastId, _before, _filter, _options).ConfigureAwait(false);
     }
 
     public static bool HasNextPage(ClientResult result)

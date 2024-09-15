@@ -69,7 +69,7 @@ internal class VectorStoreFileCollectionResult : CollectionResult<VectorStoreFil
         using JsonDocument doc = JsonDocument.Parse(response.Content);
         string lastId = doc.RootElement.GetProperty("last_id"u8).GetString()!;
 
-        return GetFileAssociations(_vectorStoreId, _limit, _order, _after, _before, _filter, _options);
+        return GetFileAssociations(_vectorStoreId, _limit, _order, lastId, _before, _filter, _options);
     }
 
     // Note: we could remove this in favor of calling GetContinuationToken and
