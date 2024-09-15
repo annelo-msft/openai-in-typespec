@@ -1,5 +1,4 @@
-﻿using OpenAI.Assistants;
-using System.ClientModel;
+﻿using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Text.Json;
@@ -9,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace OpenAI.VectorStores;
 
-internal class AsyncVectorStoreFileCollection : AsyncCollectionResult<VectorStoreFileAssociation>
+internal class AsyncVectorStoreFileCollectionResult : AsyncCollectionResult<VectorStoreFileAssociation>
 {
     private readonly VectorStoreClient _vectorStoreClient;
     private readonly ClientPipeline _pipeline;
@@ -23,7 +22,7 @@ internal class AsyncVectorStoreFileCollection : AsyncCollectionResult<VectorStor
     private readonly string? _before;
     private readonly string? _filter;
 
-    public AsyncVectorStoreFileCollection(VectorStoreClient vectorStoreClient,
+    public AsyncVectorStoreFileCollectionResult(VectorStoreClient vectorStoreClient,
         ClientPipeline pipeline, RequestOptions options,
         string vectorStoreId, int? limit, string? order, string? after, string? before, string? filter)
     {

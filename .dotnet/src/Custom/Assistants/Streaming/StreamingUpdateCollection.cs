@@ -28,25 +28,26 @@ internal class StreamingUpdateCollection : CollectionResult<StreamingUpdate>
         // Continuation is not supported for SSE streams.
         => null;
 
-    public override IEnumerator<StreamingUpdate> GetEnumerator()
-        => new StreamingUpdateEnumerator(_sendRequest);
-
     public override IEnumerable<ClientResult> GetRawPages()
     {
         // We don't currently support resuming a dropped connection from the
         // last received event, so the response collection has a single element.
         yield return _sendRequest();
     }
+    protected override IEnumerable<StreamingUpdate> GetValuesFromPage(ClientResult page)
+    {
+        IEnumerator<StreamingUpdate> enumerator = new StreamingUpdateEnumerator(page);
+        while (enumerator.MoveNext())
+        {
+            yield return enumerator.Current;
+        }
+    }
 
     private sealed class StreamingUpdateEnumerator : IEnumerator<StreamingUpdate>
     {
         private static ReadOnlySpan<byte> TerminalData => "[DONE]"u8;
 
-        private readonly Func<ClientResult> _sendRequest;
-
-        // We keep a reference to the response we get from _sendRequest so we
-        // can ensure it's diposed properly.
-        private PipelineResponse? _response;
+        private readonly PipelineResponse _response;
 
         // These enumerators represent what is effectively a doubly-nested
         // loop over the outer event collection and the inner update collection,
@@ -61,11 +62,11 @@ internal class StreamingUpdateCollection : CollectionResult<StreamingUpdate>
         private StreamingUpdate? _current;
         private bool _started;
 
-        public StreamingUpdateEnumerator(Func<ClientResult> sendRequest)
+        public StreamingUpdateEnumerator(ClientResult page)
         {
-            Debug.Assert(sendRequest is not null);
+            Argument.AssertNotNull(page, nameof(page));
 
-            _sendRequest = sendRequest!;
+            _response = page.GetRawResponse();
         }
 
         StreamingUpdate IEnumerator<StreamingUpdate>.Current
@@ -113,9 +114,6 @@ internal class StreamingUpdateCollection : CollectionResult<StreamingUpdate>
 
         private IEnumerator<SseItem<byte[]>> CreateEventEnumerator()
         {
-            ClientResult result = _sendRequest();
-            _response = result.GetRawResponse();
-            
             if (_response.ContentStream is null)
             {
                 throw new InvalidOperationException("Unable to create result from response with null ContentStream");

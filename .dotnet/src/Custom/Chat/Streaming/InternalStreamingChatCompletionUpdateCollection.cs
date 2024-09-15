@@ -48,8 +48,6 @@ internal class InternalStreamingChatCompletionUpdateCollection : CollectionResul
     {
         private static ReadOnlySpan<byte> TerminalData => "[DONE]"u8;
 
-        // We keep a reference to the response we get from the page result so we
-        // can ensure it's disposed properly.
         private readonly PipelineResponse _response;
 
         // These enumerators represent what is effectively a doubly-nested
