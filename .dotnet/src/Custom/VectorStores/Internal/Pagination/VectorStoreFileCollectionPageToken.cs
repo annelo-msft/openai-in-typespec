@@ -1,4 +1,3 @@
-using OpenAI.Assistants;
 using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
@@ -22,6 +21,7 @@ internal class VectorStoreFileCollectionPageToken : ContinuationToken
         Before = before;
         Filter = filter;
     }
+
     public string VectorStoreId { get; }
 
     public int? Limit { get; }
