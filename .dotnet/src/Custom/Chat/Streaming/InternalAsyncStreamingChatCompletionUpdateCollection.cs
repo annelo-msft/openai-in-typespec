@@ -43,7 +43,7 @@ internal class InternalAsyncStreamingChatCompletionUpdateCollection : AsyncColle
 
     protected async override IAsyncEnumerable<StreamingChatCompletionUpdate> GetValuesFromPageAsync(ClientResult page)
     {
-        IAsyncEnumerator<StreamingChatCompletionUpdate> enumerator = new AsyncStreamingChatUpdateEnumerator(page, _cancellationToken);
+        await using IAsyncEnumerator<StreamingChatCompletionUpdate> enumerator = new AsyncStreamingChatUpdateEnumerator(page, _cancellationToken);
         while (await enumerator.MoveNextAsync().ConfigureAwait(false))
         {
             yield return enumerator.Current;

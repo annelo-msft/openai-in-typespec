@@ -3,7 +3,6 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Net.ServerSentEvents;
 
 #nullable enable
@@ -36,7 +35,7 @@ internal class StreamingUpdateCollection : CollectionResult<StreamingUpdate>
     }
     protected override IEnumerable<StreamingUpdate> GetValuesFromPage(ClientResult page)
     {
-        IEnumerator<StreamingUpdate> enumerator = new StreamingUpdateEnumerator(page);
+        using IEnumerator<StreamingUpdate> enumerator = new StreamingUpdateEnumerator(page);
         while (enumerator.MoveNext())
         {
             yield return enumerator.Current;
