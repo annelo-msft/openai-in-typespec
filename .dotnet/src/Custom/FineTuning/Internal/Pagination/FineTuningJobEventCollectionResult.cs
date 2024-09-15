@@ -13,7 +13,7 @@ internal class FineTuningJobEventCollectionResult : CollectionResult
     private readonly FineTuningClient _fineTuningClient;
     private readonly ClientPipeline _pipeline;
     private readonly RequestOptions _options;
-    
+
     // Initial values
     private readonly string _jobId;
     private readonly int? _limit;
@@ -45,28 +45,35 @@ internal class FineTuningJobEventCollectionResult : CollectionResult
     }
 
     public override ContinuationToken? GetContinuationToken(ClientResult page)
-        => FineTuningJobEventCollectionPageToken.FromResponse(page, _jobId, _limit);
+    {
+        Argument.AssertNotNull(page, nameof(page));
+
+        return FineTuningJobEventCollectionPageToken.FromResponse(page, _jobId, _limit);
+    }
 
     public ClientResult GetFirstPage()
         => GetJobEvents(_jobId, _after, _limit, _options);
 
     public ClientResult GetNextPage(ClientResult result)
     {
+        Argument.AssertNotNull(result, nameof(result));
+
         PipelineResponse response = result.GetRawResponse();
 
-        string lastId = null!;
         using JsonDocument doc = JsonDocument.Parse(response?.Content);
-        if (doc?.RootElement.TryGetProperty("data", out JsonElement dataElement) == true
-            && dataElement.EnumerateArray().LastOrDefault().TryGetProperty("id", out JsonElement idElement) == true)
-        {
-            lastId = idElement.GetString()!;
-        }
 
-        return GetJobEvents(_jobId, lastId!, _limit, _options);
+        JsonElement data = doc.RootElement.GetProperty("data");
+        JsonElement lastItem = data.EnumerateArray().LastOrDefault();
+        string? lastId = lastItem.TryGetProperty("id", out JsonElement idElement) ?
+            idElement.GetString() : null;
+
+        return GetJobEvents(_jobId, lastId, _limit, _options);
     }
 
     public static bool HasNextPage(ClientResult result)
     {
+        Argument.AssertNotNull(result, nameof(result));
+
         PipelineResponse response = result.GetRawResponse();
 
         using JsonDocument doc = JsonDocument.Parse(response.Content);
@@ -75,7 +82,7 @@ internal class FineTuningJobEventCollectionResult : CollectionResult
         return hasMore;
     }
 
-    internal virtual ClientResult GetJobEvents(string jobId, string after, int? limit, RequestOptions options)
+    internal virtual ClientResult GetJobEvents(string jobId, string? after, int? limit, RequestOptions options)
     {
         Argument.AssertNotNullOrEmpty(jobId, nameof(jobId));
 

@@ -49,20 +49,27 @@ internal class RunStepCollectionResult : CollectionResult<RunStep>
 
     protected override IEnumerable<RunStep> GetValuesFromPage(ClientResult page)
     {
+        Argument.AssertNotNull(page, nameof(page));
+
         PipelineResponse response = page.GetRawResponse();
         InternalListRunStepsResponse list = ModelReaderWriter.Read<InternalListRunStepsResponse>(response.Content)!;
         return list.Data;
     }
 
     public override ContinuationToken? GetContinuationToken(ClientResult page)
-        => RunStepCollectionPageToken.FromResponse(page, _threadId, _runId, _limit, _order, _before);
+    {
+        Argument.AssertNotNull(page, nameof(page));
 
+        return RunStepCollectionPageToken.FromResponse(page, _threadId, _runId, _limit, _order, _before);
+    }
 
     public ClientResult GetFirstPage()
         => _runClient.GetRunSteps(_threadId, _runId, _limit, _order, _after, _before, _options);
 
     public ClientResult GetNextPage(ClientResult result)
     {
+        Argument.AssertNotNull(result, nameof(result));
+
         PipelineResponse response = result.GetRawResponse();
 
         using JsonDocument doc = JsonDocument.Parse(response.Content);
@@ -73,6 +80,8 @@ internal class RunStepCollectionResult : CollectionResult<RunStep>
 
     public static bool HasNextPage(ClientResult result)
     {
+        Argument.AssertNotNull(result, nameof(result));
+
         PipelineResponse response = result.GetRawResponse();
 
         using JsonDocument doc = JsonDocument.Parse(response.Content);

@@ -47,6 +47,8 @@ internal class AsyncRunCollectionResult : AsyncCollectionResult<ThreadRun>
 
     protected async override IAsyncEnumerable<ThreadRun> GetValuesFromPageAsync(ClientResult page)
     {
+        Argument.AssertNotNull(page, nameof(page));
+
         PipelineResponse response = page.GetRawResponse();
         InternalListRunsResponse list = ModelReaderWriter.Read<InternalListRunsResponse>(response.Content)!;
         foreach (ThreadRun run in list.Data)
@@ -58,13 +60,19 @@ internal class AsyncRunCollectionResult : AsyncCollectionResult<ThreadRun>
     }
 
     public override ContinuationToken? GetContinuationToken(ClientResult page)
-        => RunCollectionPageToken.FromResponse(page, _threadId, _limit, _order, _before);
+    {
+        Argument.AssertNotNull(page, nameof(page));
+
+        return RunCollectionPageToken.FromResponse(page, _threadId, _limit, _order, _before);
+    }
 
     public async Task<ClientResult> GetFirstPageAsync()
         => await _runClient.GetRunsAsync(_threadId, _limit, _order, _after, _before, _options).ConfigureAwait(false);
 
     public async Task<ClientResult> GetNextPageAsync(ClientResult result)
     {
+        Argument.AssertNotNull(result, nameof(result));
+
         PipelineResponse response = result.GetRawResponse();
 
         using JsonDocument doc = JsonDocument.Parse(response.Content);
@@ -73,6 +81,6 @@ internal class AsyncRunCollectionResult : AsyncCollectionResult<ThreadRun>
         return await _runClient.GetRunsAsync(_threadId, _limit, _order, lastId, _before, _options).ConfigureAwait(false);
     }
 
-    public bool HasNextPage(ClientResult result)
+    public static bool HasNextPage(ClientResult result)
         => RunCollectionResult.HasNextPage(result);
 }

@@ -43,13 +43,19 @@ internal class AsyncBatchCollectionResult : AsyncCollectionResult
     }
 
     public override ContinuationToken? GetContinuationToken(ClientResult page)
-        => BatchCollectionPageToken.FromResponse(page, _limit);
+    {
+        Argument.AssertNotNull(page, nameof(page));
+
+        return BatchCollectionPageToken.FromResponse(page, _limit);
+    }
 
     public async Task<ClientResult> GetFirstPageAsync()
         => await GetBatchesAsync(_after, _limit, _options).ConfigureAwait(false);
 
     public async Task<ClientResult> GetNextPageAsync(ClientResult result)
     {
+        Argument.AssertNotNull(result, nameof(result));
+
         PipelineResponse response = result.GetRawResponse();
 
         using JsonDocument doc = JsonDocument.Parse(response.Content);
@@ -59,16 +65,8 @@ internal class AsyncBatchCollectionResult : AsyncCollectionResult
     }
 
     public static bool HasNextPage(ClientResult result)
-    {
-        PipelineResponse response = result.GetRawResponse();
+        => BatchCollectionResult.HasNextPage(result);
 
-        using JsonDocument doc = JsonDocument.Parse(response.Content);
-        bool hasMore = doc.RootElement.GetProperty("has_more"u8).GetBoolean();
-
-        return hasMore;
-    }
-
-    // TODO: Can we make these go away?
     internal virtual async Task<ClientResult> GetBatchesAsync(string? after, int? limit, RequestOptions options)
     {
         using PipelineMessage message = _batchClient.CreateGetBatchesRequest(after, limit, options);

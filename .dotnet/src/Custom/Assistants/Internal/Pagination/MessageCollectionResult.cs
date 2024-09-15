@@ -48,19 +48,27 @@ internal class MessageCollectionResult : CollectionResult<ThreadMessage>
 
     protected override IEnumerable<ThreadMessage> GetValuesFromPage(ClientResult page)
     {
+        Argument.AssertNotNull(page, nameof(page));
+
         PipelineResponse response = page.GetRawResponse();
         InternalListMessagesResponse list = ModelReaderWriter.Read<InternalListMessagesResponse>(response.Content)!;
         return list.Data;
     }
 
     public override ContinuationToken? GetContinuationToken(ClientResult page)
-        => MessageCollectionPageToken.FromResponse(page, _threadId, _limit, _order, _before);
+    {
+        Argument.AssertNotNull(page, nameof(page));
+
+        return MessageCollectionPageToken.FromResponse(page, _threadId, _limit, _order, _before); 
+    }
 
     public ClientResult GetFirstPage()
         => _messageClient.GetMessages(_threadId, _limit, _order, _after, _before, _options);
 
     public ClientResult GetNextPage(ClientResult result)
     {
+        Argument.AssertNotNull(result, nameof(result));
+
         PipelineResponse response = result.GetRawResponse();
 
         using JsonDocument doc = JsonDocument.Parse(response.Content);
@@ -69,36 +77,14 @@ internal class MessageCollectionResult : CollectionResult<ThreadMessage>
         return _messageClient.GetMessages(_threadId, _limit, _order, lastId, _before, _options);
     }
 
-    // Note: we could remove this in favor of calling GetContinuationToken and
-    // checking it for null, but this way avoids allocating a ContinuationToken
-    // if no one has asked for it.
     public static bool HasNextPage(ClientResult result)
     {
+        Argument.AssertNotNull(result, nameof(result));
+
         PipelineResponse response = result.GetRawResponse();
-        Utf8JsonReader reader = new Utf8JsonReader(response.Content);
 
-        bool hasMore = default;
-        bool foundValue = false;
-
-        while (reader.Read())
-        {
-            if (reader.TokenType == JsonTokenType.PropertyName)
-            {
-                // TODO: can we do it in UTF8 bytes?
-                string? propertyName = reader.GetString();
-                if (propertyName == "has_more")
-                {
-                    reader.Read();
-                    hasMore = reader.GetBoolean();
-                    foundValue = true;
-                }
-            }
-        }
-
-        if (!foundValue)
-        {
-            throw new JsonException("'has_more' value was not present in response.");
-        }
+        using JsonDocument doc = JsonDocument.Parse(response.Content);
+        bool hasMore = doc.RootElement.GetProperty("has_more"u8).GetBoolean();
 
         return hasMore;
     }

@@ -49,6 +49,8 @@ internal class AsyncMessageCollectionResult : AsyncCollectionResult<ThreadMessag
 
     protected async override IAsyncEnumerable<ThreadMessage> GetValuesFromPageAsync(ClientResult page)
     {
+        Argument.AssertNotNull(page, nameof(page));
+
         PipelineResponse response = page.GetRawResponse();
         InternalListMessagesResponse list = ModelReaderWriter.Read<InternalListMessagesResponse>(response.Content)!;
         foreach (ThreadMessage message in list.Data)
@@ -60,13 +62,19 @@ internal class AsyncMessageCollectionResult : AsyncCollectionResult<ThreadMessag
     }
 
     public override ContinuationToken? GetContinuationToken(ClientResult page)
-        => MessageCollectionPageToken.FromResponse(page, _threadId, _limit, _order, _before);
+    {
+        Argument.AssertNotNull(page, nameof(page));
+
+        return MessageCollectionPageToken.FromResponse(page, _threadId, _limit, _order, _before);
+    }
 
     public async Task<ClientResult> GetFirstPageAsync()
         => await _messageClient.GetMessagesAsync(_threadId, _limit, _order, _after, _before, _options).ConfigureAwait(false);
 
     public async Task<ClientResult> GetNextPageAsync(ClientResult result)
     {
+        Argument.AssertNotNull(result, nameof(result));
+
         PipelineResponse response = result.GetRawResponse();
 
         using JsonDocument doc = JsonDocument.Parse(response.Content);

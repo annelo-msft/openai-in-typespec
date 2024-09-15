@@ -47,19 +47,27 @@ internal class RunCollectionResult : CollectionResult<ThreadRun>
 
     protected override IEnumerable<ThreadRun> GetValuesFromPage(ClientResult page)
     {
+        Argument.AssertNotNull(page, nameof(page));
+
         PipelineResponse response = page.GetRawResponse();
         InternalListRunsResponse list = ModelReaderWriter.Read<InternalListRunsResponse>(response.Content)!;
         return list.Data;
     }
 
     public override ContinuationToken? GetContinuationToken(ClientResult page)
-        => RunCollectionPageToken.FromResponse(page, _threadId, _limit, _order, _before);
+    {
+        Argument.AssertNotNull(page, nameof(page));
 
-    public  ClientResult GetFirstPage()
+        return RunCollectionPageToken.FromResponse(page, _threadId, _limit, _order, _before);
+    }
+
+    public ClientResult GetFirstPage()
         => _runClient.GetRuns(_threadId, _limit, _order, _after, _before, _options);
 
     public ClientResult GetNextPage(ClientResult result)
     {
+        Argument.AssertNotNull(result, nameof(result));
+
         PipelineResponse response = result.GetRawResponse();
 
         using JsonDocument doc = JsonDocument.Parse(response.Content);
@@ -70,6 +78,8 @@ internal class RunCollectionResult : CollectionResult<ThreadRun>
 
     public static bool HasNextPage(ClientResult result)
     {
+        Argument.AssertNotNull(result, nameof(result));
+
         PipelineResponse response = result.GetRawResponse();
 
         using JsonDocument doc = JsonDocument.Parse(response.Content);

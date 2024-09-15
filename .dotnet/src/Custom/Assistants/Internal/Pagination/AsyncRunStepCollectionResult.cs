@@ -50,6 +50,8 @@ internal class AsyncRunStepCollectionResult : AsyncCollectionResult<RunStep>
 
     protected async override IAsyncEnumerable<RunStep> GetValuesFromPageAsync(ClientResult page)
     {
+        Argument.AssertNotNull(page, nameof(page));
+
         PipelineResponse response = page.GetRawResponse();
         InternalListRunStepsResponse list = ModelReaderWriter.Read<InternalListRunStepsResponse>(response.Content)!;
         foreach (RunStep step in list.Data)
@@ -61,13 +63,19 @@ internal class AsyncRunStepCollectionResult : AsyncCollectionResult<RunStep>
     }
 
     public override ContinuationToken? GetContinuationToken(ClientResult page)
-        => RunStepCollectionPageToken.FromResponse(page, _threadId, _runId, _limit, _order, _before);
+    {
+        Argument.AssertNotNull(page, nameof(page));
+
+        return RunStepCollectionPageToken.FromResponse(page, _threadId, _runId, _limit, _order, _before);
+    }
 
     public async Task<ClientResult> GetFirstPageAsync()
         => await _runClient.GetRunStepsAsync(_threadId, _runId, _limit, _order, _after, _before, _options).ConfigureAwait(false);
 
     public async Task<ClientResult> GetNextPageAsync(ClientResult result)
     {
+        Argument.AssertNotNull(result, nameof(result));
+
         PipelineResponse response = result.GetRawResponse();
 
         using JsonDocument doc = JsonDocument.Parse(response.Content);
@@ -76,6 +84,6 @@ internal class AsyncRunStepCollectionResult : AsyncCollectionResult<RunStep>
         return await _runClient.GetRunStepsAsync(_threadId, _runId, _limit, _order, lastId, _before, _options).ConfigureAwait(false);
     }
 
-    public bool HasNextPage(ClientResult result)
+    public static bool HasNextPage(ClientResult result)
         => RunStepCollectionResult.HasNextPage(result);
 }

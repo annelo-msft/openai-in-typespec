@@ -45,37 +45,35 @@ internal class AsyncFineTuningJobCollectionResult : AsyncCollectionResult
     }
 
     public override ContinuationToken? GetContinuationToken(ClientResult page)
-        => FineTuningJobCollectionPageToken.FromResponse(page, _limit);
+    {
+        Argument.AssertNotNull(page, nameof(page));
+
+        return FineTuningJobCollectionPageToken.FromResponse(page, _limit);
+    }
 
     public async Task<ClientResult> GetFirstPageAsync()
         => await GetJobsAsync(_after, _limit, _options).ConfigureAwait(false);
 
     public async Task<ClientResult> GetNextPageAsync(ClientResult result)
     {
+        Argument.AssertNotNull(result, nameof(result));
+
         PipelineResponse response = result.GetRawResponse();
 
-        string lastId = null!;
         using JsonDocument doc = JsonDocument.Parse(response?.Content);
-        if (doc?.RootElement.TryGetProperty("data", out JsonElement dataElement) == true
-            && dataElement.EnumerateArray().LastOrDefault().TryGetProperty("id", out JsonElement idElement) == true)
-        {
-            lastId = idElement.GetString()!;
-        }
 
-        return await GetJobsAsync(_after, _limit, _options).ConfigureAwait(false);
+        JsonElement data = doc.RootElement.GetProperty("data");
+        JsonElement lastItem = data.EnumerateArray().LastOrDefault();
+        string? lastId = lastItem.TryGetProperty("id", out JsonElement idElement) ?
+            idElement.GetString() : null;
+
+        return await GetJobsAsync(lastId, _limit, _options).ConfigureAwait(false);
     }
 
     public static bool HasNextPage(ClientResult result)
-    {
-        PipelineResponse response = result.GetRawResponse();
+        => FineTuningJobCollectionResult.HasNextPage(result);
 
-        using JsonDocument doc = JsonDocument.Parse(response.Content);
-        bool hasMore = doc.RootElement.GetProperty("has_more"u8).GetBoolean();
-
-        return hasMore;
-    }
-
-    internal virtual async Task<ClientResult> GetJobsAsync(string after, int? limit, RequestOptions options)
+    internal virtual async Task<ClientResult> GetJobsAsync(string? after, int? limit, RequestOptions options)
     {
         using PipelineMessage message = _fineTuningClient.CreateGetPaginatedFineTuningJobsRequest(after, limit, options);
         return ClientResult.FromResponse(await _pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));

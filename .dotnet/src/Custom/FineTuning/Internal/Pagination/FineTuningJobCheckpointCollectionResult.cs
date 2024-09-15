@@ -1,6 +1,7 @@
 ﻿using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.Json;
 
 #nullable enable
@@ -44,23 +45,35 @@ internal class FineTuningJobCheckpointCollectionResult : CollectionResult
     }
 
     public override ContinuationToken? GetContinuationToken(ClientResult page)
-        => FineTuningJobCheckpointCollectionPageToken.FromResponse(page, _jobId, _limit);
+    {
+        Argument.AssertNotNull(page, nameof(page));
+
+        return FineTuningJobCheckpointCollectionPageToken.FromResponse(page, _jobId, _limit);
+    }
 
     public ClientResult GetFirstPage()
         => GetJobCheckpoints(_jobId, _after, _limit, _options);
 
     public ClientResult GetNextPage(ClientResult result)
     {
+        Argument.AssertNotNull(result, nameof(result));
+
         PipelineResponse response = result.GetRawResponse();
 
-        using JsonDocument doc = JsonDocument.Parse(response.Content);
-        string lastId = doc.RootElement.GetProperty("last_id"u8).GetString()!;
+        using JsonDocument doc = JsonDocument.Parse(response?.Content);
+
+        JsonElement data = doc.RootElement.GetProperty("data");
+        JsonElement lastItem = data.EnumerateArray().LastOrDefault();
+        string? lastId = lastItem.TryGetProperty("id", out JsonElement idElement) ?
+            idElement.GetString() : null;
 
         return GetJobCheckpoints(_jobId, lastId, _limit, _options);
     }
 
     public static bool HasNextPage(ClientResult result)
     {
+        Argument.AssertNotNull(result, nameof(result));
+
         PipelineResponse response = result.GetRawResponse();
 
         using JsonDocument doc = JsonDocument.Parse(response.Content);
@@ -68,7 +81,7 @@ internal class FineTuningJobCheckpointCollectionResult : CollectionResult
 
         return hasMore;
     }
-    internal virtual ClientResult GetJobCheckpoints(string jobId, string after, int? limit, RequestOptions options)
+    internal virtual ClientResult GetJobCheckpoints(string jobId, string? after, int? limit, RequestOptions options)
     {
         Argument.AssertNotNullOrEmpty(jobId, nameof(jobId));
 

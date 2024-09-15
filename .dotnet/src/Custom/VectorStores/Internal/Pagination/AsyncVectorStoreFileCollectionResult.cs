@@ -52,6 +52,8 @@ internal class AsyncVectorStoreFileCollectionResult : AsyncCollectionResult<Vect
 
     protected async override IAsyncEnumerable<VectorStoreFileAssociation> GetValuesFromPageAsync(ClientResult page)
     {
+        Argument.AssertNotNull(page, nameof(page));
+
         PipelineResponse response = page.GetRawResponse();
         InternalListVectorStoreFilesResponse list = ModelReaderWriter.Read<InternalListVectorStoreFilesResponse>(response.Content)!;
         foreach (VectorStoreFileAssociation file in list.Data)
@@ -63,17 +65,23 @@ internal class AsyncVectorStoreFileCollectionResult : AsyncCollectionResult<Vect
     }
 
     public override ContinuationToken? GetContinuationToken(ClientResult page)
-        => VectorStoreFileCollectionPageToken.FromResponse(page, _vectorStoreId, _limit, _order, _before, _filter);
-    
+    {
+        Argument.AssertNotNull(page, nameof(page));
+
+        return VectorStoreFileCollectionPageToken.FromResponse(page, _vectorStoreId, _limit, _order, _before, _filter);
+    }
+
     public async Task<ClientResult> GetFirstPageAsync()
         => await GetFileAssociationsAsync(_vectorStoreId, _limit, _order, _after, _before, _filter, _options).ConfigureAwait(false);
 
     public async Task<ClientResult> GetNextPageAsync(ClientResult result)
     {
+        Argument.AssertNotNull(result, nameof(result));
+
         PipelineResponse response = result.GetRawResponse();
 
         using JsonDocument doc = JsonDocument.Parse(response.Content);
-        string lastId = doc.RootElement.GetProperty("last_id"u8).GetString()!;
+        string? lastId = doc.RootElement.GetProperty("last_id"u8).GetString();
 
         return await GetFileAssociationsAsync(_vectorStoreId, _limit, _order, lastId, _before, _filter, _options).ConfigureAwait(false);
     }

@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace OpenAI.VectorStores;
 
-internal class AsyncVectorStoreCollectionResult: AsyncCollectionResult<VectorStore>
+internal class AsyncVectorStoreCollectionResult : AsyncCollectionResult<VectorStore>
 {
     private readonly VectorStoreClient _vectorStoreClient;
     private readonly ClientPipeline _pipeline;
@@ -58,19 +58,25 @@ internal class AsyncVectorStoreCollectionResult: AsyncCollectionResult<VectorSto
     }
 
     public override ContinuationToken? GetContinuationToken(ClientResult page)
-        => VectorStoreCollectionPageToken.FromResponse(page, _limit, _order, _before);
+    {
+        Argument.AssertNotNull(page, nameof(page));
+
+        return VectorStoreCollectionPageToken.FromResponse(page, _limit, _order, _before);
+    }
 
     public async Task<ClientResult> GetFirstPageAsync()
-        => await GetVectorStoresAsync( _limit, _order, _after, _before, _options).ConfigureAwait(false);
+        => await GetVectorStoresAsync(_limit, _order, _after, _before, _options).ConfigureAwait(false);
 
     public async Task<ClientResult> GetNextPageAsync(ClientResult result)
     {
+        Argument.AssertNotNull(result, nameof(result));
+
         PipelineResponse response = result.GetRawResponse();
 
         using JsonDocument doc = JsonDocument.Parse(response.Content);
         string lastId = doc.RootElement.GetProperty("last_id"u8).GetString()!;
 
-        return await GetVectorStoresAsync( _limit, _order, lastId, _before, _options).ConfigureAwait(false);
+        return await GetVectorStoresAsync(_limit, _order, lastId, _before, _options).ConfigureAwait(false);
     }
 
     public static bool HasNextPage(ClientResult result)

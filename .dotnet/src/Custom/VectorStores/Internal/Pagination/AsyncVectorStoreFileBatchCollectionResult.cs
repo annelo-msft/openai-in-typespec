@@ -54,6 +54,8 @@ internal class AsyncVectorStoreFileBatchCollectionResult : AsyncCollectionResult
 
     protected async override IAsyncEnumerable<VectorStoreFileAssociation> GetValuesFromPageAsync(ClientResult page)
     {
+        Argument.AssertNotNull(page, nameof(page));
+
         PipelineResponse response = page.GetRawResponse();
         InternalListVectorStoreFilesResponse list = ModelReaderWriter.Read<InternalListVectorStoreFilesResponse>(response.Content)!;
         foreach (VectorStoreFileAssociation file in list.Data)
@@ -65,23 +67,29 @@ internal class AsyncVectorStoreFileBatchCollectionResult : AsyncCollectionResult
     }
 
     public override ContinuationToken? GetContinuationToken(ClientResult page)
-        => VectorStoreFileBatchCollectionPageToken.FromResponse(page, _vectorStoreId, _batchId, _limit, _order, _before, _filter);
+    {
+        Argument.AssertNotNull(page, nameof(page));
+
+        return VectorStoreFileBatchCollectionPageToken.FromResponse(page, _vectorStoreId, _batchId, _limit, _order, _before, _filter);
+    }
+
     public async Task<ClientResult> GetFirstPageAsync()
-    => await GetFileAssociationsAsync(_vectorStoreId, _batchId, _limit, _order, _after, _before, _filter, _options).ConfigureAwait(false);
+        => await GetFileAssociationsAsync(_vectorStoreId, _batchId, _limit, _order, _after, _before, _filter, _options).ConfigureAwait(false);
 
     public async Task<ClientResult> GetNextPageAsync(ClientResult result)
     {
+        Argument.AssertNotNull(result, nameof(result));
+
         PipelineResponse response = result.GetRawResponse();
 
         using JsonDocument doc = JsonDocument.Parse(response.Content);
-        string lastId = doc.RootElement.GetProperty("last_id"u8).GetString()!;
+        string? lastId = doc.RootElement.GetProperty("last_id"u8).GetString();
 
-        return await GetFileAssociationsAsync(_vectorStoreId, _batchId, _limit, _order, _after, _before, _filter, _options).ConfigureAwait(false);
+        return await GetFileAssociationsAsync(_vectorStoreId, _batchId, _limit, _order, lastId, _before, _filter, _options).ConfigureAwait(false);
     }
 
     public static bool HasNextPage(ClientResult result)
         => VectorStoreFileBatchCollectionResult.HasNextPage(result);
-
 
     internal virtual async Task<ClientResult> GetFileAssociationsAsync(string vectorStoreId, string batchId, int? limit, string? order, string? after, string? before, string? filter, RequestOptions options)
     {

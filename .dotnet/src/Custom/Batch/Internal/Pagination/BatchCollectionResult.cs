@@ -42,13 +42,19 @@ internal class BatchCollectionResult : CollectionResult
     }
 
     public override ContinuationToken? GetContinuationToken(ClientResult page)
-        => BatchCollectionPageToken.FromResponse(page, _limit);
+    {
+        Argument.AssertNotNull(page, nameof(page));
+
+        return BatchCollectionPageToken.FromResponse(page, _limit);
+    }
 
     public ClientResult GetFirstPage()
         => GetBatches(_after, _limit, _options);
 
     public ClientResult GetNextPage(ClientResult result)
     {
+        Argument.AssertNotNull(result, nameof(result));
+
         PipelineResponse response = result.GetRawResponse();
 
         using JsonDocument doc = JsonDocument.Parse(response.Content);
@@ -59,6 +65,8 @@ internal class BatchCollectionResult : CollectionResult
 
     public static bool HasNextPage(ClientResult result)
     {
+        Argument.AssertNotNull(result, nameof(result));
+
         PipelineResponse response = result.GetRawResponse();
 
         using JsonDocument doc = JsonDocument.Parse(response.Content);
@@ -67,7 +75,8 @@ internal class BatchCollectionResult : CollectionResult
         return hasMore;
     }
 
-    // TODO: Can we make these go away?
+    // TODO: Ideally these would come from internal generated client or other
+    // standardized pattern
     internal virtual ClientResult GetBatches(string after, int? limit, RequestOptions options)
     {
         using PipelineMessage message = _batchClient.CreateGetBatchesRequest(after, limit, options);

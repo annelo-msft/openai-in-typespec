@@ -43,28 +43,35 @@ internal class FineTuningJobCollectionResult : CollectionResult
     }
 
     public override ContinuationToken? GetContinuationToken(ClientResult page)
-        => FineTuningJobCollectionPageToken.FromResponse(page, _limit);
+    {
+        Argument.AssertNotNull(page, nameof(page));
+
+        return FineTuningJobCollectionPageToken.FromResponse(page, _limit);
+    }
 
     public ClientResult GetFirstPage()
         => GetJobs(_after, _limit, _options);
 
     public ClientResult GetNextPage(ClientResult result)
     {
+        Argument.AssertNotNull(result, nameof(result));
+
         PipelineResponse response = result.GetRawResponse();
 
-        string lastId = null!;
         using JsonDocument doc = JsonDocument.Parse(response?.Content);
-        if (doc?.RootElement.TryGetProperty("data", out JsonElement dataElement) == true
-            && dataElement.EnumerateArray().LastOrDefault().TryGetProperty("id", out JsonElement idElement) == true)
-        {
-            lastId = idElement.GetString()!;
-        }
 
-        return GetJobs(lastId!, _limit, _options);
+        JsonElement data = doc.RootElement.GetProperty("data");
+        JsonElement lastItem = data.EnumerateArray().LastOrDefault();
+        string? lastId = lastItem.TryGetProperty("id", out JsonElement idElement) ?
+            idElement.GetString() : null;
+
+        return GetJobs(lastId, _limit, _options);
     }
 
     public static bool HasNextPage(ClientResult result)
     {
+        Argument.AssertNotNull(result, nameof(result));
+
         PipelineResponse response = result.GetRawResponse();
 
         using JsonDocument doc = JsonDocument.Parse(response.Content);
@@ -73,7 +80,7 @@ internal class FineTuningJobCollectionResult : CollectionResult
         return hasMore;
     }
 
-    internal virtual ClientResult GetJobs(string after, int? limit, RequestOptions options)
+    internal virtual ClientResult GetJobs(string? after, int? limit, RequestOptions options)
     {
         using PipelineMessage message = _fineTuningClient.CreateGetPaginatedFineTuningJobsRequest(after, limit, options);
         return ClientResult.FromResponse(_pipeline.ProcessMessage(message, options));
