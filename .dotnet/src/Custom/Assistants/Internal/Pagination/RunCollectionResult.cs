@@ -44,6 +44,7 @@ internal class RunCollectionResult : CollectionResult<ThreadRun>
             yield return nextPage;
         }
     }
+
     protected override IEnumerable<ThreadRun> GetValuesFromPage(ClientResult page)
     {
         PipelineResponse response = page.GetRawResponse();

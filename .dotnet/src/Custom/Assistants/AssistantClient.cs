@@ -869,7 +869,7 @@ public partial class AssistantClient
     {
         Argument.AssertNotNull(firstPageToken, nameof(firstPageToken));
 
-        RunsPageToken pageToken = RunsPageToken.FromToken(firstPageToken);
+        RunCollectionPageToken pageToken = RunCollectionPageToken.FromToken(firstPageToken);
         return GetRunsAsync(pageToken?.ThreadId, pageToken?.Limit, pageToken?.Order, pageToken?.After, pageToken?.Before, cancellationToken.ToRequestOptions())
             as AsyncCollectionResult<ThreadRun>;
     }
@@ -910,7 +910,7 @@ public partial class AssistantClient
     {
         Argument.AssertNotNull(firstPageToken, nameof(firstPageToken));
 
-        RunsPageToken pageToken = RunsPageToken.FromToken(firstPageToken);
+        RunCollectionPageToken pageToken = RunCollectionPageToken.FromToken(firstPageToken);
         return GetRuns(pageToken?.ThreadId, pageToken?.Limit, pageToken?.Order, pageToken?.After, pageToken?.Before, cancellationToken.ToRequestOptions())
             as CollectionResult<ThreadRun>;
     }
@@ -1121,7 +1121,7 @@ public partial class AssistantClient
     {
         Argument.AssertNotNull(firstPageToken, nameof(firstPageToken));
 
-        RunStepsPageToken pageToken = RunStepsPageToken.FromToken(firstPageToken);
+        RunStepCollectionPageToken pageToken = RunStepCollectionPageToken.FromToken(firstPageToken);
         return GetRunStepsAsync(pageToken?.ThreadId, pageToken?.RunId, pageToken?.Limit, pageToken?.Order, pageToken?.After, pageToken?.Before, cancellationToken.ToRequestOptions())
             as AsyncCollectionResult<RunStep>;
     }
@@ -1165,7 +1165,7 @@ public partial class AssistantClient
     {
         Argument.AssertNotNull(firstPageToken, nameof(firstPageToken));
 
-        RunStepsPageToken pageToken = RunStepsPageToken.FromToken(firstPageToken);
+        RunStepCollectionPageToken pageToken = RunStepCollectionPageToken.FromToken(firstPageToken);
         return GetRunSteps(pageToken?.ThreadId, pageToken?.RunId, pageToken?.Limit, pageToken?.Order, pageToken?.After, pageToken?.Before, cancellationToken.ToRequestOptions())
             as CollectionResult<RunStep>;
     }
