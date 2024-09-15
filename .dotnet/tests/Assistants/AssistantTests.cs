@@ -271,8 +271,8 @@ public partial class AssistantTests : SyncAsyncTestBase
         Validate(thread);
         MessageCollectionOptions collectionOptions = new MessageCollectionOptions() { Order = MessageCollectionOrder.Ascending };
         List<ThreadMessage> messages = IsAsync ?
-            await client.GetMessagesAsync(thread).ToListAsync() :
-            client.GetMessages(thread).ToList();
+            await client.GetMessagesAsync(thread, collectionOptions).ToListAsync() :
+            client.GetMessages(thread, collectionOptions).ToList();
         Assert.That(messages.Count, Is.EqualTo(2));
         Assert.That(messages[0].Role, Is.EqualTo(MessageRole.User));
         Assert.That(messages[0].Content?.Count, Is.EqualTo(1));
