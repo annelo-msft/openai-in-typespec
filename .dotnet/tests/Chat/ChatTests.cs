@@ -101,6 +101,50 @@ public partial class ChatTests : SyncAsyncTestBase
     }
 
     [Test]
+    public void CompleteChatStreamingClosesNetworkStream()
+    {
+        MockPipelineResponse response = new(200);
+        response.SetContent("""
+            data: {"id":"chatcmpl-A7mKGugwaczn3YyrJLlZY6CM0Wlkr","object":"chat.completion.chunk","created":1726417424,"model":"gpt-4o-mini-2024-07-18","system_fingerprint":"fp_483d39d857","choices":[{"index":0,"delta":{"role":"assistant","content":"","refusal":null},"logprobs":null,"finish_reason":null}],"usage":null}
+
+            data: {"id":"chatcmpl-A7mKGugwaczn3YyrJLlZY6CM0Wlkr","object":"chat.completion.chunk","created":1726417424,"model":"gpt-4o-mini-2024-07-18","system_fingerprint":"fp_483d39d857","choices":[{"index":0,"delta":{"content":"The"},"logprobs":null,"finish_reason":null}],"usage":null}
+
+            data: [DONE]
+            """);
+
+        OpenAIClientOptions options = new OpenAIClientOptions()
+        {
+            Transport = new MockPipelineTransport(response)
+        };
+
+        ChatClient client = GetTestClient<ChatClient>(TestScenario.Chat, options: options);
+        IEnumerable<ChatMessage> messages = [
+            new UserChatMessage("What are the best pizza toppings? Give me a breakdown on the reasons.")
+        ];
+
+        TimeSpan? firstTokenReceiptTime = null;
+        TimeSpan? latestTokenReceiptTime = null;
+        Stopwatch stopwatch = Stopwatch.StartNew();
+
+        CollectionResult<StreamingChatCompletionUpdate> streamingResult = client.CompleteChatStreaming(messages);
+        Assert.That(streamingResult, Is.InstanceOf<CollectionResult<StreamingChatCompletionUpdate>>());
+        int updateCount = 0;
+
+        Assert.IsFalse(response.IsDisposed);
+
+        foreach (StreamingChatCompletionUpdate chatUpdate in streamingResult)
+        {
+            firstTokenReceiptTime ??= stopwatch.Elapsed;
+            latestTokenReceiptTime = stopwatch.Elapsed;
+            Console.WriteLine(stopwatch.Elapsed.TotalMilliseconds);
+            updateCount++;
+        }
+
+        Assert.IsTrue(response.IsDisposed);
+    }
+
+
+    [Test]
     public async Task StreamingChatAsync()
     {
         ChatClient client = GetTestClient<ChatClient>(TestScenario.Chat);
