@@ -45,8 +45,8 @@ internal class AsyncVectorStoreFileCollectionResult : AsyncCollectionResult<Vect
 
         while (HasNextPage(page))
         {
-            ClientResult nextPage = await GetNextPageAsync(page);
-            yield return nextPage;
+            page = await GetNextPageAsync(page);
+            yield return page;
         }
     }
 

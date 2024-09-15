@@ -41,8 +41,8 @@ internal class MessageCollectionResult : CollectionResult<ThreadMessage>
 
         while (HasNextPage(page))
         {
-            ClientResult nextPage = GetNextPage(page);
-            yield return nextPage;
+            page = GetNextPage(page);
+            yield return page;
         }
     }
 

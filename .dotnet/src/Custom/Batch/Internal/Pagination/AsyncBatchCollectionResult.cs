@@ -37,8 +37,8 @@ internal class AsyncBatchCollectionResult : AsyncCollectionResult
 
         while (HasNextPage(page))
         {
-            ClientResult nextPage = await GetNextPageAsync(page);
-            yield return nextPage;
+            page = await GetNextPageAsync(page);
+            yield return page;
         }
     }
 
@@ -69,7 +69,7 @@ internal class AsyncBatchCollectionResult : AsyncCollectionResult
     }
 
     // TODO: Can we make these go away?
-    internal virtual async Task<ClientResult> GetBatchesAsync(string after, int? limit, RequestOptions options)
+    internal virtual async Task<ClientResult> GetBatchesAsync(string? after, int? limit, RequestOptions options)
     {
         using PipelineMessage message = _batchClient.CreateGetBatchesRequest(after, limit, options);
         return ClientResult.FromResponse(await _pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));

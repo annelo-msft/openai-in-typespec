@@ -46,8 +46,8 @@ internal class VectorStoreFileBatchCollectionResult : CollectionResult<VectorSto
 
         while (HasNextPage(page))
         {
-            ClientResult nextPage = GetNextPage(page);
-            yield return nextPage;
+            page = GetNextPage(page);
+            yield return page;
         }
     }
 

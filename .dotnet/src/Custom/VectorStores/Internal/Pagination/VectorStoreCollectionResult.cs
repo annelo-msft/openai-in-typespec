@@ -40,8 +40,8 @@ internal class VectorStoreCollectionResult : CollectionResult<VectorStore>
 
         while (HasNextPage(page))
         {
-            ClientResult nextPage = GetNextPage(page);
-            yield return nextPage;
+            page = GetNextPage(page);
+            yield return page;
         }
     }
 
