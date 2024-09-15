@@ -1,15 +1,16 @@
 ﻿using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.Json;
 
 #nullable enable
 
-namespace OpenAI.Batch;
+namespace OpenAI.FineTuning;
 
-internal class BatchCollectionResult : CollectionResult
+internal class FineTuningJobCollectionResult : CollectionResult
 {
-    private readonly BatchClient _batchClient;
+    private readonly FineTuningClient _fineTuningClient;
     private readonly ClientPipeline _pipeline;
     private readonly RequestOptions _options;
 
@@ -17,11 +18,11 @@ internal class BatchCollectionResult : CollectionResult
     private readonly int? _limit;
     private readonly string _after;
 
-    public BatchCollectionResult(BatchClient batchClient,
+    public FineTuningJobCollectionResult(FineTuningClient fineTuningClient,
         ClientPipeline pipeline, RequestOptions options,
         int? limit, string after)
     {
-        _batchClient = batchClient;
+        _fineTuningClient = fineTuningClient;
         _pipeline = pipeline;
         _options = options;
 
@@ -42,19 +43,24 @@ internal class BatchCollectionResult : CollectionResult
     }
 
     public override ContinuationToken? GetContinuationToken(ClientResult page)
-        => BatchCollectionPageToken.FromResponse(page, _limit);
+        => FineTuningJobCollectionPageToken.FromResponse(page, _limit);
 
     public ClientResult GetFirstPage()
-        => GetBatches(_after, _limit, _options);
+        => GetJobs(_after, _limit, _options);
 
     public ClientResult GetNextPage(ClientResult result)
     {
         PipelineResponse response = result.GetRawResponse();
 
-        using JsonDocument doc = JsonDocument.Parse(response.Content);
-        string lastId = doc.RootElement.GetProperty("last_id"u8).GetString()!;
+        string lastId = null!;
+        using JsonDocument doc = JsonDocument.Parse(response?.Content);
+        if (doc?.RootElement.TryGetProperty("data", out JsonElement dataElement) == true
+            && dataElement.EnumerateArray().LastOrDefault().TryGetProperty("id", out JsonElement idElement) == true)
+        {
+            lastId = idElement.GetString()!;
+        }
 
-        return GetBatches(lastId, _limit, _options);
+        return GetJobs(lastId!, _limit, _options);
     }
 
     public static bool HasNextPage(ClientResult result)
@@ -67,10 +73,9 @@ internal class BatchCollectionResult : CollectionResult
         return hasMore;
     }
 
-    // TODO: Can we make these go away?
-    internal virtual ClientResult GetBatches(string after, int? limit, RequestOptions options)
+    internal virtual ClientResult GetJobs(string after, int? limit, RequestOptions options)
     {
-        using PipelineMessage message = _batchClient.CreateGetBatchesRequest(after, limit, options);
+        using PipelineMessage message = _fineTuningClient.CreateGetPaginatedFineTuningJobsRequest(after, limit, options);
         return ClientResult.FromResponse(_pipeline.ProcessMessage(message, options));
     }
 }

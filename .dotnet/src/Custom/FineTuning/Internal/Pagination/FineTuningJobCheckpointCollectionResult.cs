@@ -5,26 +5,28 @@ using System.Text.Json;
 
 #nullable enable
 
-namespace OpenAI.Batch;
+namespace OpenAI.FineTuning;
 
-internal class BatchCollectionResult : CollectionResult
+internal class FineTuningJobCheckpointCollectionResult : CollectionResult
 {
-    private readonly BatchClient _batchClient;
+    private readonly FineTuningClient _fineTuningClient;
     private readonly ClientPipeline _pipeline;
     private readonly RequestOptions _options;
 
     // Initial values
+    private readonly string _jobId;
     private readonly int? _limit;
     private readonly string _after;
 
-    public BatchCollectionResult(BatchClient batchClient,
+    public FineTuningJobCheckpointCollectionResult(FineTuningClient fineTuningClient,
         ClientPipeline pipeline, RequestOptions options,
-        int? limit, string after)
+        string jobId, int? limit, string after)
     {
-        _batchClient = batchClient;
+        _fineTuningClient = fineTuningClient;
         _pipeline = pipeline;
         _options = options;
 
+        _jobId = jobId;
         _limit = limit;
         _after = after;
     }
@@ -42,10 +44,10 @@ internal class BatchCollectionResult : CollectionResult
     }
 
     public override ContinuationToken? GetContinuationToken(ClientResult page)
-        => BatchCollectionPageToken.FromResponse(page, _limit);
+        => FineTuningJobCheckpointCollectionPageToken.FromResponse(page, _jobId, _limit);
 
     public ClientResult GetFirstPage()
-        => GetBatches(_after, _limit, _options);
+        => GetJobCheckpoints(_jobId, _after, _limit, _options);
 
     public ClientResult GetNextPage(ClientResult result)
     {
@@ -54,7 +56,7 @@ internal class BatchCollectionResult : CollectionResult
         using JsonDocument doc = JsonDocument.Parse(response.Content);
         string lastId = doc.RootElement.GetProperty("last_id"u8).GetString()!;
 
-        return GetBatches(lastId, _limit, _options);
+        return GetJobCheckpoints(_jobId, lastId, _limit, _options);
     }
 
     public static bool HasNextPage(ClientResult result)
@@ -66,11 +68,11 @@ internal class BatchCollectionResult : CollectionResult
 
         return hasMore;
     }
-
-    // TODO: Can we make these go away?
-    internal virtual ClientResult GetBatches(string after, int? limit, RequestOptions options)
+    internal virtual ClientResult GetJobCheckpoints(string jobId, string after, int? limit, RequestOptions options)
     {
-        using PipelineMessage message = _batchClient.CreateGetBatchesRequest(after, limit, options);
+        Argument.AssertNotNullOrEmpty(jobId, nameof(jobId));
+
+        using PipelineMessage message = _fineTuningClient.CreateGetFineTuningJobCheckpointsRequest(jobId, after, limit, options);
         return ClientResult.FromResponse(_pipeline.ProcessMessage(message, options));
     }
 }
