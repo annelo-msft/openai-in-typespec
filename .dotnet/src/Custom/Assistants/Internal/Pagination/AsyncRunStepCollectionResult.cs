@@ -2,6 +2,7 @@
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 
 #nullable enable
@@ -11,7 +12,7 @@ namespace OpenAI.Assistants;
 internal class AsyncRunStepCollectionResult : AsyncCollectionResult<RunStep>
 {
     private readonly InternalAssistantRunClient _runClient;
-    private readonly RequestOptions _options;
+    private readonly RequestOptions? _options;
 
     // Initial values
     private readonly string _threadId;
@@ -22,8 +23,10 @@ internal class AsyncRunStepCollectionResult : AsyncCollectionResult<RunStep>
     private readonly string? _before;
 
     public AsyncRunStepCollectionResult(InternalAssistantRunClient runClient,
-        RequestOptions options,
-        string threadId, string runId, int? limit, string? order, string? after, string? before)
+        RequestOptions? options,
+        string threadId, string runId, 
+        int? limit, string? order, string? after, string? before)
+        : base(options?.CancellationToken ?? CancellationToken.None)
     {
         _runClient = runClient;
         _options = options;
@@ -48,18 +51,13 @@ internal class AsyncRunStepCollectionResult : AsyncCollectionResult<RunStep>
         }
     }
 
-    protected async override IAsyncEnumerable<RunStep> GetValuesFromPageAsync(ClientResult page)
+    protected override IAsyncEnumerable<RunStep> GetValuesFromPageAsync(ClientResult page)
     {
         Argument.AssertNotNull(page, nameof(page));
 
         PipelineResponse response = page.GetRawResponse();
         InternalListRunStepsResponse list = ModelReaderWriter.Read<InternalListRunStepsResponse>(response.Content)!;
-        foreach (RunStep step in list.Data)
-        {
-            // TODO: Address this.
-            await Task.Delay(0);
-            yield return step;
-        }
+        return list.Data.ToAsyncEnumerable(CancellationToken);
     }
 
     public override ContinuationToken? GetContinuationToken(ClientResult page)

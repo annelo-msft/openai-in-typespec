@@ -2,6 +2,7 @@
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 
 #nullable enable
@@ -12,7 +13,7 @@ internal class AsyncVectorStoreFileBatchCollectionResult : AsyncCollectionResult
 {
     private readonly VectorStoreClient _vectorStoreClient;
     private readonly ClientPipeline _pipeline;
-    private readonly RequestOptions _options;
+    private readonly RequestOptions? _options;
 
     // Initial values
     private readonly string _vectorStoreId;
@@ -25,7 +26,9 @@ internal class AsyncVectorStoreFileBatchCollectionResult : AsyncCollectionResult
 
     public AsyncVectorStoreFileBatchCollectionResult(VectorStoreClient messageClient,
         ClientPipeline pipeline, RequestOptions options,
-        string vectorStoreId, string batchId, int? limit, string? order, string? after, string? before, string? filter)
+        string vectorStoreId, string batchId, 
+        int? limit, string? order, string? after, string? before, string? filter)
+        : base(options?.CancellationToken ?? CancellationToken.None)
     {
         _vectorStoreClient = messageClient;
         _pipeline = pipeline;
@@ -52,18 +55,13 @@ internal class AsyncVectorStoreFileBatchCollectionResult : AsyncCollectionResult
         }
     }
 
-    protected async override IAsyncEnumerable<VectorStoreFileAssociation> GetValuesFromPageAsync(ClientResult page)
+    protected override IAsyncEnumerable<VectorStoreFileAssociation> GetValuesFromPageAsync(ClientResult page)
     {
         Argument.AssertNotNull(page, nameof(page));
 
         PipelineResponse response = page.GetRawResponse();
         InternalListVectorStoreFilesResponse list = ModelReaderWriter.Read<InternalListVectorStoreFilesResponse>(response.Content)!;
-        foreach (VectorStoreFileAssociation file in list.Data)
-        {
-            // TODO: Address this.
-            await Task.Delay(0);
-            yield return file;
-        }
+        return list.Data.ToAsyncEnumerable(CancellationToken);
     }
 
     public override ContinuationToken? GetContinuationToken(ClientResult page)
@@ -91,7 +89,7 @@ internal class AsyncVectorStoreFileBatchCollectionResult : AsyncCollectionResult
     public static bool HasNextPage(ClientResult result)
         => VectorStoreFileBatchCollectionResult.HasNextPage(result);
 
-    internal virtual async Task<ClientResult> GetFileAssociationsAsync(string vectorStoreId, string batchId, int? limit, string? order, string? after, string? before, string? filter, RequestOptions options)
+    internal virtual async Task<ClientResult> GetFileAssociationsAsync(string vectorStoreId, string batchId, int? limit, string? order, string? after, string? before, string? filter, RequestOptions? options)
     {
         Argument.AssertNotNullOrEmpty(vectorStoreId, nameof(vectorStoreId));
         Argument.AssertNotNullOrEmpty(batchId, nameof(batchId));

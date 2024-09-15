@@ -3,6 +3,7 @@ using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 
 #nullable enable
@@ -13,7 +14,7 @@ internal class AsyncFineTuningJobCheckpointCollectionResult : AsyncCollectionRes
 {
     private readonly FineTuningClient _fineTuningClient;
     private readonly ClientPipeline _pipeline;
-    private readonly RequestOptions _options;
+    private readonly RequestOptions? _options;
 
     // Initial values
     private readonly string _jobId;
@@ -21,8 +22,9 @@ internal class AsyncFineTuningJobCheckpointCollectionResult : AsyncCollectionRes
     private readonly string _after;
 
     public AsyncFineTuningJobCheckpointCollectionResult(FineTuningClient fineTuningClient,
-        ClientPipeline pipeline, RequestOptions options,
+        ClientPipeline pipeline, RequestOptions? options,
         string jobId, int? limit, string after)
+        : base(options?.CancellationToken ?? CancellationToken.None)
     {
         _fineTuningClient = fineTuningClient;
         _pipeline = pipeline;
@@ -74,7 +76,7 @@ internal class AsyncFineTuningJobCheckpointCollectionResult : AsyncCollectionRes
     public static bool HasNextPage(ClientResult result)
         => FineTuningJobCheckpointCollectionResult.HasNextPage(result);
 
-    internal virtual async Task<ClientResult> GetJobCheckpointsAsync(string jobId, string? after, int? limit, RequestOptions options)
+    internal virtual async Task<ClientResult> GetJobCheckpointsAsync(string jobId, string? after, int? limit, RequestOptions? options)
     {
         Argument.AssertNotNullOrEmpty(jobId, nameof(jobId));
 

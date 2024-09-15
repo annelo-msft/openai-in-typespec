@@ -2,6 +2,7 @@
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 
 #nullable enable
@@ -12,16 +13,18 @@ internal class AsyncVectorStoreCollectionResult : AsyncCollectionResult<VectorSt
 {
     private readonly VectorStoreClient _vectorStoreClient;
     private readonly ClientPipeline _pipeline;
-    private readonly RequestOptions _options;
+    private readonly RequestOptions? _options;
 
     // Initial values
     private readonly int? _limit;
     private readonly string? _order;
     private readonly string? _after;
     private readonly string? _before;
+
     public AsyncVectorStoreCollectionResult(VectorStoreClient vectorStoreClient,
-        ClientPipeline pipeline, RequestOptions options,
+        ClientPipeline pipeline, RequestOptions? options,
         int? limit, string? order, string? after, string? before)
+        : base(options?.CancellationToken ?? CancellationToken.None)
     {
         _vectorStoreClient = vectorStoreClient;
         _pipeline = pipeline;
@@ -45,16 +48,11 @@ internal class AsyncVectorStoreCollectionResult : AsyncCollectionResult<VectorSt
         }
     }
 
-    protected async override IAsyncEnumerable<VectorStore> GetValuesFromPageAsync(ClientResult page)
+    protected override IAsyncEnumerable<VectorStore> GetValuesFromPageAsync(ClientResult page)
     {
         PipelineResponse response = page.GetRawResponse();
         InternalListVectorStoresResponse list = ModelReaderWriter.Read<InternalListVectorStoresResponse>(response.Content)!;
-        foreach (VectorStore store in list.Data)
-        {
-            // TODO: Address this.
-            await Task.Delay(0);
-            yield return store;
-        }
+        return list.Data.ToAsyncEnumerable(CancellationToken);
     }
 
     public override ContinuationToken? GetContinuationToken(ClientResult page)
@@ -82,7 +80,7 @@ internal class AsyncVectorStoreCollectionResult : AsyncCollectionResult<VectorSt
     public static bool HasNextPage(ClientResult result)
         => VectorStoreCollectionResult.HasNextPage(result);
 
-    internal virtual async Task<ClientResult> GetVectorStoresAsync(int? limit, string? order, string? after, string? before, RequestOptions options)
+    internal virtual async Task<ClientResult> GetVectorStoresAsync(int? limit, string? order, string? after, string? before, RequestOptions? options)
     {
         using PipelineMessage message = _vectorStoreClient.CreateGetVectorStoresRequest(limit, order, after, before, options);
         return ClientResult.FromResponse(await _pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));

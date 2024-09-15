@@ -2,6 +2,7 @@
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 
 #nullable enable
@@ -11,7 +12,7 @@ namespace OpenAI.Assistants;
 internal class AsyncRunCollectionResult : AsyncCollectionResult<ThreadRun>
 {
     private readonly InternalAssistantRunClient _runClient;
-    private readonly RequestOptions _options;
+    private readonly RequestOptions? _options;
 
     // Initial values
     private readonly string _threadId;
@@ -21,8 +22,10 @@ internal class AsyncRunCollectionResult : AsyncCollectionResult<ThreadRun>
     private readonly string? _before;
 
     public AsyncRunCollectionResult(InternalAssistantRunClient runClient,
-    RequestOptions options,
-    string threadId, int? limit, string? order, string? after, string? before)
+        RequestOptions? options,
+        string threadId, 
+        int? limit, string? order, string? after, string? before)
+            : base(options?.CancellationToken ?? CancellationToken.None)
     {
         _runClient = runClient;
         _options = options;
@@ -45,18 +48,13 @@ internal class AsyncRunCollectionResult : AsyncCollectionResult<ThreadRun>
         }
     }
 
-    protected async override IAsyncEnumerable<ThreadRun> GetValuesFromPageAsync(ClientResult page)
+    protected override IAsyncEnumerable<ThreadRun> GetValuesFromPageAsync(ClientResult page)
     {
         Argument.AssertNotNull(page, nameof(page));
 
         PipelineResponse response = page.GetRawResponse();
         InternalListRunsResponse list = ModelReaderWriter.Read<InternalListRunsResponse>(response.Content)!;
-        foreach (ThreadRun run in list.Data)
-        {
-            // TODO: Address this.
-            await Task.Delay(0);
-            yield return run;
-        }
+        return list.Data.ToAsyncEnumerable(CancellationToken);
     }
 
     public override ContinuationToken? GetContinuationToken(ClientResult page)

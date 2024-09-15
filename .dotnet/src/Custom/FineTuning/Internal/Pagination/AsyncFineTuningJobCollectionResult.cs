@@ -3,6 +3,7 @@ using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 
 #nullable enable
@@ -13,15 +14,16 @@ internal class AsyncFineTuningJobCollectionResult : AsyncCollectionResult
 {
     private readonly FineTuningClient _fineTuningClient;
     private readonly ClientPipeline _pipeline;
-    private readonly RequestOptions _options;
+    private readonly RequestOptions? _options;
 
     // Initial values
     private readonly int? _limit;
     private readonly string _after;
 
     public AsyncFineTuningJobCollectionResult(FineTuningClient fineTuningClient,
-        ClientPipeline pipeline, RequestOptions options,
+        ClientPipeline pipeline, RequestOptions? options,
         int? limit, string after)
+        : base(options?.CancellationToken ?? CancellationToken.None)
     {
         _fineTuningClient = fineTuningClient;
         _pipeline = pipeline;
@@ -73,7 +75,7 @@ internal class AsyncFineTuningJobCollectionResult : AsyncCollectionResult
     public static bool HasNextPage(ClientResult result)
         => FineTuningJobCollectionResult.HasNextPage(result);
 
-    internal virtual async Task<ClientResult> GetJobsAsync(string? after, int? limit, RequestOptions options)
+    internal virtual async Task<ClientResult> GetJobsAsync(string? after, int? limit, RequestOptions? options)
     {
         using PipelineMessage message = _fineTuningClient.CreateGetPaginatedFineTuningJobsRequest(after, limit, options);
         return ClientResult.FromResponse(await _pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));

@@ -2,6 +2,7 @@
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 
 #nullable enable
@@ -12,15 +13,16 @@ internal class AsyncBatchCollectionResult : AsyncCollectionResult
 {
     private readonly BatchClient _batchClient;
     private readonly ClientPipeline _pipeline;
-    private readonly RequestOptions _options;
+    private readonly RequestOptions? _options;
 
     // Initial values
     private readonly int? _limit;
     private readonly string _after;
 
     public AsyncBatchCollectionResult(BatchClient batchClient,
-        ClientPipeline pipeline, RequestOptions options,
+        ClientPipeline pipeline, RequestOptions? options,
         int? limit, string after)
+        : base(options?.CancellationToken ?? CancellationToken.None)
     {
         _batchClient = batchClient;
         _pipeline = pipeline;
@@ -67,7 +69,7 @@ internal class AsyncBatchCollectionResult : AsyncCollectionResult
     public static bool HasNextPage(ClientResult result)
         => BatchCollectionResult.HasNextPage(result);
 
-    internal virtual async Task<ClientResult> GetBatchesAsync(string? after, int? limit, RequestOptions options)
+    internal virtual async Task<ClientResult> GetBatchesAsync(string? after, int? limit, RequestOptions? options)
     {
         using PipelineMessage message = _batchClient.CreateGetBatchesRequest(after, limit, options);
         return ClientResult.FromResponse(await _pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));

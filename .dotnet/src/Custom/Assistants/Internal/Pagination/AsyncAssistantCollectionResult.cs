@@ -2,6 +2,7 @@
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 
 #nullable enable
@@ -12,7 +13,7 @@ internal class AsyncAssistantCollectionResult : AsyncCollectionResult<Assistant>
 {
     private readonly AssistantClient _assistantClient;
     private readonly ClientPipeline _pipeline;
-    private readonly RequestOptions _options;
+    private readonly RequestOptions? _options;
 
     // Initial values
     private readonly int? _limit;
@@ -23,6 +24,7 @@ internal class AsyncAssistantCollectionResult : AsyncCollectionResult<Assistant>
     public AsyncAssistantCollectionResult(AssistantClient assistantClient,
         ClientPipeline pipeline, RequestOptions options,
         int? limit, string? order, string? after, string? before)
+        : base(options?.CancellationToken ?? CancellationToken.None)
     {
         _assistantClient = assistantClient;
         _pipeline = pipeline;
@@ -46,18 +48,13 @@ internal class AsyncAssistantCollectionResult : AsyncCollectionResult<Assistant>
         }
     }
 
-    protected async override IAsyncEnumerable<Assistant> GetValuesFromPageAsync(ClientResult page)
+    protected override IAsyncEnumerable<Assistant> GetValuesFromPageAsync(ClientResult page)
     {
         Argument.AssertNotNull(page, nameof(page));
 
         PipelineResponse response = page.GetRawResponse();
         InternalListAssistantsResponse list = ModelReaderWriter.Read<InternalListAssistantsResponse>(response.Content)!;
-        foreach (Assistant message in list.Data)
-        {
-            // TODO: Address this.
-            await Task.Delay(0);
-            yield return message;
-        }
+        return list.Data.ToAsyncEnumerable(CancellationToken);
     }
 
     public override ContinuationToken? GetContinuationToken(ClientResult page)
