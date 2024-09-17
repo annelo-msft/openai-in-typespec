@@ -53,7 +53,7 @@ public partial class VectorStoreClient
     /// <exception cref="ArgumentNullException"> The provided <paramref name="credential"/> was null. </exception>
     public VectorStoreClient(ApiKeyCredential credential, OpenAIClientOptions options = null)
         : this(
-              OpenAIClient.CreatePipeline(OpenAIClient.GetApiKey(credential, requireExplicitCredential: true), options),
+              OpenAIClient.CreatePipeline(credential, options),
               OpenAIClient.GetEndpoint(options),
               options)
     { }
@@ -65,7 +65,7 @@ public partial class VectorStoreClient
     /// <param name="credential"> The API key to authenticate with the service. </param>
     /// <param name="options"> The options to configure the client. </param>
     /// <exception cref="ArgumentNullException"> <paramref name="credential"/> is null. </exception>
-    public VectorStoreClient(ApiKeyCredential credential, OpenAIClientOptions options)
+    public VectorStoreClient(ApiKeyCredential credential, Uri endpoint, OpenAIClientOptions options)
     {
         Argument.AssertNotNull(credential, nameof(credential));
         options ??= new OpenAIClientOptions();
@@ -82,7 +82,7 @@ public partial class VectorStoreClient
     /// <param name="pipeline"> The HTTP pipeline to send and receive REST requests and responses. </param>
     /// <param name="options"> The options to configure the client. </param>
     /// <exception cref="ArgumentNullException"> <paramref name="pipeline"/> is null. </exception>
-    protected internal VectorStoreClient(ClientPipeline pipeline, OpenAIClientOptions options)
+    protected internal VectorStoreClient(ClientPipeline pipeline, Uri endpoint, OpenAIClientOptions options)
     {
         Argument.AssertNotNull(pipeline, nameof(pipeline));
         options ??= new OpenAIClientOptions();

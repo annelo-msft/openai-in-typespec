@@ -149,7 +149,7 @@ public partial class OpenAIClient
     /// </remarks>
     /// <returns> A new <see cref="BatchClient"/>. </returns>
     [Experimental("OPENAI001")]
-    public virtual BatchClient GetBatchClient() => new(_pipeline, _options);
+    public virtual BatchClient GetBatchClient() => new(_pipeline, _endpoint, _options);
 
     /// <summary>
     /// Gets a new instance of <see cref="ChatClient"/> that reuses the client configuration details provided to
@@ -194,7 +194,7 @@ public partial class OpenAIClient
     /// </remarks>
     /// <returns> A new <see cref="FineTuningClient"/>. </returns>
     [Experimental("OPENAI001")]
-    public virtual FineTuningClient GetFineTuningClient() => new(_pipeline, _options);
+    public virtual FineTuningClient GetFineTuningClient() => new(_pipeline, _endpoint, _options);
 
     /// <summary>
     /// Gets a new instance of <see cref="ImageClient"/> that reuses the client configuration details provided to
@@ -239,7 +239,7 @@ public partial class OpenAIClient
     /// </remarks>
     /// <returns> A new <see cref="ModelClient"/>. </returns>
     [Experimental("OPENAI001")]
-    public virtual VectorStoreClient GetVectorStoreClient() => new(_pipeline, _options);
+    public virtual VectorStoreClient GetVectorStoreClient() => new(_pipeline, _endpoint, _options);
 
     internal static ClientPipeline CreatePipeline(ApiKeyCredential credential, OpenAIClientOptions options)
     {

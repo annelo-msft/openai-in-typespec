@@ -47,11 +47,10 @@ public partial class FineTuningClient
     /// <exception cref="ArgumentNullException"> The provided <paramref name="credential"/> was null. </exception>
     public FineTuningClient(ApiKeyCredential credential, OpenAIClientOptions options = null)
         : this(
-              OpenAIClient.CreatePipeline(OpenAIClient.GetApiKey(credential, requireExplicitCredential: true), options),
+              OpenAIClient.CreatePipeline(credential, options),
               OpenAIClient.GetEndpoint(options),
               options)
-    { }
-
+    {
         _pipeline = OpenAIClient.CreatePipeline(credential, options);
         _endpoint = OpenAIClient.GetEndpoint(options);
     }
@@ -64,7 +63,7 @@ public partial class FineTuningClient
     /// <param name="pipeline"> The HTTP pipeline to send and receive REST requests and responses. </param>
     /// <param name="options"> The options to configure the client. </param>
     /// <exception cref="ArgumentNullException"> <paramref name="pipeline"/> is null. </exception>
-    protected internal FineTuningClient(ClientPipeline pipeline, OpenAIClientOptions options)
+    protected internal FineTuningClient(ClientPipeline pipeline, Uri endpoint, OpenAIClientOptions options)
     {
         Argument.AssertNotNull(pipeline, nameof(pipeline));
         options ??= new OpenAIClientOptions();
