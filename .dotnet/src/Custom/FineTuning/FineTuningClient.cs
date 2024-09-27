@@ -2,6 +2,7 @@ using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Diagnostics.CodeAnalysis;
+using System.Threading;
 
 namespace OpenAI.FineTuning;
 
@@ -64,6 +65,12 @@ public partial class FineTuningClient
 
         _pipeline = OpenAIClient.CreatePipeline(credential, options);
         _endpoint = OpenAIClient.GetEndpoint(options);
+    }
+
+
+    public virtual CollectionResult<FineTuningJobOperation> GetJobs(CancellationToken cancellationToken = default)
+    {
+
     }
 
     // CUSTOM:
